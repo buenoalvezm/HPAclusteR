@@ -1,0 +1,31 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# hpaclusteR
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of hpaclusteR is to ...
+
+## Installation
+
+You can install the development version of hpaclusteR from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("buenoalvezm/hpaclusteR")
+```
+´
