@@ -146,3 +146,43 @@ cluster_genes <-
       id = paste(id, method, as.character(k))
     ))
   }
+
+#
+# run_gene_clusters <- function(genes,
+#                           neighbors,
+#                           clustering_method = "louvain",
+#                           counts = counts,
+#                           k = 10,
+#                           resolution = 1,
+#                           seed = seed) {
+#   require(Seurat)
+#
+#   if (clustering_method == "louvain") {
+#     alg = 1
+#   } else if (clustering_method == "leiden") {
+#     alg = 4
+#   }
+#
+#   suppressWarnings(
+#     {
+#       empty_matrix <- matrix(0, nrow = length(adata_t$obs_names()), ncol = length(adata_t$obs_names()),
+#                              dimnames = list(adata_t$obs_names(), adata_t$obs_names()))
+#       louv <-
+#         CreateSeuratObject(assay = "Exp",
+#                            counts = empty_matrix)
+#
+#       # Create the Seurat object with the correct structure
+#       louv@graphs$Exp_snn <- neighbors$snn
+#
+#       louv <- FindClusters(louv, graph.name = "Exp_snn", resolution = resolution, algorithm = alg,
+#                            random.seed = seed, verbose = F)
+#     }
+#   )
+#
+#   col <- paste("Exp_snn_res.",resolution,sep="")
+#   res <- as.numeric(as.character(louv@meta.data[,col]))
+#   #k <- tail(sort(as.numeric(as.character(louv@meta.data[,col]))), n=1)
+#   res <- data.frame(gene = genes, cluster = res)
+#   return(res)
+# }
+#
