@@ -1,10 +1,12 @@
-Package: hpaclusteR
-Title: clustering pipeline for HPA data
+Package: HPAclusteR
+Title: Clustering pipeline for HPA data
 Version: 0.0.0.9000
 Authors@R: 
     person("María", "Bueno Álvez", , "maria.bueno@scilifelab.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-2669-7796"))
-Description: provides functions to generate gene clusters from RNA data.
+    person("Konstantinos", "Antonopoulos", , "k.antono@outlook.com", role = c("aut"), 
+           comment = c(ORCID = "0000-0003-2781-3872"))
+Description: Provides functions to generate gene clusters from RNA data.
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
