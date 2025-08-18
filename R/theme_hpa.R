@@ -5,18 +5,16 @@
 #'
 #' @examples
 #' library(ggplot2)
-#' ggplot(mpg, aes(displ, hwy)) +
-#'   geom_point() +
+#' ggplot2::ggplot(mpg, aes(displ, hwy)) +
+#'   ggplot2::geom_point() +
 #'   theme_cluster()
-#'
-theme_cluster <-
-  function() {
-    theme(
-      panel.background = element_rect(fill = NA, colour = NA),
-      plot.background = element_rect(fill = NA, color = NA),
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank(),
-      panel.border = element_blank(),
-      axis.line = element_line(colour = "black", size = 0.5)
-    )
-  }
+theme_cluster <- function() {
+  ggplot2::theme(
+    panel.background = ggplot2::element_rect(fill = NA, colour = NA),
+    plot.background = ggplot2::element_rect(fill = NA, colour = NA),
+    panel.grid.major = ggplot2::element_blank(),
+    panel.grid.minor = ggplot2::element_blank(),
+    panel.border = ggplot2::element_blank(),
+    axis.line = ggplot2::element_line(colour = "black", size = 0.5)
+  )
+}
