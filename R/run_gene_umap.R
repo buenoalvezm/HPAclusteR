@@ -1,12 +1,14 @@
 run_gene_umap <- function(adata_t, seed = 42) {
   set.seed(seed)
   if (length(adata_t$obs_names()) > 10000) {
-    n_epochs = 200
-  } else{
-    n_epochs = 500
+    n_epochs <- 200
+  } else {
+    n_epochs <- 500
   }
-  adata_t$obsm$X_umap_raw  <-
-    adata_t$uns$neighbors$snn %>% RunUMAP(umap.method = "umap-learn", n.epochs = n_epochs) %>%  {
+  adata_t$obsm$X_umap_raw <-
+    adata_t$uns$neighbors$snn %>%
+    RunUMAP(umap.method = "umap-learn", n.epochs = n_epochs) %>%
+    {
       .@cell.embeddings
     }
 
@@ -18,7 +20,9 @@ run_gene_umap <- function(adata_t, seed = 42) {
     group_by(UMAP) %>%
     mutate(UMAP_value = UMAP_value - mean(range(UMAP_value))) %>%
     ungroup() %>%
-    spread(UMAP, UMAP_value)  %>% column_to_rownames('gene') %>% as.matrix()
+    spread(UMAP, UMAP_value) %>%
+    column_to_rownames("gene") %>%
+    as.matrix()
 
   adata_t$obsm$X_umap <- adata_t$obsm$X_umap_scaled
 }

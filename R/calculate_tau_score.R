@@ -11,9 +11,11 @@ calculate_tau_score_ <- function(X, gene_col) {
 
   # Pivot the data to long format
   long_data <- X %>%
-    pivot_longer(cols = -{{ gene_col }},
-                 names_to = "tissue",
-                 values_to = "expression") %>%
+    pivot_longer(
+      cols = -{{ gene_col }},
+      names_to = "tissue",
+      values_to = "expression"
+    ) %>%
     rename(gene = {{ gene_col }})
 
   # Calculate Tau score per gene
@@ -36,7 +38,7 @@ calculate_tau_score_ <- function(X, gene_col) {
           }
         }
       },
-      .groups = 'drop'
+      .groups = "drop"
     )
 
   return(tau_scores)
