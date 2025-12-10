@@ -24,8 +24,13 @@ hc_pca(
 \item{layer}{Optional layer name within the AnnDatR object to use for PCA. If NULL, the main data matrix is used (default is NULL).}
 }
 \value{
-A summary of the PCA results is printed, and the PCA object and scores are stored within the AnnDatR object.
+PCA object and scores are stored within the AnnDatR object.
 }
 \description{
 \code{hc_pca()} performs Principal Component Analysis (PCA) on the data contained within an AnnDatR object.
+}
+\examples{
+# Run PCA on an AnnDatR object
+adata_pca <- hc_pca(adata_t, components = 40)
+adata_pca$uns$pca
 }
