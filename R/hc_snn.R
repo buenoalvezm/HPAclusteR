@@ -1,6 +1,6 @@
 #' Compute Shared Nearest Neighbors (SNN) Graph
 #'
-#' `hc_do_snn()` computes a Shared Nearest Neighbors (SNN) graph from the distance matrix stored in the AnnDatR object.
+#' `hc_snn()` computes a Shared Nearest Neighbors (SNN) graph from the distance matrix stored in the AnnDatR object.
 #'
 #' @param AnnDatR An AnnDatR object containing the data with distance matrix results.
 #' @param neighbors Number of nearest neighbors to consider (default is 20).
@@ -13,11 +13,11 @@
 #' @export
 #' @examples
 #' # Compute SNN graph on an AnnDatR object after distance calculation
-#' adata_pca <- hc_do_pca(adata_t, components = 40)
-#' adata_dist <- hc_do_distance(adata_pca, components = 20)
-#' adata_snn <- hc_do_snn(adata_dist, neighbors = 15)
+#' adata_pca <- hc_pca(adata_t, components = 40)
+#' adata_dist <- hc_distance(adata_pca, components = 20)
+#' adata_snn <- hc_snn(adata_dist, neighbors = 15)
 #' adata_snn$uns$neighbors$snn
-hc_do_snn <- function(
+hc_snn <- function(
   AnnDatR,
   neighbors = 20,
   prune = 1 / 15,
@@ -26,7 +26,7 @@ hc_do_snn <- function(
 ) {
   if (is.null(AnnDatR[["uns"]][["distance"]])) {
     stop(
-      "AnnDatR$uns$distance not found. Call `hc_do_distance()` before `hc_do_snn()`."
+      "AnnDatR$uns$distance not found. Call `hc_distance()` before `hc_snn()`."
     )
   }
   dist_results <- AnnDatR[["uns"]][["distance"]]

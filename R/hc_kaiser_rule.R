@@ -1,6 +1,6 @@
 #' Determine number of components using Kaiser's rule
 #'
-#' `hc_do_kaisers_rule()` determines the number of principal components to retain based on Kaiser's rule, which suggests keeping components with eigenvalues greater than 1. If the cumulative explained variance at this point is less than 80%, it can optionally suggest an alternative number of components that achieves at least 80% explained variance.
+#' `hc_kaisers_rule()` determines the number of principal components to retain based on Kaiser's rule, which suggests keeping components with eigenvalues greater than 1. If the cumulative explained variance at this point is less than 80%, it can optionally suggest an alternative number of components that achieves at least 80% explained variance.
 #'
 #' @param AnnDatR An AnnDatR object containing the data with PCA results.
 #' @param with_alternative Logical indicating whether to suggest an alternative number of components if the explained variance at Kaiser's rule is below 80% (default is TRUE).
@@ -10,13 +10,13 @@
 #' @export
 #' @examples
 #' # Determine number of components using Kaiser's rule
-#' adata_pca <- hc_do_pca(adata_t, components = 40)
-#' n_components <- hc_do_kaisers_rule(adata_pca)
+#' adata_pca <- hc_pca(adata_t, components = 40)
+#' n_components <- hc_kaisers_rule(adata_pca)
 #' print(n_components)
-hc_do_kaisers_rule <- function(AnnDatR, with_alternative = TRUE) {
+hc_kaisers_rule <- function(AnnDatR, with_alternative = TRUE) {
   if (is.null(AnnDatR[["uns"]][["pca"]])) {
     stop(
-      "AnnDatR$uns$pca not found. Call `hc_do_pca()` before `hc_do_distance()`."
+      "AnnDatR$uns$pca not found. Call `hc_pca()` before `hc_kaisers_rule()`."
     )
   }
   pca_results <- AnnDatR[["uns"]][["pca"]]

@@ -5,7 +5,7 @@
 #'
 #' @returns Scaled data matrix
 #' @keywords internal
-scale_data <- function(data, method = 'sample') {
+hc_scale <- function(data, method = 'sample') {
   if (method == 'gene') {
     scaled_data <- data |>
       t() |>

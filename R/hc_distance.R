@@ -1,6 +1,6 @@
 #' Compute distance matrix from PCA scores
 #'
-#' `hc_do_distance()` computes a distance matrix based on PCA scores stored in the AnnDatR object.
+#' `hc_distance()` computes a distance matrix based on PCA scores stored in the AnnDatR object.
 #'
 #' @param AnnDatR An AnnDatR object containing the data with PCA results.
 #' @param components Number of principal components to be used. If NULL, it will be set to the first component with over 80% explained variance.
@@ -11,17 +11,17 @@
 #' @export
 #' @examples
 #' # Compute distance matrix on an AnnDatR object after PCA
-#' adata_pca <- hc_do_pca(adata_t, components = 40)
-#' adata_dist <- hc_do_distance(adata_pca, components = 20)
+#' adata_pca <- hc_pca(adata_t, components = 40)
+#' adata_dist <- hc_distance(adata_pca, components = 20)
 #' head(adata_dist$uns$distance)
-hc_do_distance <- function(
+hc_distance <- function(
   AnnDatR,
   components = NULL,
   method = "spearman"
 ) {
   if (is.null(AnnDatR[["uns"]][["pca"]])) {
     stop(
-      "AnnDatR$uns$pca not found. Call `hc_do_pca()` before `hc_do_distance()`."
+      "AnnDatR$uns$pca not found. Call `hc_pca()` before `hc_distance()`."
     )
   }
   pca_results <- AnnDatR[["uns"]][["pca"]]
