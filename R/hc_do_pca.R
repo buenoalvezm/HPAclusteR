@@ -67,8 +67,10 @@ hc_do_pca <- function(
   pca_results <- pcaMethods::pca(scaled_data, nPcs = components)
 
   # Store the PCA results in AnnDatR
-  AnnDatR$uns[['pca']] <- pca_results
-  AnnDatR$obsm[[paste0("X_", "pca")]] <- pcaMethods::scores(AnnDatR$uns$pca)
+  AnnDatR[["uns"]][['pca']] <- pca_results
+  AnnDatR[["obsm"]][[paste0("X_", "pca")]] <- pcaMethods::scores(AnnDatR[[
+    "uns"
+  ]][['pca']])
 
   return(AnnDatR)
 }
