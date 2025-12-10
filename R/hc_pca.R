@@ -66,7 +66,7 @@ hc_pca <- function(
   }
 
   # Scale the data using the scaling function
-  scaled_data <- scale_data(transformed_data, method = scale_by)
+  scaled_data <- hc_scale(transformed_data, method = scale_by)
 
   # Perform PCA
   pca_results <- pcaMethods::pca(scaled_data, nPcs = components)
