@@ -2,13 +2,24 @@
 % Please edit documentation in R/hc_do_kaiser_rule.R
 \name{hc_do_kaisers_rule}
 \alias{hc_do_kaisers_rule}
-\title{Title}
+\title{Determine number of components using Kaiser's rule}
 \usage{
-hc_do_kaisers_rule(pca_results, with_alternative = TRUE)
+hc_do_kaisers_rule(AnnDatR, with_alternative = TRUE)
 }
 \arguments{
-\item{with_alternative}{}
+\item{AnnDatR}{An AnnDatR object containing the data with PCA results.}
+
+\item{with_alternative}{Logical indicating whether to suggest an alternative number of components if the explained variance at Kaiser's rule is below 80\% (default is TRUE).}
+}
+\value{
+Number of principal components to retain based on Kaiser's rule.
 }
 \description{
-Title
+\code{hc_do_kaisers_rule()} determines the number of principal components to retain based on Kaiser's rule, which suggests keeping components with eigenvalues greater than 1. If the cumulative explained variance at this point is less than 80\%, it can optionally suggest an alternative number of components that achieves at least 80\% explained variance.
+}
+\examples{
+# Determine number of components using Kaiser's rule
+adata_pca <- hc_do_pca(adata_t, components = 40)
+n_components <- hc_do_kaisers_rule(adata_pca)
+print(n_components)
 }

@@ -32,5 +32,10 @@ PCA object and scores are stored within the AnnDatR object.
 \examples{
 # Run PCA on an AnnDatR object
 adata_pca <- hc_do_pca(adata_t, components = 40)
+
+# PCA results
+adata_pca$obsm$X_pca
+
+# Explained variance
 adata_pca$uns$pca
 }
