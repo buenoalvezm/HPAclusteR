@@ -1,6 +1,6 @@
 #' Perform PCA on AnnDatR object
 #'
-#' `hc_pca()` performs Principal Component Analysis (PCA) on the data contained within an AnnDatR object.
+#' `hc_do_pca()` performs Principal Component Analysis (PCA) on the data contained within an AnnDatR object.
 #'
 #' @param AnnDatR An AnnDatR object containing the data to perform PCA on.
 #' @param components Number of principal components to compute (default is 50).
@@ -13,9 +13,9 @@
 #' @export
 #' @examples
 #' # Run PCA on an AnnDatR object
-#' adata_pca <- hc_pca(adata_t, components = 40)
+#' adata_pca <- hc_do_pca(adata_t, components = 40)
 #' adata_pca$uns$pca
-hc_pca <- function(
+hc_do_pca <- function(
   AnnDatR,
   components = 50,
   transform = "log1p",
