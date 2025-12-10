@@ -3,3 +3,4 @@
 export(hc_do_distance)
 export(hc_do_kaisers_rule)
 export(hc_do_pca)
+export(hc_do_snn)
