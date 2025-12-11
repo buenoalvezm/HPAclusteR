@@ -13,13 +13,13 @@
 #' @export
 #' @examples
 #' # Run PCA on an AnnDatR object
-#' adata_pca <- hc_pca(adata_t, components = 40)
+#' adata_res <- hc_pca(adata_t, components = 40)
 #'
 #' # PCA results
-#' adata_pca$obsm$X_pca
+#' adata_res$obsm$X_pca
 #'
 #' # Explained variance
-#' adata_pca$uns$pca
+#' adata_res$uns$pca
 hc_pca <- function(
   AnnDatR,
   components = 50,

@@ -31,8 +31,8 @@ SNN graph stored within the AnnDatR object.
 }
 \examples{
 # Compute SNN graph on an AnnDatR object after distance calculation
-adata_pca <- hc_pca(adata_t, components = 40)
-adata_dist <- hc_distance(adata_pca, components = 20)
-adata_snn <- hc_snn(adata_dist, neighbors = 15)
-adata_snn$uns$neighbors$snn
+adata_res <- hc_pca(adata_t, components = 40)
+adata_res <- hc_distance(adata_res, components = 20)
+adata_res <- hc_snn(adata_res, neighbors = 15)
+adata_res$uns$neighbors$snn
 }

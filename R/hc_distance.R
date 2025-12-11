@@ -11,9 +11,9 @@
 #' @export
 #' @examples
 #' # Compute distance matrix on an AnnDatR object after PCA
-#' adata_pca <- hc_pca(adata_t, components = 40)
-#' adata_dist <- hc_distance(adata_pca, components = 20)
-#' head(adata_dist$uns$distance)
+#' adata_res <- hc_pca(adata_t, components = 40)
+#' adata_res <- hc_distance(adata_res, components = 20)
+#' head(adata_res$uns$distance)
 hc_distance <- function(
   AnnDatR,
   components = NULL,

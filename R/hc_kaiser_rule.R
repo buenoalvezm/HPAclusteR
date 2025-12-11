@@ -10,8 +10,8 @@
 #' @export
 #' @examples
 #' # Determine number of components using Kaiser's rule
-#' adata_pca <- hc_pca(adata_t, components = 40)
-#' n_components <- hc_kaisers_rule(adata_pca)
+#' adata_res <- hc_pca(adata_t, components = 40)
+#' n_components <- hc_kaisers_rule(adata_res)
 #' print(n_components)
 hc_kaisers_rule <- function(AnnDatR, with_alternative = TRUE) {
   if (is.null(AnnDatR[["uns"]][["pca"]])) {

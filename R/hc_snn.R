@@ -13,10 +13,10 @@
 #' @export
 #' @examples
 #' # Compute SNN graph on an AnnDatR object after distance calculation
-#' adata_pca <- hc_pca(adata_t, components = 40)
-#' adata_dist <- hc_distance(adata_pca, components = 20)
-#' adata_snn <- hc_snn(adata_dist, neighbors = 15)
-#' adata_snn$uns$neighbors$snn
+#' adata_res <- hc_pca(adata_t, components = 40)
+#' adata_res <- hc_distance(adata_res, components = 20)
+#' adata_res <- hc_snn(adata_res, neighbors = 15)
+#' adata_res$uns$neighbors$snn
 hc_snn <- function(
   AnnDatR,
   neighbors = 20,
@@ -41,8 +41,7 @@ hc_snn <- function(
       nn.method = "annoy",
       annoy.metric = similarity,
       nn.eps = 0,
-      verbose = verbose,
-      force.recalc = FALSE
+      verbose = verbose
     )
 
   return(AnnDatR)
