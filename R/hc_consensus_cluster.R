@@ -57,6 +57,7 @@ cluster_genes <- function(
 #'
 #' @param all_clusterings Data frame containing clustering results from multiple runs
 #' @param n Number of clustering runs
+#' @param seed Random seed for consensus clustering
 #' @param verbose Logical indicating whether to print progress messages
 #'
 #' @returns Consensus clustering results
@@ -64,6 +65,7 @@ cluster_genes <- function(
 find_consensus <- function(
   all_clusterings,
   n,
+  seed = 42,
   verbose = TRUE
 ) {
   # Create ensemble of clusterings
@@ -86,7 +88,7 @@ find_consensus <- function(
     stats::median() |>
     floor()
 
-  set.seed(1)
+  set.seed(seed)
 
   # Compute consensus clustering
   cons_clustering <- clue::cl_consensus(
@@ -232,7 +234,8 @@ find_consensus <- function(
 #' @param AnnDatR An AnnDatR object containing the data with SNN graph.
 #' @param resolution A numeric vector of resolution parameters for clustering.
 #' @param method Clustering method to use: "louvain" (default) or "leiden".
-#' @param seeds Number of different random seeds to use for clustering (default is 100).
+#' @param n_seeds Number of different random seeds to use for clustering (default is 100).
+#' @param seed Random seed for reproducibility (default is 42).
 #' @param verbose Logical indicating whether to print progress messages (default is TRUE).
 #'
 #' @returns Consensus clustering results stored within the AnnDatR object.
@@ -250,7 +253,8 @@ hc_consensus_cluster <- function(
   AnnDatR,
   resolution,
   method = "louvain",
-  seeds = 100,
+  n_seeds = 100,
+  seed = 42,
   verbose = TRUE
 ) {
   if (is.null(AnnDatR[["uns"]][["neighbors"]])) {
@@ -258,7 +262,6 @@ hc_consensus_cluster <- function(
       "AnnDatR$uns$neighbors not found. Call `hc_snn()` before `hc_consensus_cluster()`."
     )
   }
-  n_seeds <- seeds
   seeds = 1:n_seeds
 
   cluster_data <-
@@ -300,6 +303,7 @@ hc_consensus_cluster <- function(
   cluster_consensus <- find_consensus(
     cluster_data,
     n = n_seeds,
+    seed = seed,
     verbose = verbose
   )
 

@@ -8,7 +8,8 @@ hc_consensus_cluster(
   AnnDatR,
   resolution,
   method = "louvain",
-  seeds = 100,
+  n_seeds = 100,
+  seed = 42,
   verbose = TRUE
 )
 }
@@ -19,7 +20,9 @@ hc_consensus_cluster(
 
 \item{method}{Clustering method to use: "louvain" (default) or "leiden".}
 
-\item{seeds}{Number of different random seeds to use for clustering (default is 100).}
+\item{n_seeds}{Number of different random seeds to use for clustering (default is 100).}
+
+\item{seed}{Random seed for reproducibility (default is 42).}
 
 \item{verbose}{Logical indicating whether to print progress messages (default is TRUE).}
 }

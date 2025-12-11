@@ -4,12 +4,14 @@
 \alias{find_consensus}
 \title{Finds consensus clustering from multiple clusterings}
 \usage{
-find_consensus(all_clusterings, n, verbose = TRUE)
+find_consensus(all_clusterings, n, seed = 42, verbose = TRUE)
 }
 \arguments{
 \item{all_clusterings}{Data frame containing clustering results from multiple runs}
 
 \item{n}{Number of clustering runs}
+
+\item{seed}{Random seed for consensus clustering}
 
 \item{verbose}{Logical indicating whether to print progress messages}
 }
