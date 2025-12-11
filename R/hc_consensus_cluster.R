@@ -242,7 +242,7 @@ find_consensus <- function(
 #'
 #' @export
 #' @examples
-#' #' # Perform consensus clustering on an AnnDatR object after SNN graph computation
+#' # Perform consensus clustering on an AnnDatR object after SNN graph computation
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
@@ -330,7 +330,7 @@ hc_consensus_cluster <- function(
       AnnDatR[["uns"]][[
         "consensus_clustering"
       ]],
-      by = dplyr::join_by(!!AnnDatR[["obs_names_col"]] == 'gene')
+      by = dplyr::join_by(!!AnnDatR[["obs_names_col"]] == "gene")
     )
 
   names <- AnnDatR[["obs"]][["cluster"]] |>
@@ -360,10 +360,10 @@ hc_consensus_cluster <- function(
   )]
 
   cluster_colors <- as.data.frame(cluster_colors, (names)) |>
-    tibble::rownames_to_column('cluster')
+    tibble::rownames_to_column("cluster")
 
   AnnDatR[["obs"]] <- AnnDatR[["obs"]] |>
-    dplyr::left_join(cluster_colors, by = 'cluster')
+    dplyr::left_join(cluster_colors, by = "cluster")
 
   return(AnnDatR)
 }

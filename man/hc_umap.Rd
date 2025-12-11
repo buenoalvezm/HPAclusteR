@@ -4,7 +4,7 @@
 \alias{hc_umap}
 \title{Create UMAP embeddings from SNN graph}
 \usage{
-hc_umap(AnnDatR, n_epochs = NULL, seed = 42)
+hc_umap(AnnDatR, n_epochs = NULL, seed = 42, verbose = TRUE)
 }
 \arguments{
 \item{AnnDatR}{An AnnDatR object containing the data with SNN graph results.}
@@ -12,6 +12,8 @@ hc_umap(AnnDatR, n_epochs = NULL, seed = 42)
 \item{n_epochs}{Number of epochs for UMAP optimization. If NULL, it will be set to 200 for datasets with more than 10,000 cells and 500 otherwise (default is NULL).}
 
 \item{seed}{Random seed for reproducibility (default is 42).}
+
+\item{verbose}{Logical indicating whether to print progress messages (default is TRUE).}
 }
 \value{
 UMAP embeddings stored within the AnnDatR object.
@@ -24,6 +26,6 @@ UMAP embeddings stored within the AnnDatR object.
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-adata_res <- hc_umap(adata_res, n_epochs = 300)
+adata_res <- hc_umap(adata_res)
 head(adata_res$obsm$X_umap)
 }

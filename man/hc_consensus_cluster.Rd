@@ -33,7 +33,7 @@ Consensus clustering results stored within the AnnDatR object.
 Clusters genes using multiple runs of a clustering algorithm with different seeds and resolutions, then derives a consensus clustering.
 }
 \examples{
-#' # Perform consensus clustering on an AnnDatR object after SNN graph computation
+# Perform consensus clustering on an AnnDatR object after SNN graph computation
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)

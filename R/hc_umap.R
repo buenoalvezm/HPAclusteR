@@ -5,6 +5,7 @@
 #' @param AnnDatR An AnnDatR object containing the data with SNN graph results.
 #' @param n_epochs Number of epochs for UMAP optimization. If NULL, it will be set to 200 for datasets with more than 10,000 cells and 500 otherwise (default is NULL).
 #' @param seed Random seed for reproducibility (default is 42).
+#' @param verbose Logical indicating whether to print progress messages (default is TRUE).
 #'
 #' @returns UMAP embeddings stored within the AnnDatR object.
 #'
@@ -14,9 +15,9 @@
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_umap(adata_res, n_epochs = 300)
+#' adata_res <- hc_umap(adata_res)
 #' head(adata_res$obsm$X_umap)
-hc_umap <- function(AnnDatR, n_epochs = NULL, seed = 42) {
+hc_umap <- function(AnnDatR, n_epochs = NULL, seed = 42, verbose = TRUE) {
   if (is.null(AnnDatR[["uns"]][["neighbors"]])) {
     stop(
       "AnnDatR$uns$neighbors not found. Call `hc_snn()` before `hc_umap()`."
@@ -47,7 +48,9 @@ hc_umap <- function(AnnDatR, n_epochs = NULL, seed = 42) {
     Seurat::RunUMAP(
       umap.method = "umap-learn",
       n.epochs = n_epochs,
-      seed.use = seed
+      seed.use = seed,
+      assay = "RNA",
+      verbose = verbose
     ) |>
     (\(x) x@cell.embeddings)()
 
@@ -81,6 +84,18 @@ hc_umap <- function(AnnDatR, n_epochs = NULL, seed = 42) {
     tidyr::spread(!!rlang::sym("UMAP"), !!rlang::sym("UMAP_value")) |>
     tibble::column_to_rownames("gene") |>
     as.matrix()
+
+  AnnDatR[["obs"]] <- AnnDatR[["obs"]] |>
+    dplyr::left_join(
+      AnnDatR[["obsm"]][["X_umap"]] |>
+        tibble::as_tibble() |>
+        (\(x) {
+          colnames(x) <- paste0("UMAP", 1:ncol(x))
+          x
+        })() |>
+        dplyr::mutate(ensembl_id = rownames(AnnDatR[["obsm"]][["X_umap"]])),
+      by = dplyr::join_by(!!rlang::sym("ensembl_id"))
+    )
 
   return(AnnDatR)
 }
