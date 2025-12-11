@@ -31,10 +31,10 @@ Clusters genes using multiple runs of a clustering algorithm with different seed
 }
 \examples{
 #' # Perform consensus clustering on an AnnDatR object after SNN graph computation
-adata_res <- hc_pca(adata_t, components = 40)
+adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-adata_res <- hc_consensus_cluster(adata_res, resolution = 6)
+adata_res <- hc_consensus_cluster(adata_res, resolution = 6.3)
 head(adata_res$uns$consensus_clustering)
 head(adata_res$obs)
 }
