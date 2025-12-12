@@ -25,6 +25,7 @@ hc_distance <- function(
     )
   }
   pca_results <- AnnDatR[["uns"]][["pca"]]
+  AnnDatR_out <- AnnDatR$clone(deep = TRUE)
 
   if (is.null(components)) {
     warning(
@@ -39,14 +40,14 @@ hc_distance <- function(
     components <- pca_results@nPcs
   }
 
-  if (is.null(AnnDatR[["uns"]][["distance"]])) {
-    AnnDatR[["uns"]][["distance"]] = list()
+  if (is.null(AnnDatR_out[["uns"]][["distance"]])) {
+    AnnDatR_out[["uns"]][["distance"]] = list()
   }
 
   distance <- pca_results@scores[, 1:components] |>
     factoextra::get_dist(method = method)
 
-  AnnDatR[["uns"]][["distance"]] <- distance
+  AnnDatR_out[["uns"]][["distance"]] <- distance
 
-  return(AnnDatR)
+  return(AnnDatR_out)
 }

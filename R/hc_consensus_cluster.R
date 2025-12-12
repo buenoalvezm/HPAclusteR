@@ -308,32 +308,33 @@ hc_consensus_cluster <- function(
   )
 
   # Store results in AnnDatR
-  AnnDatR[["uns"]][["cluster_data"]] <- cluster_data
+  AnnDatR_out <- AnnDatR$clone(deep = TRUE)
+  AnnDatR_out[["uns"]][["cluster_data"]] <- cluster_data
 
-  AnnDatR[["uns"]][["mapping_table"]] <-
+  AnnDatR_out[["uns"]][["mapping_table"]] <-
     cluster_consensus[["consensus_clustering"]] |>
     dplyr::select(dplyr::any_of(c("cluster", "cons_cluster"))) |>
     dplyr::distinct() |>
     dplyr::arrange(as.numeric(!!rlang::sym("cluster")))
 
-  AnnDatR[["uns"]][[
+  AnnDatR_out[["uns"]][[
     "consensus_clustering"
   ]] <- cluster_consensus[["consensus_clustering"]] |>
     dplyr::select(-dplyr::any_of(c("cons_cluster")))
-  AnnDatR[["uns"]][[
+  AnnDatR_out[["uns"]][[
     "membership_matrix"
   ]] <- cluster_consensus[["membership_matrix"]] |>
     dplyr::select(-dplyr::any_of(c("cons_cluster")))
 
-  AnnDatR[["obs"]] <- AnnDatR[["obs"]] |>
+  AnnDatR_out[["obs"]] <- AnnDatR_out[["obs"]] |>
     dplyr::left_join(
-      AnnDatR[["uns"]][[
+      AnnDatR_out[["uns"]][[
         "consensus_clustering"
       ]],
-      by = dplyr::join_by(!!AnnDatR[["obs_names_col"]] == "gene")
+      by = dplyr::join_by(!!AnnDatR_out[["obs_names_col"]] == "gene")
     )
 
-  names <- AnnDatR[["obs"]][["cluster"]] |>
+  names <- AnnDatR_out[["obs"]][["cluster"]] |>
     unique() |>
     as.double() |>
     sort() |>
@@ -362,8 +363,8 @@ hc_consensus_cluster <- function(
   cluster_colors <- as.data.frame(cluster_colors, (names)) |>
     tibble::rownames_to_column("cluster")
 
-  AnnDatR[["obs"]] <- AnnDatR[["obs"]] |>
+  AnnDatR_out[["obs"]] <- AnnDatR_out[["obs"]] |>
     dplyr::left_join(cluster_colors, by = "cluster")
 
-  return(AnnDatR)
+  return(AnnDatR_out)
 }

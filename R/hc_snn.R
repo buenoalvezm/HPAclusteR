@@ -30,8 +30,9 @@ hc_snn <- function(
     )
   }
   dist_results <- AnnDatR[["uns"]][["distance"]]
+  AnnDatR_out <- AnnDatR$clone(deep = TRUE)
 
-  AnnDatR[["uns"]][["neighbors"]] <- dist_results |>
+  AnnDatR_out[["uns"]][["neighbors"]] <- dist_results |>
     as.matrix() |>
     stats::as.dist() |>
     Seurat::FindNeighbors(
@@ -44,5 +45,5 @@ hc_snn <- function(
       verbose = verbose
     )
 
-  return(AnnDatR)
+  return(AnnDatR_out)
 }

@@ -1,6 +1,6 @@
 Package: HPAclusteR
 Title: Clustering pipeline for HPA data
-Version: 0.1.0
+Version: 1.0.0
 Authors@R: 
     c(
       person("Konstantinos", "Antonopoulos", , "k.antono@outlook.com", 
@@ -27,7 +27,10 @@ Imports:
     tidyr,
     clue,
     rlang,
-    reticulate
+    reticulate,
+    fpc,
+    MASS,
+    concaveman
 Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3

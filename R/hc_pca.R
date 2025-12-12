@@ -43,6 +43,8 @@ hc_pca <- function(
     components <- dim(wide_data)[1]
   }
 
+  AnnDatR_out <- AnnDatR$clone(deep = TRUE)
+
   # Apply the desired transformation
   if (transform == "log1p") {
     transformed_data <- wide_data |>
@@ -72,10 +74,13 @@ hc_pca <- function(
   pca_results <- pcaMethods::pca(scaled_data, nPcs = components)
 
   # Store the PCA results in AnnDatR
-  AnnDatR[["uns"]][['pca']] <- pca_results
-  AnnDatR[["obsm"]][[paste0("X_", "pca")]] <- pcaMethods::scores(AnnDatR[[
+  AnnDatR_out[["uns"]][['pca']] <- pca_results
+  AnnDatR_out[["obsm"]][[paste0(
+    "X_",
+    "pca"
+  )]] <- pcaMethods::scores(AnnDatR_out[[
     "uns"
   ]][['pca']])
 
-  return(AnnDatR)
+  return(AnnDatR_out)
 }

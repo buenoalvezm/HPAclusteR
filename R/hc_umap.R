@@ -58,8 +58,10 @@ hc_umap <- function(AnnDatR, n_epochs = NULL, seed = 42, verbose = TRUE) {
     rownames(umap_raw_mat) <- rownames(AnnDatR[["uns"]][["neighbors"]][["snn"]])
   }
 
-  AnnDatR[["obsm"]][["X_umap_raw"]] <- umap_raw_mat
-  AnnDatR[["obsm"]][["X_umap"]] <-
+  AnnDatR_out <- AnnDatR$clone(deep = TRUE)
+
+  AnnDatR_out[["obsm"]][["X_umap_raw"]] <- umap_raw_mat
+  AnnDatR_out[["obsm"]][["X_umap"]] <-
     umap_raw_mat |>
     tibble::as_tibble(rownames = "gene") |>
     tidyr::gather(
@@ -85,17 +87,17 @@ hc_umap <- function(AnnDatR, n_epochs = NULL, seed = 42, verbose = TRUE) {
     tibble::column_to_rownames("gene") |>
     as.matrix()
 
-  AnnDatR[["obs"]] <- AnnDatR[["obs"]] |>
+  AnnDatR_out[["obs"]] <- AnnDatR_out[["obs"]] |>
     dplyr::left_join(
-      AnnDatR[["obsm"]][["X_umap"]] |>
+      AnnDatR_out[["obsm"]][["X_umap"]] |>
         tibble::as_tibble() |>
         (\(x) {
           colnames(x) <- paste0("UMAP", 1:ncol(x))
           x
         })() |>
-        dplyr::mutate(ensembl_id = rownames(AnnDatR[["obsm"]][["X_umap"]])),
+        dplyr::mutate(ensembl_id = rownames(AnnDatR_out[["obsm"]][["X_umap"]])),
       by = dplyr::join_by(!!rlang::sym("ensembl_id"))
     )
 
-  return(AnnDatR)
+  return(AnnDatR_out)
 }
