@@ -6,7 +6,7 @@
 \usage{
 hc_consensus_cluster(
   AnnDatR,
-  resolution,
+  resolution = 6,
   method = "louvain",
   n_seeds = 100,
   seed = 42,
@@ -16,7 +16,7 @@ hc_consensus_cluster(
 \arguments{
 \item{AnnDatR}{An AnnDatR object containing the data with SNN graph.}
 
-\item{resolution}{A numeric vector of resolution parameters for clustering.}
+\item{resolution}{Resolution parameter for clustering (default is 6).}
 
 \item{method}{Clustering method to use: "louvain" (default) or "leiden".}
 

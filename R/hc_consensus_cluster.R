@@ -232,7 +232,7 @@ find_consensus <- function(
 #' Clusters genes using multiple runs of a clustering algorithm with different seeds and resolutions, then derives a consensus clustering.
 #'
 #' @param AnnDatR An AnnDatR object containing the data with SNN graph.
-#' @param resolution A numeric vector of resolution parameters for clustering.
+#' @param resolution Resolution parameter for clustering (default is 6).
 #' @param method Clustering method to use: "louvain" (default) or "leiden".
 #' @param n_seeds Number of different random seeds to use for clustering (default is 100).
 #' @param seed Random seed for reproducibility (default is 42).
@@ -251,7 +251,7 @@ find_consensus <- function(
 #' head(adata_res$obs)
 hc_consensus_cluster <- function(
   AnnDatR,
-  resolution,
+  resolution = 6,
   method = "louvain",
   n_seeds = 100,
   seed = 42,
