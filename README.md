@@ -44,18 +44,13 @@ devtools::install_github("buenoalvezm/HPAclusteR")
 ## Usage
 
 ### 1. Pipeline for Gene Clustering
-The main pipeline for clustering genes involves the following steps:
+Start right away with the `hc_auto_cluster()` function, which performs the complete gene clustering pipeline on an `AnnDatR` object.
 
 ```r
 library(HPAclusteR)
 
 # Example input: AnnDatR object with transcriptomics data
-adata_res <- hc_pca(example_adata, components = 40)          # Perform PCA
-adata_res <- hc_distance(adata_res, components = 20)         # Calculate distances
-adata_res <- hc_snn(adata_res, neighbors = 15)               # Construct SNN graph
-adata_res <- hc_consensus_cluster(adata_res, resolution = 6.3) # Perform consensus clustering
-adata_res <- hc_umap(adata_res)                              # Generate UMAP embeddings
-adata_res <- hc_cluster_hulls(adata_res)                     # Create UMAP cluster hulls
+adata_res <- hc_auto_cluster(example_adata)
 ```
 
 ### 2. Visualization
