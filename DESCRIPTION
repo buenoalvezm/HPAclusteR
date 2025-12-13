@@ -30,7 +30,8 @@ Imports:
     reticulate,
     fpc,
     MASS,
-    concaveman
+    concaveman,
+    ggplot2
 Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
@@ -38,3 +39,4 @@ Depends:
     R (>= 4.5.0)
 LazyData: true
 LazyDataCompression: xz
+BugReports: https://github.com/buenoalvezm/HPAclusteR/issues
