@@ -11,7 +11,7 @@ Authors@R:
       person("Mathias", "Uhlen", , "mathias.uhlen@scilifelab.se", role = c("aut", "cph", "fnd"),
              comment = c(ORCID = "0000-0002-4858-8056"))
     )
-Description: Provides functions to generate gene clusters from RNA data.
+Description: Provides tools for gene clustering from transcriptomics data, including PCA, distance calculation, SNN graphs, consensus clustering, UMAP, visualization, and functional annotation. Designed for AnnDatR objects.
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
