@@ -2,6 +2,7 @@
 
 export(hc_auto_cluster)
 export(hc_cluster_hulls)
+export(hc_cluster_stability)
 export(hc_consensus_cluster)
 export(hc_distance)
 export(hc_kaisers_rule)
