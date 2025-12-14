@@ -1,0 +1,116 @@
+---
+title: "HPAclusteR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{HPAclusteR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Introduction
+
+`HPAclusteR` is an R package designed by the Human Protein Atlas to streamline the process of gene clustering from transcriptomics data. It provides a modular pipeline for performing PCA, calculating distances, constructing shared nearest neighbor (SNN) graphs, consensus clustering, UMAP, functional annotation, and different publication-ready visualizations. The package is designed to work with [AnnDatR objects](https://github.com/emiliosk/AnnDatR), making it easy to integrate into workflows for transcriptomics data analysis.
+
+>💡 This vignette demonstrates the step-by-step usage of the `HPAclusteR` pipeline. For users who prefer simplicity, the `hc_auto_cluster()` function can be used to run the entire pipeline in one call.
+
+## Getting Started
+
+To begin, load the `HPAclusteR` package:
+
+```{r setup}
+library(HPAclusteR)
+```
+
+We will use the built-in `example_adata` dataset for this vignette. This dataset is a toy example designed to demonstrate the functionality of the package.
+
+## Step 1: Principal Component Analysis (PCA)
+
+PCA is the first step in the pipeline, used to reduce the dimensionality of the data while retaining the most important features.
+
+```{r pca, message=FALSE, warnings=FALSE}
+adata_res <- hc_pca(example_adata, components = 40)
+head(adata_res$obsm$X_pca[, 1:5])  # PCA scores
+adata_res$uns$pca  # Explained variance
+```
+
+The PCA step reduces the dimensionality of the data to 40 components, which can be adjusted based on the dataset and analysis goals.
+
+## Step 2: Distance Calculation
+
+Next, we calculate the pairwise distances between samples using the PCA-reduced data. The `hc_distance()` function supports multiple distance metrics, such as "euclidean" and "spearman". We will use the number of components determined by Kaiser’s rule.
+
+```{r distance, message=FALSE, warnings=FALSE}
+adata_res <- hc_distance(
+  adata_res, 
+  components = hc_kaisers_rule(adata_res), 
+  method = "spearman"
+)
+head(adata_res$uns$distance)
+```
+
+## Step 3: Shared Nearest Neighbor (SNN) Graph Construction
+
+The SNN graph is constructed to identify clusters of similar samples. This step uses the distance matrix calculated in the previous step.
+
+```{r snn, message=FALSE, warnings=FALSE}
+adata_res <- hc_snn(adata_res, neighbors = 15, prune = 1 / 15)
+adata_res$uns$neighbors$snn
+```
+
+The `neighbors` parameter controls the number of nearest neighbors considered, while `prune` adjusts the sparsity of the graph.
+
+## Step 4: Consensus Clustering
+
+Consensus clustering is performed to identify robust clusters in the data. This step aggregates clustering results from multiple runs, in this case 100.
+
+```{r consensus, message=FALSE, warnings=FALSE}
+adata_res <- hc_consensus_cluster(
+  adata_res, 
+  resolution = 6, 
+  method = "louvain",
+  n_seeds = 100
+)
+
+head(adata_res$obs$cluster)
+```
+
+The `resolution` parameter controls the granularity of the clustering. Higher values result in more clusters.
+
+## Step 5: UMAP Visualization
+
+UMAP is used to visualize the clusters in a low-dimensional space. This step provides an intuitive way to explore the clustering results. It uses the constructed SNN graph.
+
+```{r umap, message=FALSE, warnings=FALSE}
+adata_res <- hc_umap(adata_res, verbose = FALSE)
+head(adata_res$obsm$X_umap)
+```
+
+## Step 6: Cluster Hulls (Optional)
+
+Cluster hulls are calculated to visualize the boundaries of each cluster in the UMAP plot.
+
+```{r hulls, message=FALSE, warnings=FALSE}
+adata_res <- hc_cluster_hulls(adata_res)
+head(adata_res$uns$UMAP_hulls$hulls)
+```
+
+## Step 7: Visualization
+
+Finally, we visualize the UMAP plot with clusters and hulls using the `hc_plot_umap()` function.
+
+```{r plot, message=FALSE, warnings=FALSE}
+hc_plot_umap(adata_res, plot = "both")
+```
+
+The `plot` argument can be set to `"points"`, `"hulls"`, or `"both"` to customize the visualization.
+
+## Conclusion
+
+Explore the package further to uncover the full potential of your transcriptomics data!

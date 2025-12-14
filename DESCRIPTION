@@ -1,22 +1,45 @@
 Package: HPAclusteR
 Title: Clustering pipeline for HPA data
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
-    person("María", "Bueno Álvez", , "maria.bueno@scilifelab.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-2669-7796"))
-    person("Konstantinos", "Antonopoulos", , "k.antono@outlook.com", role = c("aut"), 
-           comment = c(ORCID = "0000-0003-2781-3872"))
-Description: Provides functions to generate gene clusters from RNA data.
+    c(
+      person("Konstantinos", "Antonopoulos", , "k.antono@outlook.com", 
+             role = c("aut", "cre"), comment = c(ORCID = "0000-0003-2781-3872")),
+      person("Maria", "Bueno Alvez", , "maria.bueno@scilifelab.se", role = c("aut"),
+             comment = c(ORCID = "0000-0002-2669-7796")),
+      person("Emilio", "Skarwan", , "emilio.skarwan@scilifelab.se", role = c("aut")),
+      person("Mathias", "Uhlen", , "mathias.uhlen@scilifelab.se", role = c("aut", "cph", "fnd"),
+             comment = c(ORCID = "0000-0002-4858-8056"))
+    )
+Description: Provides tools for gene clustering from transcriptomics data, including PCA, distance calculation, SNN graphs, consensus clustering, UMAP, visualization, and functional annotation. Designed for AnnDatR objects.
 License: Apache License (>= 2)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports:
-    ggplot2
     dplyr,
-    tidyr,
     tibble,
-    factoextra
+    pcaMethods,
+    matrixStats,
+    factoextra,
+    Seurat,
+    stats,
+    tidyr,
+    clue,
+    rlang,
+    reticulate,
+    fpc,
+    MASS,
+    concaveman,
+    ggplot2
 Suggests:
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Depends: 
+    R (>= 4.5.0)
+LazyData: true
+LazyDataCompression: xz
+BugReports: https://github.com/buenoalvezm/HPAclusteR/issues
+VignetteBuilder: knitr

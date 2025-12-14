@@ -5,3 +5,8 @@
 .DS_Store
 .quarto
 R/temp/*
+code-maria/
+/.quarto/
+logo/
+docs
+inst/doc
