@@ -116,6 +116,7 @@ find_consensus <- function(
       current <- empty_clusters[i, ]
 
       probabilities <- cons_clustering$.Data[,] |>
+        as.data.frame() |>
         tibble::as_tibble(rownames = "gene") |>
         dplyr::filter(!!rlang::sym("gene") == current[["gene"]]) |>
         dplyr::select(-dplyr::any_of(c("gene"))) |>
