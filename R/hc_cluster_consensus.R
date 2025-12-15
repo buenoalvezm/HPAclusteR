@@ -112,38 +112,33 @@ find_consensus <- function(
     dplyr::mutate(cluster = as.numeric(!!rlang::sym("cluster")))
 
   if (dim(empty_clusters)[1] != 0) {
-    to_rename <- empty_clusters |>
-      dplyr::rowwise() |>
-      dplyr::mutate(
-        new_cluster_data = list({
-          # Extract the current row
-          current <- dplyr::cur_data()
+    to_rename <- lapply(seq_len(nrow(empty_clusters)), function(i) {
+      current <- empty_clusters[i, ]
 
-          # Calculate probabilities
-          probabilities <- cons_clustering$.Data[,] |>
-            as.data.frame() |>
-            tibble::as_tibble(rownames = "gene") |>
-            dplyr::filter(!!rlang::sym("gene") == current[["gene"]]) |>
-            dplyr::select(-dplyr::any_of(c("gene"))) |>
-            tidyr::gather(
-              !!rlang::sym("cluster"),
-              !!rlang::sym("probability")
-            ) |>
-            dplyr::arrange(-!!rlang::sym("probability")) |>
-            dplyr::mutate(
-              cluster = as.numeric(sub("V", "", !!rlang::sym("cluster")))
-            ) |>
-            dplyr::filter(!!rlang::sym("cluster") != current[["cluster"]])
+      probabilities <- cons_clustering$.Data[,] |>
+        tibble::as_tibble(rownames = "gene") |>
+        dplyr::filter(!!rlang::sym("gene") == current[["gene"]]) |>
+        dplyr::select(-dplyr::any_of(c("gene"))) |>
+        tidyr::gather(!!rlang::sym("cluster"), !!rlang::sym("probability")) |>
+        dplyr::arrange(-!!rlang::sym("probability")) |>
+        dplyr::mutate(
+          cluster = as.numeric(sub("V", "", !!rlang::sym("cluster")))
+        ) |>
+        dplyr::filter(!!rlang::sym("cluster") != current[["cluster"]])
 
-          # Return the new cluster assignment as a data frame
-          data.frame(
-            gene = current[["gene"]],
-            new_cluster = probabilities[[1, 1]]
-          )
-        })
-      ) |>
-      dplyr::ungroup() |>
-      tidyr::unnest(!!rlang::sym("new_cluster_data"))
+      if (nrow(probabilities) > 0) {
+        data.frame(
+          gene = current[["gene"]],
+          new_cluster = probabilities[[1, 1]]
+        )
+      } else {
+        data.frame(
+          gene = current[["gene"]],
+          new_cluster = NA
+        )
+      }
+    }) |>
+      dplyr::bind_rows()
 
     final_clustering_corrected <-
       final_clustering |>
