@@ -246,10 +246,10 @@ find_consensus <- function(
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_consensus_cluster(adata_res, resolution = 6.3)
+#' adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
 #' head(adata_res$uns$consensus_clustering)
 #' head(adata_res$obs)
-hc_consensus_cluster <- function(
+hc_cluster_consensus <- function(
   AnnDatR,
   resolution = 6,
   method = "louvain",
@@ -259,7 +259,7 @@ hc_consensus_cluster <- function(
 ) {
   if (is.null(AnnDatR[["uns"]][["neighbors"]])) {
     stop(
-      "AnnDatR$uns$neighbors not found. Call `hc_snn()` before `hc_consensus_cluster()`."
+      "AnnDatR$uns$neighbors not found. Call `hc_snn()` before `hc_cluster_consensus()`."
     )
   }
   seeds = 1:n_seeds

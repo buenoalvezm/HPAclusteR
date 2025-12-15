@@ -71,7 +71,7 @@ The `neighbors` parameter controls the number of nearest neighbors considered, w
 Consensus clustering is performed to identify robust clusters in the data. This step aggregates clustering results from multiple runs, in this case 100.
 
 ```{r consensus, message=FALSE, warnings=FALSE}
-adata_res <- hc_consensus_cluster(
+adata_res <- hc_cluster_consensus(
   adata_res, 
   resolution = 6, 
   method = "louvain",
