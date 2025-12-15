@@ -93,7 +93,6 @@ visualize_ari <- function(ARI_scores) {
 #' `hc_cluster_stability()` computes the Adjusted Rand Index (ARI) scores between clustering results obtained from multiple random seeds.
 #'
 #' @param AnnDatR AnnDatR An AnnDatR object containing clustering results.
-#' @param n_seeds Number of different random seeds to use for clustering (default is 100).
 #'
 #' @returns A tibble containing pairs of seeds and their corresponding ARI scores.
 #'
@@ -105,12 +104,14 @@ visualize_ari <- function(ARI_scores) {
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
 #' adata_res <- hc_consensus_cluster(adata_res, resolution = 6.3)
 #' hc_cluster_stability(adata_res)
-hc_cluster_stability <- function(AnnDatR, n_seeds = 100) {
+hc_cluster_stability <- function(AnnDatR) {
   if (is.null(AnnDatR[["uns"]][["cluster_data"]])) {
     stop(
       "AnnDatR$uns$cluster_data not found. Call `hc_consensus_cluster()` before `hc_cluster_stability()`."
     )
   }
+
+  n_seeds <- ncol(AnnDatR[["uns"]][["cluster_data"]]) - 2
 
   ARI_scores <- tidyr::expand_grid(
     seed1 = 1:n_seeds,

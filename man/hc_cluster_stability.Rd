@@ -4,12 +4,10 @@
 \alias{hc_cluster_stability}
 \title{Calculate ARI scores for multiple clustering seeds}
 \usage{
-hc_cluster_stability(AnnDatR, n_seeds = 100)
+hc_cluster_stability(AnnDatR)
 }
 \arguments{
 \item{AnnDatR}{AnnDatR An AnnDatR object containing clustering results.}
-
-\item{n_seeds}{Number of different random seeds to use for clustering (default is 100).}
 }
 \value{
 A tibble containing pairs of seeds and their corresponding ARI scores.

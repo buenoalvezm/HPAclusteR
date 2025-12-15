@@ -35,6 +35,13 @@ reference:
   - hc_cluster_hulls
 
 
+- title: Clustering Evaluation
+  desc: |
+    Functions for evaluating clustering results.
+  contents:
+  - hc_cluster_stability
+
+
 - title: Visualization
   desc: |
     Functions for visualizing clustering results.
