@@ -13,7 +13,7 @@
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_consensus_cluster(adata_res, resolution = 6.3)
+#' adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
 #' adata_res <- hc_umap(adata_res)
 #' adata_res <- hc_cluster_hulls(adata_res)
 #' hc_plot_umap(adata_res)
@@ -79,7 +79,8 @@ hc_plot_umap <- function(AnnDatR, plot = c("points", "hulls", "both")) {
             !!rlang::sym("sub_cluster"),
             !!rlang::sym("landmass")
           ),
-          fill = as.factor(!!rlang::sym("cluster"))
+          fill = as.factor(!!rlang::sym("cluster")),
+          alpha = 0.3
         ),
         show.legend = FALSE,
         color = "black"

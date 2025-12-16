@@ -22,7 +22,7 @@ A ggplot2 object representing the UMAP visualization.
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-adata_res <- hc_consensus_cluster(adata_res, resolution = 6.3)
+adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
 adata_res <- hc_umap(adata_res)
 adata_res <- hc_cluster_hulls(adata_res)
 hc_plot_umap(adata_res)

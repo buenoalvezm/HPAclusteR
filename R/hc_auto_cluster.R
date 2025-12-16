@@ -61,7 +61,7 @@ hc_auto_cluster <- function(
       similarity = snn_similarity,
       verbose = verbose
     ) |>
-    hc_consensus_cluster(
+    hc_cluster_consensus(
       resolution = cluster_resolution,
       method = cluster_method,
       verbose = verbose

@@ -30,9 +30,17 @@ reference:
   - hc_kaisers_rule
   - hc_distance
   - hc_snn
-  - hc_consensus_cluster
+  - hc_cluster_consensus
   - hc_umap
   - hc_cluster_hulls
+
+
+- title: Clustering Evaluation
+  desc: |
+    Functions for evaluating clustering results.
+  contents:
+  - hc_cluster_stability
+  - hc_cluster_compare
 
 
 - title: Visualization
