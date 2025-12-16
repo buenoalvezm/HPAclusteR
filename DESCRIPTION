@@ -31,13 +31,13 @@ Imports:
     fpc,
     MASS,
     concaveman,
-    ggplot2,
-    network,
-    GGally,
-    sna
+    ggplot2
 Suggests:
     knitr,
     rmarkdown,
+    network,
+    GGally,
+    sna,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Depends: 

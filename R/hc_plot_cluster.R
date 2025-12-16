@@ -132,6 +132,21 @@ visualize_comparison_heatmap <- function(summary_data) {
 #' @returns A network graph plot
 #' @keywords internal
 visualize_comparison_net <- function(matched_clusters) {
+  if (!requireNamespace("network", quietly = TRUE)) {
+    stop(
+      "The 'network' package is required for this function. Please install it using install.packages('network')."
+    )
+  }
+  if (!requireNamespace("GGally", quietly = TRUE)) {
+    stop(
+      "The 'GGally' package is required for this function. Please install it using install.packages('GGally')."
+    )
+  }
+  if (!requireNamespace("sna", quietly = TRUE)) {
+    stop(
+      "The 'sna' package is required for this function. Please install it using install.packages('sna')."
+    )
+  }
   set.seed(42)
 
   # Add prefixes to ensure unique node names
@@ -244,11 +259,6 @@ visualize_comparison_net <- function(matched_clusters) {
       )
     )
   )
-
-  if (!requireNamespace("sna", quietly = TRUE)) {
-    message("Package 'sna' not found. Installing now...")
-    install.packages("sna")
-  }
 
   network <- GGally::ggnet2(
     net,
