@@ -74,6 +74,21 @@ hc_cluster_hulls <-
     poly_smoothing = 1,
     relative_bandwidth = 1 / 200
   ) {
+    if (!requireNamespace("fpc", quietly = TRUE)) {
+      stop(
+        "The 'fpc' package is required for this function. Please install it using install.packages('fpc')."
+      )
+    }
+    if (!requireNamespace("MASS", quietly = TRUE)) {
+      stop(
+        "The 'MASS' package is required for this function. Please install it using install.packages('MASS')."
+      )
+    }
+    if (!requireNamespace("concaveman", quietly = TRUE)) {
+      stop(
+        "The 'concaveman' package is required for this function. Please install it using install.packages('concaveman')."
+      )
+    }
     if (
       is.null(AnnDatR[["obs"]][["UMAP1"]]) &&
         is.null(AnnDatR[["obs"]][["UMAP2"]])
