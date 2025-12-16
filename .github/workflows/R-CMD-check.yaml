@@ -38,6 +38,12 @@ jobs:
           r-version: ${{ matrix.config.r }}
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
+          
+      - name: Install all dependencies with pak
+        run: |
+          install.packages("pak")
+          pak::pkg_install(".", dependencies = TRUE)
+        shell: Rscript {0}
 
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
