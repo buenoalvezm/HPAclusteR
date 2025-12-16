@@ -92,12 +92,6 @@ hc_cluster_hulls <-
     element_id <- AnnDatR[["obs"]][["ensembl_id"]]
     cluster_membership <- AnnDatR[["obs"]][["cluster"]]
 
-    # require(tidyverse)
-    # require(magrittr)
-    # require(sf)
-    # require(sp)
-    # require(concaveman)
-
     # Combine input data
     cluster_data <-
       tibble::tibble(V1, V2, element_id, cluster = cluster_membership)

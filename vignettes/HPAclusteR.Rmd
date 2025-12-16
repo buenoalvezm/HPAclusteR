@@ -97,7 +97,7 @@ head(adata_res$obsm$X_umap)
 Cluster hulls are calculated to visualize the boundaries of each cluster in the UMAP plot.
 
 ```{r hulls, message=FALSE, warnings=FALSE}
-adata_res <- hc_cluster_hulls(adata_res)
+adata_res <- hc_cluster_hulls(adata_res, poly_smoothing = 4, relative_bandwidth = 1/40)
 head(adata_res$uns$UMAP_hulls$hulls)
 ```
 

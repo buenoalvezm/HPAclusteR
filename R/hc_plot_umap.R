@@ -79,7 +79,8 @@ hc_plot_umap <- function(AnnDatR, plot = c("points", "hulls", "both")) {
             !!rlang::sym("sub_cluster"),
             !!rlang::sym("landmass")
           ),
-          fill = as.factor(!!rlang::sym("cluster"))
+          fill = as.factor(!!rlang::sym("cluster")),
+          alpha = 0.3
         ),
         show.legend = FALSE,
         color = "black"
