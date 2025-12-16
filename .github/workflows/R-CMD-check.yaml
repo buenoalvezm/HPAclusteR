@@ -39,14 +39,6 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      - name: Install problematic packages manually (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          install.packages("pak")
-          pak::pkg_install(c("xfun", "emmeans"), ask = FALSE)
-        shell: Rscript {0}
-        continue-on-error: true
-
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
