@@ -39,15 +39,14 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::rcmdcheck
-          needs: check
-        continue-on-error: true
+      - name: Install problematic packages manually (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          options(timeout = 600, install.packages.check.source = "no")
+          install.packages(c("xfun", "emmeans"), type = "binary", repos = "https://cloud.r-project.org")
+        shell: Rscript {0}
         
-      - name: Retry dependency installation on failure
-        if: failure()
-        uses: r-lib/actions/setup-r-dependencies@v2
+      - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
