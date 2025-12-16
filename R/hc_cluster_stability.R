@@ -26,68 +26,6 @@ calculate_ari <- function(labels1, labels2) {
   return(ari)
 }
 
-#' Visualize ARI scores with histogram
-#'
-#' @param ARI_scores A tibble containing ARI scores
-#'
-#' @returns A list containing the histogram plot and ARI scores
-#' @keywords internal
-visualize_ari <- function(ARI_scores) {
-  ari_ranges <- tibble::tibble(
-    xmin = c(-1, 0, 0.4, 0.7),
-    xmax = c(0, 0.4, 0.7, 1),
-    fill = factor(
-      c("red", "yellow", "lightgreen", "green"),
-      levels = c("red", "yellow", "lightgreen", "green")
-    )
-  )
-
-  ari_hist <- ggplot2::ggplot(
-    ARI_scores,
-    ggplot2::aes(x = !!rlang::sym("ARI"))
-  ) +
-    ggplot2::geom_rect(
-      data = ari_ranges,
-      ggplot2::aes(
-        xmin = !!rlang::sym("xmin"),
-        xmax = !!rlang::sym("xmax"),
-        ymin = -Inf,
-        ymax = Inf,
-        fill = !!rlang::sym("fill")
-      ),
-      inherit.aes = FALSE,
-      alpha = 0.2
-    ) +
-    ggplot2::geom_histogram(
-      binwidth = 0.05,
-      color = "black",
-      fill = "white"
-    ) +
-    ggplot2::scale_fill_manual(
-      values = c(
-        "red" = "red",
-        "yellow" = "yellow",
-        "lightgreen" = "lightgreen",
-        "green" = "green"
-      ),
-      guide = "legend",
-      labels = c(
-        "Poor (< 0)",
-        "Weak (0-0.5)",
-        "Moderate (0.5-0.8)",
-        "Strong (> 0.8)"
-      )
-    ) +
-    ggplot2::labs(
-      x = "Adjusted Rand Index (ARI)",
-      y = "Count",
-      fill = "Stability Range"
-    ) +
-    theme_hc()
-
-  return(list(cluster_stability_hist = ari_hist, ari_scores = ARI_scores))
-}
-
 #' Calculate ARI scores for multiple clustering seeds
 #'
 #' `hc_cluster_stability()` computes the Adjusted Rand Index (ARI) scores between clustering results obtained from multiple random seeds.

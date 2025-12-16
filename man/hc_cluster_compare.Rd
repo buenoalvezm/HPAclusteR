@@ -4,29 +4,50 @@
 \alias{hc_cluster_compare}
 \title{Compare clusters using hypergeometric test}
 \usage{
-hc_cluster_compare(AnnDatR1, AnnDatR2)
+hc_cluster_compare(
+  AnnDatR_A,
+  AnnDatR_B,
+  graph_type = c("bipartite", "optimized")
+)
 }
 \arguments{
-\item{AnnDatR1}{First AnnDatR object}
+\item{AnnDatR_A}{First AnnDatR object}
 
-\item{AnnDatR2}{Second AnnDatR object}
+\item{AnnDatR_B}{Second AnnDatR object}
+
+\item{graph_type}{Type of graph to return: "bipartite" for simple overlap graph, "optimized" for optimized matching graph (default: "bipartite")}
 }
 \value{
-A tibble summarizing the pairwise cluster comparisons, including overlap, percentage overlap, p-values, and adjusted p-values.
+A list containing:
+\itemize{
+\item matches: A tibble of cluster comparisons with overlap statistics and p-values.
+\item heatmap: A ggplot2 heatmap visualizing cluster overlaps.
+\item match_score (if \code{graph_type} is "optimized"): A numeric score representing the total normalized overlap percentage.
+}
 }
 \description{
 \code{hc_cluster_compare()} compares clusters from two AnnDatR objects using a hypergeometric test to assess the significance of overlap between clusters.
 }
+\details{
+If \code{graph_type} is set to "optimized", the function will run a cluster matching algorithm to ensure no many-to-many matches between clusters, while still allowing one-to-many or many-to-one matches.
+The algorithm will:
+\enumerate{
+\item Filter significant matches based on adjusted p-value threshold (0.05)
+\item Sort matches by overlap size in descending order
+\item Iteratively add matches to the result set, ensuring no many-to-many matches occur.
+\item Calculate a match score representing the total normalized overlap percentage.
+}
+}
 \examples{
-# Run clustering 1
+# Run clustering A
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-adata_res_1 <- hc_cluster_consensus(adata_res, resolution = 6)
+adata_res_a <- hc_cluster_consensus(adata_res, resolution = 6)
 
-# Run clustering 2
-adata_res_2 <- hc_cluster_consensus(adata_res, resolution = 7)
+# Run clustering B
+adata_res_b <- hc_cluster_consensus(adata_res, resolution = 7)
 
 # Compare clusters between the two results
-hc_cluster_compare(adata_res_1, adata_res_2)
+hc_cluster_compare(adata_res_a, adata_res_b)
 }

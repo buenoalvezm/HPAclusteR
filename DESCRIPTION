@@ -31,7 +31,9 @@ Imports:
     fpc,
     MASS,
     concaveman,
-    ggplot2
+    ggplot2,
+    network,
+    GGally
 Suggests:
     knitr,
     rmarkdown,

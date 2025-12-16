@@ -40,6 +40,7 @@ reference:
     Functions for evaluating clustering results.
   contents:
   - hc_cluster_stability
+  - hc_cluster_compare
 
 
 - title: Visualization
