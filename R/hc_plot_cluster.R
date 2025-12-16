@@ -116,6 +116,7 @@ visualize_comparison_heatmap <- function(summary_data) {
     ) +
     theme_hc() +
     ggplot2::theme(
+      axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5),
       axis.line = ggplot2::element_blank(),
       axis.ticks = ggplot2::element_blank(),
       panel.grid.major = ggplot2::element_line(color = "lightgrey", size = 0.2)
