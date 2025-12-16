@@ -245,6 +245,11 @@ visualize_comparison_net <- function(matched_clusters) {
     )
   )
 
+  if (!requireNamespace("sna", quietly = TRUE)) {
+    message("Package 'sna' not found. Installing now...")
+    install.packages("sna")
+  }
+
   network <- GGally::ggnet2(
     net,
     color = "dataset",

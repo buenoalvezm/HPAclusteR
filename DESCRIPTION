@@ -33,7 +33,8 @@ Imports:
     concaveman,
     ggplot2,
     network,
-    GGally
+    GGally,
+    sna
 Suggests:
     knitr,
     rmarkdown,
