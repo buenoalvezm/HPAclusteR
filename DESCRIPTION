@@ -38,6 +38,7 @@ Suggests:
     knitr,
     MASS,
     network,
+    readr,
     rmarkdown,
     sna,
     testthat (>= 3.0.0)
