@@ -18,7 +18,7 @@ get_annot_dbs <- function(
   dir.create(db_loc, showWarnings = FALSE, recursive = TRUE)
 
   urls <- list(
-    HumanProteinAtlas = sprintf(
+    Human_Protein_Atlas = sprintf(
       "https://v%d.proteinatlas.org/download/proteinatlas.tsv.zip",
       hpa_version
     ),
@@ -59,7 +59,7 @@ get_annot_dbs <- function(
         download_success <- TRUE
       },
       error = function(e) {
-        message(sprintf("Failed to download %s: %s", db, e$message))
+        message(sprintf("Failed to download %s: %s", db, e[["message"]]))
       }
     )
     if (download_success) {
@@ -76,7 +76,11 @@ get_annot_dbs <- function(
             unzip_success <- TRUE
           },
           error = function(e) {
-            message(sprintf("Failed to unzip %s: %s", dest_file, e$message))
+            message(sprintf(
+              "Failed to unzip %s: %s",
+              dest_file,
+              e[["message"]]
+            ))
           }
         )
         if (unzip_success) {
@@ -109,7 +113,7 @@ get_annot_dbs <- function(
             message(sprintf(
               "Failed to decompress %s: %s",
               dest_file,
-              e$message
+              e[["message"]]
             ))
           }
         )
@@ -150,7 +154,7 @@ get_annot_dbs <- function(
 #' @return A tibble with standardized columns: `ensg_id`, `term`, `term_id`.
 #' @keywords internal
 load_annotation_database <- function(db_id, db_files, AnnDatR) {
-  cluster_genes <- AnnDatR$uns$consensus_clustering$gene
+  cluster_genes <- AnnDatR[["uns"]][["consensus_clustering"]][["gene"]]
   if (db_id == "reactome") {
     raw_db <- readr::read_tsv(
       db_files[[db_id]],

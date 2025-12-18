@@ -32,12 +32,14 @@ Imports:
     tibble,
     tidyr
 Suggests:
+    clusterProfiler,
     concaveman,
     fpc,
     GGally,
     knitr,
     MASS,
     network,
+    org.Hs.eg.db,
     readr,
     rmarkdown,
     sna,
