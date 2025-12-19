@@ -34,15 +34,19 @@ Master annotation pipeline: download, load, and run all enrichments
 }
 \details{
 In case some of the databases did not download correctly, please rerun the function.
-If that does not help, please manually download the databases and place them in the specified db_loc directory.
+If that does not help, please manually download the databases, place them in the specified db_loc directory and unzip the zipped files.
 Links:
 \itemize{
-\item Human Protein Atlas version 24: https://www.proteinatlas.org/download/rna
-\item Trrust:
-\item Panglao:
+\item Human Protein Atlas version 24: https://v\%d.proteinatlas.org/download/proteinatlas.tsv.zip
+\item Reactome: https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt
+\item Trrust: https://www.grnpedia.org/trrust/data/trrust_rawdata.human.tsv
+\item Panglao: https://panglaodb.se/markers/PanglaoDB_markers_27_Mar_2020.tsv.gz
 }
 
-Or just run the annotation only using KEGG and GO by
+Or just run the annotation only using KEGG and GO by setting dbs = c("KEGG", "GO").
+
+This function will require time depending on the size of the dataset and the number of clusters, especially if GO is included.
+Set verbose = TRUE to monitor the progress.
 }
 \examples{
 # Run clustering pipeline
@@ -53,5 +57,5 @@ adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
 
 # Run annotation pipeline
 enrichment_results <- hc_annotate(adata_res, dbs = "KEGG")
-head(enrichment_results)
+head(enrichment_results$enrichment)
 }

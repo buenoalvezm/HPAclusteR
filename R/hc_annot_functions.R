@@ -326,38 +326,11 @@ run_go_enrichment <- function(
         }
         return(NULL)
       }
-      # Normal results
-      normal <- tibble::as_tibble(enr) |>
+      tibble::as_tibble(enr) |>
         dplyr::mutate(
           cluster = clust,
           db_id = paste0("GO analysis ", ont_full[[ont]])
         )
-      # Simplified results
-      enr_simple <- tryCatch(
-        suppressMessages(
-          clusterProfiler::simplify(
-            enr,
-            cutoff = 0.7,
-            by = "p.adjust",
-            select_fun = min
-          )
-        ),
-        error = function(e) NULL
-      )
-      if (!is.null(enr_simple) && nrow(as.data.frame(enr_simple)) > 0) {
-        simplified <- tibble::as_tibble(enr_simple) |>
-          dplyr::mutate(
-            cluster = clust,
-            db_id = paste0(
-              "GO analysis ",
-              ont_full[[ont]],
-              " (Simplified terms)"
-            )
-          )
-        dplyr::bind_rows(normal, simplified)
-      } else {
-        normal
-      }
     })
     dplyr::bind_rows(ont_res)
   })
@@ -377,4 +350,114 @@ run_go_enrichment <- function(
   enrich_res <- map_entrez_to_ensembl(enrich_res)
 
   return(enrich_res)
+}
+
+#' Reduce GO terms
+#'
+#' @param go_enrichment Data frame with GO enrichment results (must have Cluster ID, Term ID, Database, Adjusted P-value)
+#' @param threshold Similarity threshold for reduction (default: 0.7)
+#'
+#' @returns List with two elements:
+#' - combined: Data frame with original and simplified GO terms
+#' - reducedTerms: Data frame with reduced GO terms information
+#'
+#' @keywords internal
+reduce_go_terms <- function(
+  go_enrichment,
+  threshold = 0.7
+) {
+  if (!requireNamespace("rrvgo", quietly = TRUE)) {
+    stop()
+  }
+  if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+    stop()
+  }
+  required_cols <- c("Cluster ID", "Term ID", "Database", "Adjusted P-value")
+  if (!all(required_cols %in% colnames(go_enrichment))) {
+    stop()
+  }
+  extract_ont <- function(db) {
+    if (grepl("Biological Process", db, fixed = TRUE)) {
+      return("BP")
+    }
+    if (grepl("Molecular Function", db, fixed = TRUE)) {
+      return("MF")
+    }
+    if (grepl("Cellular Component", db, fixed = TRUE)) {
+      return("CC")
+    }
+    NA_character_
+  }
+  go_enrichment[["ontology"]] <- vapply(
+    go_enrichment[["Database"]],
+    extract_ont,
+    character(1)
+  )
+  all_reduced <- list()
+  all_simplified <- list()
+  clusters <- unique(go_enrichment[["Cluster ID"]])
+  for (cid in clusters) {
+    for (ont in c("BP", "CC", "MF")) {
+      df <- go_enrichment |>
+        dplyr::filter(
+          !!rlang::sym("Cluster ID") == cid,
+          !!rlang::sym("ontology") == ont
+        )
+      if (nrow(df) < 2) {
+        next
+      }
+      suppressMessages(
+        simMatrix <- rrvgo::calculateSimMatrix(
+          df[["Term ID"]],
+          orgdb = org.Hs.eg.db::org.Hs.eg.db,
+          ont = ont,
+          method = "Rel"
+        )
+      )
+      scores <- -log10(df[["Adjusted P-value"]])
+      names(scores) <- df[["Term ID"]]
+      suppressMessages(
+        reducedTerms <- rrvgo::reduceSimMatrix(
+          simMatrix,
+          scores,
+          threshold = threshold,
+          orgdb = org.Hs.eg.db::org.Hs.eg.db
+        ) |>
+          tibble::as_tibble() |>
+          dplyr::mutate(cluster = cid, ontology = ont)
+      )
+      all_reduced[[length(all_reduced) + 1]] <- reducedTerms
+      parent_terms <- unique(reducedTerms$parent)
+      simplified <- df |>
+        dplyr::filter(!!rlang::sym("Term ID") %in% parent_terms) |>
+        dplyr::mutate(
+          Database = paste0(!!rlang::sym("Database"), " (Simplified terms)")
+        )
+      all_simplified[[length(all_simplified) + 1]] <- simplified
+    }
+  }
+  reducedTerms_all <- dplyr::bind_rows(all_reduced)
+  simplified_df <- dplyr::bind_rows(all_simplified)
+  missing_cols <- setdiff(names(go_enrichment), names(simplified_df))
+  for (col in missing_cols) {
+    simplified_df[[col]] <- NA
+  }
+  simplified_df <- simplified_df[, names(go_enrichment), drop = FALSE]
+  combined <- dplyr::bind_rows(go_enrichment, simplified_df)
+  ontology_lookup <- go_enrichment |>
+    dplyr::select(dplyr::any_of(c("Term ID", "ontology"))) |>
+    dplyr::distinct()
+  reducedTerms_all <- reducedTerms_all |>
+    dplyr::left_join(ontology_lookup, by = c("go" = "Term ID")) |>
+    dplyr::mutate(
+      ontology = dplyr::coalesce(
+        !!rlang::sym("ontology.x"),
+        !!rlang::sym("ontology.y")
+      )
+    ) |>
+    dplyr::select(-dplyr::any_of(c("ontology.x", "ontology.y")))
+  list(
+    combined = combined,
+    reducedTerms = reducedTerms_all
+  )
 }

@@ -42,8 +42,10 @@ Suggests:
     org.Hs.eg.db,
     readr,
     rmarkdown,
+    rrvgo,
     sna,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    treemapify
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3

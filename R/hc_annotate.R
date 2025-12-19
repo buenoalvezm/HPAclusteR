@@ -8,13 +8,18 @@
 #' @param verbose Logical, print progress messages (default: TRUE)
 #'
 #' @details In case some of the databases did not download correctly, please rerun the function.
-#' If that does not help, please manually download the databases and place them in the specified db_loc directory.
+#' If that does not help, please manually download the databases, place them in the specified db_loc directory and unzip the zipped files.
 #' Links:
-#' - Human Protein Atlas version 24: https://www.proteinatlas.org/download/rna
-#' - Trrust:
-#' - Panglao:
+#' - Human Protein Atlas version 24: https://v%d.proteinatlas.org/download/proteinatlas.tsv.zip
+#' - Reactome: https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt
+#' - Trrust: https://www.grnpedia.org/trrust/data/trrust_rawdata.human.tsv
+#' - Panglao: https://panglaodb.se/markers/PanglaoDB_markers_27_Mar_2020.tsv.gz
 #'
-#' Or just run the annotation only using KEGG and GO by
+#' Or just run the annotation only using KEGG and GO by setting dbs = c("KEGG", "GO").
+#'
+#' This function will require time depending on the size of the dataset and the number of clusters, especially if GO is included.
+#' Set verbose = TRUE to monitor the progress.
+#'
 #' @return A named list with elements: database_enrichment, kegg_enrichment, go_enrichment
 #' @export
 #'
@@ -27,7 +32,7 @@
 #'
 #' # Run annotation pipeline
 #' enrichment_results <- hc_annotate(adata_res, dbs = "KEGG")
-#' head(enrichment_results)
+#' head(enrichment_results$enrichment)
 hc_annotate <- function(
   AnnDatR,
   dbs = c("GO", "KEGG", "Others"),
@@ -51,11 +56,17 @@ hc_annotate <- function(
       "The 'org.Hs.eg.db' package is required for KEGG enrichment. Please install it using BiocManager::install('org.Hs.eg.db')."
     )
   }
+  if (!requireNamespace("rrvgo", quietly = TRUE) && "GO" %in% dbs) {
+    stop(
+      "The 'rrvgo' package is required for KEGG enrichment. Please install it using BiocManager::install('rrvgo')."
+    )
+  }
   if (is.null(AnnDatR[["uns"]][["consensus_clustering"]])) {
     stop(
       "AnnDatR$uns$consensus_clustering not found. Call `hc_cluster_consensus()` before `hc_annotate()`."
     )
   }
+
   if ("Others" %in% dbs) {
     # Download annotation databases
     db_files <- get_annot_dbs(db_loc = db_loc, hpa_version = hpa_version)
@@ -104,6 +115,13 @@ hc_annotate <- function(
       universe = universe,
       verbose = verbose
     )
+    res_go <- reduce_go_terms(go_enrichment)
+    if (verbose) {
+      message("Start GO enrichment simplification...")
+    }
+    go_enrichment <- res_go[["combined"]]
+    treemaps <- plot_enrichment_treemap(res_go[["reducedTerms"]])
+    rm(res_go)
     if (verbose) {
       message("GO enrichment (with simplification) done.")
     }
@@ -111,16 +129,31 @@ hc_annotate <- function(
     go_enrichment <- dplyr::tibble()
   }
 
-  all_enrichment <- dplyr::bind_rows(
-    database_enrichment,
-    kegg_enrichment,
-    go_enrichment
-  ) |>
-    dplyr::filter(!!rlang::sym("Adjusted P-value") < 0.05) |>
-    dplyr::arrange(!!rlang::sym("Cluster ID"), !!rlang::sym("Adjusted P-value"))
-
+  if (
+    !is.null(database_enrichment) ||
+      !is.null(kegg_enrichment) ||
+      !is.null(go_enrichment)
+  ) {
+    all_enrichment <- dplyr::bind_rows(
+      database_enrichment,
+      kegg_enrichment,
+      go_enrichment
+    ) |>
+      dplyr::filter(!!rlang::sym("Adjusted P-value") < 0.05) |>
+      dplyr::arrange(
+        !!rlang::sym("Cluster ID"),
+        !!rlang::sym("Adjusted P-value")
+      )
+  } else {
+    warning("No enrichment results to combine.")
+    return(NULL)
+  }
   # Map Ensembl IDs to Gene Symbols for better interpretability
   all_enrichment <- map_ensembl_to_symbol(all_enrichment)
 
-  return(all_enrichment)
+  if ("GO" %in% dbs) {
+    return(list(enrichment = all_enrichment, treemaps = treemaps))
+  } else {
+    return(list(enrichment = all_enrichment))
+  }
 }
