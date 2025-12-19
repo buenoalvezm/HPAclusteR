@@ -6,6 +6,7 @@
 \usage{
 hc_annotate(
   AnnDatR,
+  dbs = c("GO", "KEGG", "Others"),
   universe = NULL,
   db_loc = "databases",
   hpa_version = 24,
@@ -14,6 +15,8 @@ hc_annotate(
 }
 \arguments{
 \item{AnnDatR}{AnnDatR object containing clustering results}
+
+\item{dbs}{Character vector of databases to use for enrichment ("GO", "KEGG", "Others") (default: all)}
 
 \item{universe}{Character vector of background genes (default: NULL, all genes in clustering data)}
 
@@ -29,8 +32,19 @@ A named list with elements: database_enrichment, kegg_enrichment, go_enrichment
 \description{
 Master annotation pipeline: download, load, and run all enrichments
 }
+\details{
+In case some of the databases did not download correctly, please rerun the function.
+If that does not help, please manually download the databases and place them in the specified db_loc directory.
+Links:
+\itemize{
+\item Human Protein Atlas version 24: https://www.proteinatlas.org/download/rna
+\item Trrust:
+\item Panglao:
+}
+
+Or just run the annotation only using KEGG and GO by
+}
 \examples{
-\dontrun{
 # Run clustering pipeline
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
@@ -38,7 +52,6 @@ adata_res <- hc_snn(adata_res, neighbors = 15)
 adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
 
 # Run annotation pipeline
-enrichment_results <- hc_annotate(adata_res)
+enrichment_results <- hc_annotate(adata_res, dbs = "KEGG")
 head(enrichment_results)
-}
 }

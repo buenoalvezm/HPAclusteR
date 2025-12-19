@@ -12,7 +12,7 @@ get_annot_dbs(db_loc = "databases", hpa_version = 24)
 \item{hpa_version}{Version of the Human Protein Atlas to download (default: 24).}
 }
 \value{
-Invisible TRUE if all downloads are successful.
+A named list mapping database IDs to file paths.
 }
 \description{
 Download annotation databases

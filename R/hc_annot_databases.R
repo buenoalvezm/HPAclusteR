@@ -3,7 +3,7 @@
 #' @param db_loc Destination directory to save the downloaded databases (default: "databases").
 #' @param hpa_version Version of the Human Protein Atlas to download (default: 24).
 #'
-#' @returns Invisible TRUE if all downloads are successful.
+#' @returns A named list mapping database IDs to file paths.
 #' @keywords internal
 get_annot_dbs <- function(
   db_loc = "databases",
@@ -125,22 +125,33 @@ get_annot_dbs <- function(
     }
   }
 
-  db_files <- list(
-    secretome_location = file.path(db_loc, "proteinatlas.tsv"),
-    specificity_blood = file.path(db_loc, "proteinatlas.tsv"),
-    specificity_brain = file.path(db_loc, "proteinatlas.tsv"),
-    specificity_tissue = file.path(db_loc, "proteinatlas.tsv"),
-    specificity_celline = file.path(db_loc, "proteinatlas.tsv"),
-    specificity_singlecell = file.path(db_loc, "proteinatlas.tsv"),
-    subcellular_location = file.path(db_loc, "proteinatlas.tsv"),
-    protein_class = file.path(db_loc, "proteinatlas.tsv"),
-    panglao_cellmarkers = file.path(
+  db_files <- list()
+
+  if (file.exists(file.path(db_loc, "proteinatlas.tsv"))) {
+    db_files[["secretome_location"]] <- file.path(db_loc, "proteinatlas.tsv")
+    db_files[["specificity_blood"]] <- file.path(db_loc, "proteinatlas.tsv")
+    db_files[["specificity_brain"]] <- file.path(db_loc, "proteinatlas.tsv")
+    db_files[["specificity_tissue"]] <- file.path(db_loc, "proteinatlas.tsv")
+    db_files[["specificity_celline"]] <- file.path(db_loc, "proteinatlas.tsv")
+    db_files[["specificity_singlecell"]] <- file.path(
       db_loc,
-      "PanglaoDB_markers_27_Mar_2020.tsv"
-    ),
-    reactome = file.path(db_loc, "Ensembl2Reactome_All_Levels.txt"),
-    trrust = file.path(db_loc, "trrust_rawdata.human.tsv")
-  )
+      "proteinatlas.tsv"
+    )
+    db_files[["subcellular_location"]] <- file.path(db_loc, "proteinatlas.tsv")
+    db_files[["protein_class"]] <- file.path(db_loc, "proteinatlas.tsv")
+  }
+  panglao_file <- file.path(db_loc, "PanglaoDB_markers_27_Mar_2020.tsv")
+  if (file.exists(panglao_file)) {
+    db_files[["panglao_cellmarkers"]] <- panglao_file
+  }
+  reactome_file <- file.path(db_loc, "Ensembl2Reactome_All_Levels.txt")
+  if (file.exists(reactome_file)) {
+    db_files[["reactome"]] <- reactome_file
+  }
+  trrust_file <- file.path(db_loc, "trrust_rawdata.human.tsv")
+  if (file.exists(trrust_file)) {
+    db_files[["trrust"]] <- trrust_file
+  }
 
   return(db_files)
 }
