@@ -36,6 +36,26 @@ hc_annotate <- function(
   hpa_version = 24,
   verbose = TRUE
 ) {
+  if (!requireNamespace("readr", quietly = TRUE)) {
+    stop(
+      "The 'readr' package is required for this function. Please install it using install.packages('readr')."
+    )
+  }
+  if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
+    stop(
+      "The 'clusterProfiler' package is required for this function. Please install it using BiocManager::install('clusterProfiler')."
+    )
+  }
+  if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
+    stop(
+      "The 'org.Hs.eg.db' package is required for KEGG enrichment. Please install it using BiocManager::install('org.Hs.eg.db')."
+    )
+  }
+  if (is.null(AnnDatR[["uns"]][["consensus_clustering"]])) {
+    stop(
+      "AnnDatR$uns$consensus_clustering not found. Call `hc_cluster_consensus()` before `hc_annotate()`."
+    )
+  }
   if ("Others" %in% dbs) {
     # Download annotation databases
     db_files <- get_annot_dbs(db_loc = db_loc, hpa_version = hpa_version)
