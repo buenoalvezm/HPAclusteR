@@ -20,7 +20,16 @@
 #' This function will require time depending on the size of the dataset and the number of clusters, especially if GO is included.
 #' Set verbose = TRUE to monitor the progress.
 #'
-#' @return A named list with elements: database_enrichment, kegg_enrichment, go_enrichment
+#' For the bubblemaps, the odds ratio is capped at 50 for better visualization. Also, only the top 150 terms (by mean odds ratio across clusters) are shown.
+#'
+#' @return A named list with elements:
+#' - enrichment: Data frame with combined enrichment results from all selected databases
+#' - treemaps: List of ggplot objects with GO treemaps per cluster (if GO selected)
+#' - bubblemap_go: ggplot object with GO enrichment bubblemap (if GO selected)
+#' - bubblemap_kegg: ggplot object with KEGG enrichment bubblemap (if KEGG selected)
+#' - bubblemap_others: ggplot object with custom database enrichment bubblemap (if Others selected)
+#'
+#' @
 #' @export
 #'
 #' @examples
@@ -87,6 +96,7 @@ hc_annotate <- function(
       universe = universe,
       verbose = verbose
     )
+    bubblemap_others <- plot_enrichment_bubblemap(database_enrichment)
     if (verbose) {
       message("Custom database enrichment done.")
     }
@@ -101,6 +111,7 @@ hc_annotate <- function(
       universe = universe,
       verbose = verbose
     )
+    bubblemap_kegg <- plot_enrichment_bubblemap(kegg_enrichment)
     if (verbose) {
       message("KEGG enrichment done.")
     }
@@ -122,6 +133,7 @@ hc_annotate <- function(
     go_enrichment <- res_go[["combined"]]
     treemaps <- plot_enrichment_treemap(res_go[["reducedTerms"]])
     rm(res_go)
+    bubblemap_go <- plot_enrichment_bubblemap(go_enrichment)
     if (verbose) {
       message("GO enrichment (with simplification) done.")
     }
@@ -151,9 +163,17 @@ hc_annotate <- function(
   # Map Ensembl IDs to Gene Symbols for better interpretability
   all_enrichment <- map_ensembl_to_symbol(all_enrichment)
 
-  if ("GO" %in% dbs) {
-    return(list(enrichment = all_enrichment, treemaps = treemaps))
-  } else {
-    return(list(enrichment = all_enrichment))
+  result <- list()
+  result$enrichment <- all_enrichment
+  if ("GO" %in% dbs && go_enrichment |> nrow() != 0) {
+    result$treemaps <- treemaps
+    result$bubblemap_go <- bubblemap_go
   }
+  if ("KEGG" %in% dbs && kegg_enrichment |> nrow() != 0) {
+    result$bubblemap_kegg <- bubblemap_kegg
+  }
+  if ("Others" %in% dbs && database_enrichment |> nrow() != 0) {
+    result$bubblemap_others <- bubblemap_others
+  }
+  return(result)
 }

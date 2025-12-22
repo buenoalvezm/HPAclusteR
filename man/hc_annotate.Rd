@@ -27,7 +27,14 @@ hc_annotate(
 \item{verbose}{Logical, print progress messages (default: TRUE)}
 }
 \value{
-A named list with elements: database_enrichment, kegg_enrichment, go_enrichment
+A named list with elements:
+\itemize{
+\item enrichment: Data frame with combined enrichment results from all selected databases
+\item treemaps: List of ggplot objects with GO treemaps per cluster (if GO selected)
+\item bubblemap_go: ggplot object with GO enrichment bubblemap (if GO selected)
+\item bubblemap_kegg: ggplot object with KEGG enrichment bubblemap (if KEGG selected)
+\item bubblemap_others: ggplot object with custom database enrichment bubblemap (if Others selected)
+}
 }
 \description{
 Master annotation pipeline: download, load, and run all enrichments
@@ -47,6 +54,8 @@ Or just run the annotation only using KEGG and GO by setting dbs = c("KEGG", "GO
 
 This function will require time depending on the size of the dataset and the number of clusters, especially if GO is included.
 Set verbose = TRUE to monitor the progress.
+
+For the bubblemaps, the odds ratio is capped at 50 for better visualization. Also, only the top 150 terms (by mean odds ratio across clusters) are shown.
 }
 \examples{
 # Run clustering pipeline

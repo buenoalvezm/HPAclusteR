@@ -30,6 +30,11 @@ hc_plot_expression <- function(
       "The 'patchwork' package is required for this function. Please install it using install.packages('patchwork')."
     )
   }
+  if (is.null(AnnDatR[["obs"]][["cluster"]])) {
+    stop(
+      "AnnDatR$obs$cluster not found. Call `hc_cluster_consensus()` before `hc_plot_expression()`."
+    )
+  }
   # Prepare long expression data
   sample_col <- AnnDatR[["var_names_col"]]
   gene_col <- AnnDatR[["obs_names_col"]]

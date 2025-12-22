@@ -63,56 +63,120 @@ plot_enrichment_treemap <- function(
   plots
 }
 
-# #' Plot bubble plot for enrichment results
-# #'
-# #' @param enrichment_df Enrichment result dataframe (must have Cluster ID, Term, odds_ratio, `Adjusted P-value`)
-# #' @param database Database to plot (optional)
-# #' @return ggplot object
-# plot_enrichment_bubble <- function(enrichment_df, database = NULL) {
-#   df <- enrichment_df
-#   if (!is.null(database)) {
-#     df <- df[df$Database == database, ]
-#   }
-#   ggplot2::ggplot(
-#     df,
-#     ggplot2::aes(
-#       x = Term,
-#       y = `Cluster ID`,
-#       size = odds_ratio,
-#       fill = `Adjusted P-value`
-#     )
-#   ) +
-#     ggplot2::geom_point(shape = 21, color = "black") +
-#     ggplot2::scale_size(range = c(2, 10)) +
-#     ggplot2::theme_bw() +
-#     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) +
-#     ggplot2::labs(
-#       title = paste("Bubble plot:", database),
-#       y = "Cluster",
-#       x = "Term"
-#     )
-# }
+#' Plot enrichment bubblemap for annotation results
+#'
+#' @param enrichment_results Data frame with annotation results (e.g. database_enrichment, kegg_enrichment, or go_enrichment)
+#' @param odds_ratio_cap Maximum value for odds ratio to cap bubble size (default: 50)
+#' @param size_range Numeric vector of length 2 for point size range (default: c(1, 4))
+#' @param fill_palette Color palette for odds ratio (default: c("white", "orangered"))
+#' @param facet_var Optional variable to facet by (default: NULL)
+#' @return ggplot object (bubblemap)
+#' @export
+plot_enrichment_bubblemap <- function(
+  enrichment_results,
+  odds_ratio_cap = 50,
+  size_range = c(1, 4),
+  fill_palette = c("white", "orangered"),
+  facet_var = NULL
+) {
+  parse_ratio <- function(ratio_str) {
+    sapply(strsplit(ratio_str, "/"), function(x) {
+      as.numeric(x[1]) / as.numeric(x[2])
+    })
+  }
 
-# #' Plot heatmap for enrichment results
-# #'
-# #' @param enrichment_df Enrichment result dataframe (must have Cluster ID, Term, odds_ratio)
-# #' @param database Database to plot (optional)
-# #' @return ggplot object
-# plot_enrichment_heatmap <- function(enrichment_df, database = NULL) {
-#   df <- enrichment_df
-#   if (!is.null(database)) {
-#     df <- df[df$Database == database, ]
-#   }
-#   ggplot2::ggplot(
-#     df,
-#     ggplot2::aes(x = Term, y = factor(`Cluster ID`), fill = odds_ratio)
-#   ) +
-#     ggplot2::geom_tile() +
-#     ggplot2::theme_minimal() +
-#     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, hjust = 1)) +
-#     ggplot2::labs(
-#       title = paste("Heatmap:", database),
-#       y = "Cluster",
-#       x = "Term"
-#     )
-# }
+  plot_data <- enrichment_results |>
+    dplyr::mutate(
+      GeneFrac = parse_ratio(!!rlang::sym("GeneRatio")),
+      BgFrac = parse_ratio(!!rlang::sym("BgRatio")),
+      odds_ratio = !!rlang::sym("GeneFrac") / !!rlang::sym("BgFrac"),
+      capped_odds_ratio = pmin(
+        !!rlang::sym("odds_ratio"),
+        !!rlang::sym("odds_ratio_cap")
+      ),
+      cluster = as.factor(!!rlang::sym("Cluster ID")),
+      Description = as.character(!!rlang::sym("Term"))
+    )
+
+  # Keep only the top 50 terms (by mean odds ratio across clusters)
+  top_terms <- plot_data |>
+    dplyr::group_by(!!rlang::sym("Description")) |>
+    dplyr::summarise(
+      mean_odds = mean(!!rlang::sym("odds_ratio"), na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    dplyr::arrange(dplyr::desc(!!rlang::sym("mean_odds"))) |>
+    dplyr::slice_head(n = 150) |>
+    dplyr::pull(!!rlang::sym("Description"))
+
+  plot_data <- plot_data |>
+    dplyr::filter(!!rlang::sym("Description") %in% top_terms)
+
+  odds_mat <- plot_data |>
+    dplyr::group_by(!!rlang::sym("cluster"), !!rlang::sym("Description")) |>
+    dplyr::summarise(
+      odds_ratio = max(!!rlang::sym("odds_ratio"), na.rm = TRUE),
+      .groups = "drop"
+    ) |>
+    tidyr::pivot_wider(
+      names_from = !!rlang::sym("Description"),
+      values_from = !!rlang::sym("odds_ratio"),
+      values_fill = 0
+    ) |>
+    tibble::column_to_rownames("cluster") |>
+    as.matrix()
+
+  # Cluster rows (clusters) and columns (terms)
+  row_order <- rownames(odds_mat)[stats::hclust(stats::dist(odds_mat))[[
+    "order"
+  ]]]
+  col_order <- colnames(odds_mat)[stats::hclust(stats::dist(t(odds_mat)))[[
+    "order"
+  ]]]
+
+  plot_data <- plot_data |>
+    dplyr::mutate(
+      cluster = factor(!!rlang::sym("cluster"), levels = row_order),
+      Description = factor(!!rlang::sym("Description"), levels = col_order),
+      Description = ifelse(
+        nchar(as.character(!!rlang::sym("Description"))) > 50,
+        paste0(substr(as.character(!!rlang::sym("Description")), 1, 50), "..."),
+        as.character(!!rlang::sym("Description"))
+      )
+    )
+
+  p <- ggplot2::ggplot(
+    plot_data,
+    ggplot2::aes(
+      x = !!rlang::sym("Description"),
+      y = !!rlang::sym("cluster"),
+      size = !!rlang::sym("capped_odds_ratio"),
+      fill = !!rlang::sym("capped_odds_ratio")
+    )
+  ) +
+    ggplot2::geom_point(shape = 21, color = "black") +
+    ggplot2::scale_size_continuous(
+      name = NULL,
+      range = size_range,
+      limits = c(0, odds_ratio_cap),
+      breaks = rev(pretty(c(0, odds_ratio_cap)))
+    ) +
+    ggplot2::scale_fill_gradient(
+      name = "Odds ratio",
+      low = fill_palette[1],
+      high = fill_palette[2],
+      limits = c(0, odds_ratio_cap)
+    ) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(
+      axis.text.x = ggplot2::element_text(angle = -90, hjust = 0, vjust = 0.5),
+      axis.title = ggplot2::element_blank(),
+      legend.position = "right"
+    )
+
+  if (!is.null(facet_var) && facet_var %in% names(plot_data)) {
+    p <- p + ggplot2::facet_wrap(facet_var, scales = "free_y")
+  }
+
+  return(p)
+}
