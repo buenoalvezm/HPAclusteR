@@ -40,6 +40,7 @@ Suggests:
     MASS,
     network,
     org.Hs.eg.db,
+    patchwork,
     readr,
     rmarkdown,
     rrvgo,
