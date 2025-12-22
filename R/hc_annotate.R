@@ -29,7 +29,6 @@
 #' - bubblemap_kegg: ggplot object with KEGG enrichment bubblemap (if KEGG selected)
 #' - bubblemap_others: ggplot object with custom database enrichment bubblemap (if Others selected)
 #'
-#' @
 #' @export
 #'
 #' @examples
