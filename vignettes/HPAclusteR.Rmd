@@ -150,13 +150,12 @@ expr_heatmaps$scaled[["1"]]
 
 ## Cluster Comparison
 
-Finally, we can compare different clustering results using the `hc_cluster_compare()` function. Here, we will create a second clustering result with a different resolution and clustering algorithm and compare it to the first result. This time we will use the `hc_auto_cluster()` function for simplicity.
+Finally, we can compare different clustering results using the `hc_cluster_compare()` function. Here, we will create a second clustering result with a different resolution and compare it to the first result. This time we will use the `hc_auto_cluster()` function for simplicity.
 
 ```{r comparison, message=FALSE, warnings=FALSE}
 adata_res2 <- hc_auto_cluster(
   example_adata,
   cluster_resolution = 10,
-  cluster_method = "leiden",
   verbose = FALSE
 )
 

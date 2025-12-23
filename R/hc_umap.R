@@ -1,3 +1,17 @@
+#' Check if version v1 is greater than or equal to version v2
+#'
+#' @param v1 version string 1
+#' @param v2 version string 2
+#'
+#' @returns TRUE if v1 >= v2, FALSE otherwise
+#' @keywords internal
+version_gte <- function(v1, v2) {
+  v1 <- as.integer(strsplit(v1, "\\.")[[1]])
+  v2 <- as.integer(strsplit(v2, "\\.")[[1]])
+  length(v1) <- length(v2) <- max(length(v1), length(v2))
+  any((v1 > v2)[cumsum(v1 != v2) == 1])
+}
+
 #' Create UMAP embeddings from SNN graph
 #'
 #' `hc_umap()` generates UMAP embeddings based on the Shared Nearest Neighbors (SNN) graph stored in the AnnDatR object.
@@ -35,6 +49,13 @@ hc_umap <- function(AnnDatR, n_epochs = NULL, seed = 42, verbose = TRUE) {
       "The 'umap-learn' Python package is not installed. Installing it now..."
     )
     reticulate::py_install("umap-learn")
+  }
+  # Check numpy version and downgrade if needed
+  np <- reticulate::import("numpy", delay_load = TRUE)
+  np_version <- as.character(np$`__version__`)
+  if (version_gte(np_version, "2.3.0")) {
+    message("Downgrading numpy to 2.3.0 for compatibility...")
+    reticulate::py_install("numpy==2.3.0", pip = TRUE)
   }
 
   # Import the umap module and fix issue with version string
