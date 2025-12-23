@@ -17,3 +17,4 @@ Data frame with an added column of Ensembl IDs (slash-separated)
 \description{
 Map Entrez IDs in a column back to Ensembl IDs
 }
+\keyword{internal}

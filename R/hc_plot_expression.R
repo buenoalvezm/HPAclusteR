@@ -3,7 +3,7 @@
 #' `hc_plot_expression()` creates heatmaps of gene expression for each cluster identified in the AnnDatR object. It generates two types of plots per cluster: one showing z-score normalized expression and another showing scaled relative expression. Each heatmap is accompanied by a confidence bar indicating the membership confidence of genes in the respective cluster.
 #'
 #' @param AnnDatR AnnDatR object (genes x samples)
-#' @param value_limits List with zscore and scaled limits (default: zscore = c(-2,2), scaled = c(0,1))
+#' @param scaled_limits List with zscore and scaled limits (default: zscore = c(-2,2), scaled = c(0,1))
 #' @param show_sample_labels Logical, whether to show sample labels on x-axis (default: TRUE)
 #'
 #' @return List with two named lists: $zscore and $scaled, each a list of ggplot objects per cluster
@@ -22,7 +22,7 @@
 #' expression_plots$scaled[["1"]]  # Scaled plot for cluster 1
 hc_plot_expression <- function(
   AnnDatR,
-  value_limits = list(zscore = c(-2, 2), scaled = c(0, 1)),
+  scaled_limits = c(0, 1),
   show_sample_labels = TRUE
 ) {
   if (!requireNamespace("patchwork", quietly = TRUE)) {
@@ -194,7 +194,7 @@ hc_plot_expression <- function(
         high = "#D73027",
         mid = "#FFFFFF",
         name = "Relative Expression",
-        limits = value_limits[["scaled"]],
+        limits = scaled_limits,
         breaks = c(0, 0.5, 1)
       ) +
       theme_hc() +

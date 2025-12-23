@@ -102,7 +102,9 @@ run_database_enrichment <- function(
 #'
 #' @param df Data frame with a column named 'Gene IDs' (slash-separated Entrez IDs)
 #' @param geneid_col Name of the column with Entrez IDs (default: "Gene IDs")
+#'
 #' @return Data frame with an added column of Ensembl IDs (slash-separated)
+#' @keywords internal
 map_entrez_to_ensembl <- function(
   df,
   geneid_col = "Gene IDs"
@@ -133,7 +135,9 @@ map_entrez_to_ensembl <- function(
 #' @param df Data frame with a column of Ensembl IDs (slash-separated, default: "Gene IDs")
 #' @param geneid_col Name of the column with Ensembl IDs (default: "Gene IDs")
 #' @param new_col Name for the new gene symbol column (default: "Gene names")
+#'
 #' @return Data frame with an added column of gene symbols (slash-separated)
+#' @keywords internal
 map_ensembl_to_symbol <- function(
   df,
   geneid_col = "Gene IDs",

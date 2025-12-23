@@ -4,16 +4,12 @@
 \alias{hc_plot_expression}
 \title{Plot per-cluster heatmaps for scaled and z-score expression}
 \usage{
-hc_plot_expression(
-  AnnDatR,
-  value_limits = list(zscore = c(-2, 2), scaled = c(0, 1)),
-  show_sample_labels = TRUE
-)
+hc_plot_expression(AnnDatR, scaled_limits = c(0, 1), show_sample_labels = TRUE)
 }
 \arguments{
 \item{AnnDatR}{AnnDatR object (genes x samples)}
 
-\item{value_limits}{List with zscore and scaled limits (default: zscore = c(-2,2), scaled = c(0,1))}
+\item{scaled_limits}{List with zscore and scaled limits (default: zscore = c(-2,2), scaled = c(0,1))}
 
 \item{show_sample_labels}{Logical, whether to show sample labels on x-axis (default: TRUE)}
 }

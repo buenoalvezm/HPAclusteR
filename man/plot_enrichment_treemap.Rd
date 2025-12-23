@@ -20,3 +20,4 @@ Named list of ggplot treemaps, one per cluster
 \description{
 Plot treemap for each cluster in reduced GO terms
 }
+\keyword{internal}

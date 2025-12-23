@@ -294,6 +294,11 @@ hc_cluster_consensus <- function(
     ) |>
     dplyr::select(-dplyr::any_of(c("k", "resolution_k")))
 
+  if (cluster_data |> nrow() == 0) {
+    stop(
+      "No clusterings found with the specified resolution parameter. Try increasing the `resolution` argument."
+    )
+  }
   cluster_data <- cluster_data |>
     tidyr::pivot_wider(
       names_from = seed,

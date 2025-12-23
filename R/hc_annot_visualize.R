@@ -2,7 +2,9 @@
 #'
 #' @param reduced_terms Data frame, e.g. simp_res$reducedTerms
 #' @param ontology_pal Named vector of ontology colors (default: c(MF="#FF6F00", CC="#C71B00", BP="#018EA0"))
+#'
 #' @return Named list of ggplot treemaps, one per cluster
+#' @keywords internal
 plot_enrichment_treemap <- function(
   reduced_terms,
   ontology_pal = c("MF" = "#FF6F00", "CC" = "#C71B00", "BP" = "#018EA0")
@@ -70,8 +72,9 @@ plot_enrichment_treemap <- function(
 #' @param size_range Numeric vector of length 2 for point size range (default: c(1, 4))
 #' @param fill_palette Color palette for odds ratio (default: c("white", "orangered"))
 #' @param facet_var Optional variable to facet by (default: NULL)
+#'
 #' @return ggplot object (bubblemap)
-#' @export
+#' @keywords internal
 plot_enrichment_bubblemap <- function(
   enrichment_results,
   odds_ratio_cap = 50,

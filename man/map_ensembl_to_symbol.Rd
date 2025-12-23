@@ -19,3 +19,4 @@ Data frame with an added column of gene symbols (slash-separated)
 \description{
 Map Ensembl IDs in a column to gene symbols and add as a new column
 }
+\keyword{internal}

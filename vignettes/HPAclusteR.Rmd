@@ -18,8 +18,6 @@ knitr::opts_chunk$set(
 
 `HPAclusteR` is an R package designed by the Human Protein Atlas to streamline the process of gene clustering from transcriptomics data. It provides a modular pipeline for performing PCA, calculating distances, constructing shared nearest neighbor (SNN) graphs, consensus clustering, UMAP, functional annotation, and different publication-ready visualizations. The package is designed to work with [AnnDatR objects](https://github.com/emiliosk/AnnDatR), making it easy to integrate into workflows for transcriptomics data analysis.
 
->💡 This vignette demonstrates the step-by-step usage of the `HPAclusteR` pipeline. For users who prefer simplicity, the `hc_auto_cluster()` function can be used to run the entire pipeline in one call.
-
 ## Getting Started
 
 To begin, load the `HPAclusteR` package:
@@ -29,6 +27,12 @@ library(HPAclusteR)
 ```
 
 We will use the built-in `example_adata` dataset for this vignette. This dataset is a toy example designed to demonstrate the functionality of the package.
+
+>💡 HPAclusteR can work with AnnDatR objects created using the AnnDatR package, as long as the data is transposed so that genes are the observations (rows) and samples are the variables (columns). Alternatively, you can use the hc_initialize() function to create a properly formatted object directly from your data frames.
+
+## Clustering Pipeline
+
+>💡 This part demonstrates the step-by-step usage of the `HPAclusteR` pipeline. For users who prefer simplicity, the `hc_auto_cluster()` function can be used to run the entire pipeline in one call.
 
 ### Step 1: Principal Component Analysis (PCA)
 
@@ -111,6 +115,66 @@ hc_plot_umap(adata_res, plot = "both")
 
 The `plot` argument can be set to `"points"`, `"hulls"`, or `"both"` to customize the visualization.
 
+## Cluster Annotation
+
+In this part we will annotate our clusters using the KEGG database. Users can use KEGG, GO or even other databases such as the Human Protein Atlas, Panglao, Trrust and Reactome. Check `hc_annotate()` for further details.
+
+```{r annotate, message=FALSE, warnings=FALSE}
+enrichment_res <- hc_annotate(
+  adata_res,
+  dbs = "KEGG",
+  verbose = FALSE
+)
+head(enrichment_res$enrichment)
+enrichment_res$bubblemap_kegg
+```
+
+We can also perform gene classification within each cluster using the Human Protein Atlas (HPA) logic. This approach assigns specificity and distribution categories to genes based on their expression patterns across sample categories (e.g., tissues), providing insights into gene function and tissue specificity.
+
+```{r classify, message=FALSE, warnings=FALSE}
+classify_res <- hc_classify(
+  adata_res,
+  sample_categories = "tissue_name"
+)
+head(classify_res$classification[["1"]])
+classify_res$pie_charts[["1"]]
+```
+
+We can visualize the gene expression patterns within each cluster using heatmaps. Both z-score and scaled expression heatmaps are generated for each cluster, allowing us to explore and compare gene expression profiles across different groups. The confidence of each cluster is also presented in the sidebar.
+
+```{r expression, message=FALSE, warnings=FALSE}
+expr_heatmaps <- hc_plot_expression(adata_res)
+expr_heatmaps$zscore[["1"]]
+expr_heatmaps$scaled[["1"]]
+```
+
+## Cluster Comparison
+
+Finally, we can compare different clustering results using the `hc_cluster_compare()` function. Here, we will create a second clustering result with a different resolution and clustering algorithm and compare it to the first result. This time we will use the `hc_auto_cluster()` function for simplicity.
+
+```{r comparison, message=FALSE, warnings=FALSE}
+adata_res2 <- hc_auto_cluster(
+  example_adata,
+  cluster_resolution = 10,
+  cluster_method = "leiden",
+  verbose = FALSE
+)
+
+comparison_res <- hc_cluster_compare(
+  adata_res,
+  adata_res2,
+  graph_type = "bipartite"
+)
+comparison_res$heatmap
+comparison_res$network
+```
+
 ## Conclusion
 
 Explore the package further to uncover the full potential of your transcriptomics data!
+
+> 💡 Remember that these data are an example toy-dataset with only a sample of the total protein-coding genes. The results in this guide should not be interpreted as real results. The purpose of this vignette is to show you how to use the package and its functions.
+
+```{r session-info}
+sessionInfo()
+```

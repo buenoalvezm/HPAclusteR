@@ -13,6 +13,14 @@ footer:
 
 
 reference:
+- title: Utilities
+  desc: |
+    General utility functions.
+
+  contents:
+  - hc_initialize
+
+
 - title: Workflows 
   desc: |
     Functions for complete, one-call workflows.
@@ -43,11 +51,20 @@ reference:
   - hc_cluster_compare
 
 
+- title: Cluster Annotation
+  desc: |
+    Functions for annotating clusters with functional databases.
+  contents:
+  - hc_annotate
+  - hc_classify
+
+
 - title: Visualization
   desc: |
     Functions for visualizing clustering results.
   contents:
   - hc_plot_umap
+  - hc_plot_expression
   - theme_hc
 
 
@@ -55,7 +72,4 @@ reference:
   desc: |
     Datasets included with the package for demonstration and testing purposes.
   contents:
-  - adata
-  - adata_t
   - example_adata
-

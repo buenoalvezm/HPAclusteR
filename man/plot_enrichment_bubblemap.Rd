@@ -29,3 +29,4 @@ ggplot object (bubblemap)
 \description{
 Plot enrichment bubblemap for annotation results
 }
+\keyword{internal}

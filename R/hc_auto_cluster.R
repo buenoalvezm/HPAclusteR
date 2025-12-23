@@ -66,7 +66,7 @@ hc_auto_cluster <- function(
       method = cluster_method,
       verbose = verbose
     ) |>
-    hc_umap() |>
+    hc_umap(verbose = verbose) |>
     hc_cluster_hulls()
 
   umap_plot <- hc_plot_umap(AnnDatR_res)
