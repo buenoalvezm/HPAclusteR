@@ -286,23 +286,17 @@ plot_specificity_distribution <- function(class_tbl) {
     ) +
     ggplot2::theme_void() +
     ggplot2::labs(fill = NULL) +
-    ggplot2::geom_text(
+    ggrepel::geom_text_repel(
       ggplot2::aes(
-        x = 1.18,
+        x = 1,
         y = !!rlang::sym("label_pos"),
         label = !!rlang::sym("n")
       ),
       size = 4,
-      hjust = 0
-    ) +
-    ggplot2::geom_segment(
-      ggplot2::aes(
-        x = 1,
-        xend = 1.1,
-        y = !!rlang::sym("label_pos"),
-        yend = !!rlang::sym("label_pos")
-      ),
-      color = "black"
+      direction = "y",
+      nudge_x = 0.2,
+      segment.size = 0.4,
+      show.legend = FALSE
     ) +
     ggplot2::theme(
       legend.position = "bottom",
@@ -329,23 +323,17 @@ plot_specificity_distribution <- function(class_tbl) {
     ) +
     ggplot2::theme_void() +
     ggplot2::labs(fill = NULL) +
-    ggplot2::geom_text(
+    ggrepel::geom_text_repel(
       ggplot2::aes(
-        x = 1.18,
+        x = 1,
         y = !!rlang::sym("label_pos"),
         label = !!rlang::sym("n")
       ),
       size = 4,
-      hjust = 0
-    ) +
-    ggplot2::geom_segment(
-      ggplot2::aes(
-        x = 1,
-        xend = 1.1,
-        y = !!rlang::sym("label_pos"),
-        yend = !!rlang::sym("label_pos")
-      ),
-      color = "black"
+      direction = "y",
+      nudge_x = 0.2,
+      segment.size = 0.4,
+      show.legend = FALSE
     ) +
     ggplot2::theme(
       legend.position = "bottom",
@@ -399,6 +387,11 @@ hc_classify <- function(
   group_enriched_limit = NULL,
   fold = 4
 ) {
+  if (!requireNamespace("ggrepel", quietly = TRUE)) {
+    stop(
+      "The 'ggrepel' package is required for this function. Please install it using install.packages('ggrepel')."
+    )
+  }
   if (!requireNamespace("patchwork", quietly = TRUE)) {
     stop(
       "The 'patchwork' package is required for this function. Please install it using install.packages('patchwork')."

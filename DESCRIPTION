@@ -37,6 +37,7 @@ Suggests:
     concaveman,
     fpc,
     GGally,
+    ggrepel,
     knitr,
     MASS,
     network,
