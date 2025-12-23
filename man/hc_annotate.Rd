@@ -37,7 +37,9 @@ A named list with elements:
 }
 }
 \description{
-Master annotation pipeline: download, load, and run all enrichments
+\code{hc_annotate()} is a master function that performs functional enrichment analysis. It downloads necessary annotation databases,
+formats them, and runs enrichment analyses for Gene Ontology (GO), KEGG pathways, and custom databases (Human Protein Atlas, Reactome, TRRUST, PanglaoDB)
+based on the clustering results stored in the AnnDatR object. It also generates visualizations such as treemaps for GO terms and bubblemaps for all enrichment results.
 }
 \details{
 In case some of the databases did not download correctly, please rerun the function.
@@ -62,7 +64,7 @@ For the bubblemaps, the odds ratio is capped at 50 for better visualization. Als
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
+adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
 
 # Run annotation pipeline
 enrichment_results <- hc_annotate(adata_res, dbs = "KEGG")

@@ -21,7 +21,7 @@
 #'
 #' @export
 #' @examples
-#' adata_res <- hc_auto_cluster(example_adata)
+#' adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 8)
 #' head(adata_res$uns$consensus_clustering)
 hc_auto_cluster <- function(
   AnnDatR,

@@ -30,7 +30,7 @@ library(HPAclusteR)
 
 We will use the built-in `example_adata` dataset for this vignette. This dataset is a toy example designed to demonstrate the functionality of the package.
 
-## Step 1: Principal Component Analysis (PCA)
+### Step 1: Principal Component Analysis (PCA)
 
 PCA is the first step in the pipeline, used to reduce the dimensionality of the data while retaining the most important features.
 
@@ -42,7 +42,7 @@ adata_res$uns$pca  # Explained variance
 
 The PCA step reduces the dimensionality of the data to 40 components, which can be adjusted based on the dataset and analysis goals.
 
-## Step 2: Distance Calculation
+### Step 2: Distance Calculation
 
 Next, we calculate the pairwise distances between samples using the PCA-reduced data. The `hc_distance()` function supports multiple distance metrics, such as "euclidean" and "spearman". We will use the number of components determined by Kaiser’s rule.
 
@@ -55,7 +55,7 @@ adata_res <- hc_distance(
 head(adata_res$uns$distance)
 ```
 
-## Step 3: Shared Nearest Neighbor (SNN) Graph Construction
+### Step 3: Shared Nearest Neighbor (SNN) Graph Construction
 
 The SNN graph is constructed to identify clusters of similar samples. This step uses the distance matrix calculated in the previous step.
 
@@ -66,14 +66,14 @@ adata_res$uns$neighbors$snn
 
 The `neighbors` parameter controls the number of nearest neighbors considered, while `prune` adjusts the sparsity of the graph.
 
-## Step 4: Consensus Clustering
+### Step 4: Consensus Clustering
 
 Consensus clustering is performed to identify robust clusters in the data. This step aggregates clustering results from multiple runs, in this case 100.
 
 ```{r consensus, message=FALSE, warnings=FALSE}
 adata_res <- hc_cluster_consensus(
   adata_res, 
-  resolution = 6, 
+  resolution = 8, 
   method = "louvain",
   n_seeds = 100
 )
@@ -83,7 +83,7 @@ head(adata_res$obs$cluster)
 
 The `resolution` parameter controls the granularity of the clustering. Higher values result in more clusters.
 
-## Step 5: UMAP Visualization
+### Step 5: UMAP Visualization
 
 UMAP is used to visualize the clusters in a low-dimensional space. This step provides an intuitive way to explore the clustering results. It uses the constructed SNN graph.
 
@@ -92,16 +92,16 @@ adata_res <- hc_umap(adata_res, verbose = FALSE)
 head(adata_res$obsm$X_umap)
 ```
 
-## Step 6: Cluster Hulls (Optional)
+### Step 6: Cluster Hulls (Optional)
 
 Cluster hulls are calculated to visualize the boundaries of each cluster in the UMAP plot.
 
 ```{r hulls, message=FALSE, warnings=FALSE}
-adata_res <- hc_cluster_hulls(adata_res, poly_smoothing = 4, relative_bandwidth = 1/40)
+adata_res <- hc_cluster_hulls(adata_res, poly_smoothing = 4)
 head(adata_res$uns$UMAP_hulls$hulls)
 ```
 
-## Step 7: Visualization
+### Step 7: Visualization
 
 Finally, we visualize the UMAP plot with clusters and hulls using the `hc_plot_umap()` function.
 

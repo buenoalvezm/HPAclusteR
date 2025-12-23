@@ -1,13 +1,12 @@
 #' Human Protein Atlas Tissue Data (transposed and subsampled)
 #'
-#' Human Protein Atlas tissue bulk-RNA expression data in AnnDatR format transposed and subsampled (first 1000 genes).
-#'
+#' Human Protein Atlas tissue bulk-RNA expression data in AnnDatR format transposed and subsampled (981 selected genes).
 #'
 #' @format
 #' An AnnDatR object with the following structure:
 #' \describe{
-#'   \item{X}{A data frame with 78 rows and 1001 columns representing the main data matrix (e.g., gene expression values).}
-#'   \item{obs}{A data frame with 1000 rows and 11 columns containing metadata for observations (e.g., genes).}
+#'   \item{X}{A data frame with 78 rows and 982 columns representing the main data matrix (e.g., gene expression values).}
+#'   \item{obs}{A data frame with 981 rows and 11 columns containing metadata for observations (e.g., genes).}
 #'   \item{obs_names_col}{A string specifying the column used for observation names (`ensembl_id`).}
 #'   \item{var}{A data frame with 78 rows and 7 columns containing metadata for variables (e.g., samples).}
 #'   \item{var_names_col}{A string specifying the column used for variable names (`sample_id`).}

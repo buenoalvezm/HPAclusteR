@@ -28,7 +28,7 @@ List with two named lists: $zscore and $scaled, each a list of ggplot objects pe
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
+adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
 
 # Plot expression heatmaps
 expression_plots <- hc_plot_expression(adata_res, show_sample_labels = FALSE)

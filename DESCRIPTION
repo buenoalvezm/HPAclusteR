@@ -25,6 +25,7 @@ Imports:
     ggplot2,
     matrixStats,
     pcaMethods,
+    R6,
     reticulate,
     rlang,
     Seurat,

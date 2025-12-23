@@ -242,7 +242,7 @@ find_consensus <- function(
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
+#' adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
 #' head(adata_res$uns$consensus_clustering)
 #' head(adata_res$obs)
 hc_cluster_consensus <- function(
@@ -268,7 +268,7 @@ hc_cluster_consensus <- function(
     dplyr::mutate(
       result = list(
         cluster_genes(
-          genes = AnnDatR$obs_names(),
+          genes = AnnDatR[["obs_names"]],
           neighbors = AnnDatR[["uns"]][["neighbors"]],
           method = method,
           resolution = !!rlang::sym("resolution"),
@@ -292,8 +292,14 @@ hc_cluster_consensus <- function(
       !!rlang::sym("resolution_k") >= 30,
       !!rlang::sym("resolution_k") <= 110
     ) |>
-    dplyr::select(-dplyr::any_of(c("k", "resolution_k"))) |>
-    tidyr::spread(!!rlang::sym("seed"), !!rlang::sym("cluster"), sep = "_")
+    dplyr::select(-dplyr::any_of(c("k", "resolution_k")))
+
+  cluster_data <- cluster_data |>
+    tidyr::pivot_wider(
+      names_from = seed,
+      values_from = !!rlang::sym("cluster"),
+      names_prefix = "seed_"
+    )
 
   # Create consensus clustering
   cluster_consensus <- find_consensus(

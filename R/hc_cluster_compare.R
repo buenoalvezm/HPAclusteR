@@ -80,7 +80,7 @@ cluster_matching <- function(
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res_a <- hc_cluster_consensus(adata_res, resolution = 6)
+#' adata_res_a <- hc_cluster_consensus(adata_res, resolution = 9)
 #'
 #' # Run clustering B
 #' adata_res_b <- hc_cluster_consensus(adata_res, resolution = 7)
