@@ -32,15 +32,9 @@ hc_umap <- function(AnnDatR, n_epochs = NULL, seed = 42, verbose = TRUE) {
   # Check if umap-learn is available
   if (!reticulate::py_module_available("umap")) {
     message(
-      "The 'umap-learn' Python package is not installed. Installing it now with numpy==1.23.5..."
+      "The 'umap-learn' Python package is not installed. Installing it now..."
     )
-    reticulate::py_install(
-      packages = c("umap-learn", "numpy==1.23.5"),
-      pip = TRUE
-    )
-  } else {
-    # Always enforce numpy version
-    reticulate::py_install("numpy==1.23.5", pip = TRUE)
+    reticulate::py_install("umap-learn")
   }
 
   # Import the umap module and fix issue with version string
