@@ -36,6 +36,6 @@ adata_res <- hc_pca(example_adata, components = 40)
 n_components <- hc_kaisers_rule(adata_res)
 #> [1] "Kaiser's rule is above 80% variation. Success"
 print(n_components)
-#> PC16 
-#>   16 
+#> PC11 
+#>   11 
 ```

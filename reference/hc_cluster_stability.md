@@ -28,18 +28,13 @@ adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
 #> Building SNN based on a provided distance matrix
 #> Computing SNN
-adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
-#> Iteration: 0 *** value: 970.898
-#> Iteration: 1 *** value: 281.717
-#> Iteration: 2 *** value: 100.383
-#> Iteration: 3 *** value: 94.5865
-#> Iteration: 4 *** value: 94.2944
-#> Iteration: 5 *** value: 93.8117
-#> Iteration: 6 *** value: 93.2751
-#> Iteration: 7 *** value: 93.0317
-#> Iteration: 8 *** value: 93.0109
-#> Iteration: 9 *** value: 93.0109
-#> Minimum: 93.0109
+adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+#> Iteration: 0 *** value: 948.279
+#> Iteration: 1 *** value: 70.5063
+#> Iteration: 2 *** value: 22.246
+#> Iteration: 3 *** value: 22.2447
+#> Iteration: 4 *** value: 22.2447
+#> Minimum: 22.2447
 #> Joining with `by = join_by(cons_cluster)`
 hc_cluster_stability(adata_res)
 #> $cluster_stability_hist
@@ -50,16 +45,16 @@ hc_cluster_stability(adata_res)
 #> # Groups:   seed1, seed2 [4,950]
 #>    seed1 seed2   ARI
 #>    <int> <int> <dbl>
-#>  1     1     2 0.904
-#>  2     1     3 0.918
-#>  3     1     4 0.903
-#>  4     1     5 0.932
-#>  5     1     6 0.841
-#>  6     1     7 0.882
-#>  7     1     8 0.903
-#>  8     1     9 0.884
-#>  9     1    10 0.879
-#> 10     1    11 0.865
+#>  1     1     2 0.979
+#>  2     1     3 0.962
+#>  3     1     4 0.990
+#>  4     1     5 0.949
+#>  5     1     6 0.954
+#>  6     1     7 0.963
+#>  7     1     8 0.953
+#>  8     1     9 0.974
+#>  9     1    10 0.939
+#> 10     1    11 0.979
 #> # ℹ 4,940 more rows
 #> 
 ```

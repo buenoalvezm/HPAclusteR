@@ -15,21 +15,37 @@ identify biologically meaningful gene clusters.
 
 ## Features
 
-- **Gene Clustering Pipeline**:
-  - Perform PCA for dimensionality reduction.
-  - Calculate distances between genes.
-  - Construct Shared Nearest Neighbor (SNN) graphs.
-  - Perform consensus clustering to identify robust gene clusters.
-  - Generate UMAP embeddings for visualization.
-  - Create UMAP cluster hulls to highlight cluster boundaries.
-- **Visualization Functions**:
-  - Ready-to-use functions for visualizing clustering results, UMAP
-    embeddings, and cluster hulls.
-- **Cluster Annotation**:
-  - Annotate gene clusters with functional databases such as:
-    - **Gene Ontology (GO)**
-    - **Reactome Pathways**
-    - Other user-defined databases.
+### Gene Clustering Pipeline:
+
+- Perform PCA for dimensionality reduction.
+- Calculate distances between genes.
+- Construct Shared Nearest Neighbor (SNN) graphs.
+- Perform consensus clustering to identify robust gene clusters.
+- Generate UMAP embeddings for visualization.
+- Create UMAP cluster hulls to highlight cluster boundaries.
+
+### Annotate Gene Clusters with Functional Databases:
+
+- Gene Ontology (GO)
+- KEGG Pathways
+- Humnan Protein Atlas (HPA)
+  - Tissue Expression
+  - Single Cell Type Expression
+  - Blood Expression
+  - Brain Expression
+  - Subcellular Location
+  - Secretome Location
+  - Protein Class
+- Reactome Pathways
+- PanglaoDB Cell Markers
+- Trrusted Cell Markers
+
+### Ready-to-use Visualization Functions:
+
+- Plot UMAP embeddings with clusters and/or hulls.
+- Plot gene expression per cluster across samples.
+- Plot annotation results with treemaps and buble heatmaps.
+- Plot cluster comparison results with network graphs.
 
 ## Installation
 
@@ -45,8 +61,6 @@ devtools::install_github("buenoalvezm/HPAclusteR")
 
 ## Usage
 
-### 1. Pipeline for Gene Clustering
-
 Start right away with the
 [`hc_auto_cluster()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_auto_cluster.md)
 function, which performs the complete gene clustering pipeline on an
@@ -58,16 +72,6 @@ library(HPAclusteR)
 # Example input: AnnDatR object with transcriptomics data
 adata_res <- hc_auto_cluster(example_adata)
 ```
-
-### 2. Visualization
-
-`HPAclusteR` provides several functions to visualize clustering results,
-including UMAP embeddings, cluster hulls, and more.
-
-### 3. Cluster Annotation
-
-Annotate gene clusters with functional databases such as **Gene
-Ontology**.
 
 ## Issues and Support
 
@@ -83,38 +87,76 @@ For any questions or further information, please contact us at
 
 # Package index
 
-## All functions
+## Utilities
 
-- [`adata`](https://buenoalvezm.github.io/HPAclusteR/reference/adata.md)
-  : Human Protein Atlas Tissue Data
-- [`adata_t`](https://buenoalvezm.github.io/HPAclusteR/reference/adata_t.md)
-  : Human Protein Atlas Tissue Data (transposed)
-- [`example_adata`](https://buenoalvezm.github.io/HPAclusteR/reference/example_adata.md)
-  : Human Protein Atlas Tissue Data (transposed and subsampled)
+General utility functions.
+
+- [`hc_initialize()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_initialize.md)
+  : Initialize AnnDatR object for gene clustering (genes as samples)
+
+## Workflows
+
+Functions for complete, one-call workflows.
+
 - [`hc_auto_cluster()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_auto_cluster.md)
   : One-call clustering pipeline
-- [`hc_cluster_compare()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_cluster_compare.md)
-  : Compare clusters using hypergeometric test
-- [`hc_cluster_consensus()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_cluster_consensus.md)
-  : Consensus clustering of genes
-- [`hc_cluster_hulls()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_cluster_hulls.md)
-  : Calculate UMAP cluster hulls
-- [`hc_cluster_stability()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_cluster_stability.md)
-  : Calculate ARI scores for multiple clustering seeds
-- [`hc_distance()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_distance.md)
-  : Compute distance matrix from PCA scores
-- [`hc_kaisers_rule()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_kaisers_rule.md)
-  : Determine number of components using Kaiser's rule
+
+## Clustering Pipeline
+
+Functions for gene clustering.
+
 - [`hc_pca()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_pca.md)
   : Perform PCA on AnnDatR object
-- [`hc_plot_umap()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_plot_umap.md)
-  : Plot UMAP with clusters and hulls
+- [`hc_kaisers_rule()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_kaisers_rule.md)
+  : Determine number of components using Kaiser's rule
+- [`hc_distance()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_distance.md)
+  : Compute distance matrix from PCA scores
 - [`hc_snn()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_snn.md)
   : Compute Shared Nearest Neighbors (SNN) Graph
+- [`hc_cluster_consensus()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_cluster_consensus.md)
+  : Consensus clustering of genes
 - [`hc_umap()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_umap.md)
   : Create UMAP embeddings from SNN graph
+- [`hc_cluster_hulls()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_cluster_hulls.md)
+  : Calculate UMAP cluster hulls
+
+## Clustering Evaluation
+
+Functions for evaluating clustering results.
+
+- [`hc_cluster_stability()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_cluster_stability.md)
+  : Calculate ARI scores for multiple clustering seeds
+- [`hc_cluster_compare()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_cluster_compare.md)
+  : Compare clusters using hypergeometric test
+
+## Cluster Annotation
+
+Functions for annotating clusters with functional databases.
+
+- [`hc_annotate()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_annotate.md)
+  : Master annotation pipeline: download, load, and run all enrichments
+- [`hc_classify()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_classify.md)
+  : Perform sample category gene classification (HPA logic,
+  sample-agnostic)
+
+## Visualization
+
+Functions for visualizing clustering results.
+
+- [`hc_plot_umap()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_plot_umap.md)
+  : Plot UMAP with clusters and hulls
+- [`hc_plot_expression()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_plot_expression.md)
+  : Plot per-cluster heatmaps for scaled and z-score expression
 - [`theme_hc()`](https://buenoalvezm.github.io/HPAclusteR/reference/theme_hc.md)
   : A simple theme for visualizations
+
+## Built in datasets
+
+Datasets included with the package for demonstration and testing
+purposes.
+
+- [`example_adata`](https://buenoalvezm.github.io/HPAclusteR/reference/example_adata.md)
+  : Human Protein Atlas Tissue Data (transposed and subsampled)
 
 # Articles
 

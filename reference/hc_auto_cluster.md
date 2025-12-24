@@ -85,7 +85,7 @@ UMAP plot of the clusters is also printed.
 ## Examples
 
 ``` r
-adata_res <- hc_auto_cluster(example_adata)
+adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 8)
 #> [1] "Kaiser's rule is above 80% variation. Success"
 #> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 #> Also defined by ‘spam’
@@ -93,46 +93,25 @@ adata_res <- hc_auto_cluster(example_adata)
 #> Also defined by ‘spam’
 #> Building SNN based on a provided distance matrix
 #> Computing SNN
-#> Iteration: 0 *** value: 968.488
-#> Iteration: 1 *** value: 236.854
-#> Iteration: 2 *** value: 60.801
-#> Iteration: 3 *** value: 56.147
-#> Iteration: 4 *** value: 55.579
-#> Iteration: 5 *** value: 55.5776
-#> Iteration: 6 *** value: 55.5776
-#> Minimum: 55.5776
+#> Iteration: 0 *** value: 947.234
+#> Iteration: 1 *** value: 212.952
+#> Iteration: 2 *** value: 42.2765
+#> Iteration: 3 *** value: 22.1534
+#> Iteration: 4 *** value: 22.1534
+#> Minimum: 22.1534
 #> Joining with `by = join_by(cons_cluster)`
-#> Downloading uv...
-#> Done!
 #> The 'umap-learn' Python package is not installed. Installing it now...
-#> Warning: An ephemeral virtual environment managed by 'reticulate' is currently in use.
-#> To add more packages to your current session, call `py_require()` instead
-#> of `py_install()`. Running:
-#>   `py_require(c("umap-learn"))`
-#> Warning: There was 1 warning in `dplyr::mutate()`.
-#> ℹ In argument: `density_data = lapply(...)`.
-#> ℹ In group 1: `cluster = "21"`, `sub_cluster = 1`, `sub_type = "primary"`.
-#> Caused by warning:
-#> ! The `x` argument of `as_tibble.matrix()` must have unique column names if
-#>   `.name_repair` is omitted as of tibble 2.0.0.
-#> ℹ Using compatibility `.name_repair`.
-#> ℹ The deprecated feature was likely used in the HPAclusteR package.
-#>   Please report the issue at
-#>   <https://github.com/buenoalvezm/HPAclusteR/issues>.
-#> Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
-#> ℹ Please use the `linewidth` argument instead.
-#> ℹ The deprecated feature was likely used in the HPAclusteR package.
-#>   Please report the issue at
-#>   <https://github.com/buenoalvezm/HPAclusteR/issues>.
+#> Using virtual environment '/home/runner/.virtualenvs/r-reticulate' ...
+#> + /home/runner/.virtualenvs/r-reticulate/bin/python -m pip install --upgrade --no-user umap-learn
 
 head(adata_res$uns$consensus_clustering)
 #> # A tibble: 6 × 2
 #>   gene            cluster
 #>   <chr>           <chr>  
-#> 1 ENSG00000000003 23     
-#> 2 ENSG00000000005 23     
-#> 3 ENSG00000000419 3      
-#> 4 ENSG00000000457 32     
-#> 5 ENSG00000000460 22     
-#> 6 ENSG00000000938 18     
+#> 1 ENSG00000002745 30     
+#> 2 ENSG00000004660 6      
+#> 3 ENSG00000006047 29     
+#> 4 ENSG00000006059 27     
+#> 5 ENSG00000006453 22     
+#> 6 ENSG00000006740 6      
 ```

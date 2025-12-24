@@ -57,40 +57,34 @@ adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
 #> Building SNN based on a provided distance matrix
 #> Computing SNN
-adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
-#> Iteration: 0 *** value: 970.898
-#> Iteration: 1 *** value: 281.717
-#> Iteration: 2 *** value: 100.383
-#> Iteration: 3 *** value: 94.5865
-#> Iteration: 4 *** value: 94.2944
-#> Iteration: 5 *** value: 93.8117
-#> Iteration: 6 *** value: 93.2751
-#> Iteration: 7 *** value: 93.0317
-#> Iteration: 8 *** value: 93.0109
-#> Iteration: 9 *** value: 93.0109
-#> Minimum: 93.0109
+adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+#> Iteration: 0 *** value: 948.279
+#> Iteration: 1 *** value: 70.5063
+#> Iteration: 2 *** value: 22.246
+#> Iteration: 3 *** value: 22.2447
+#> Iteration: 4 *** value: 22.2447
+#> Minimum: 22.2447
 #> Joining with `by = join_by(cons_cluster)`
 head(adata_res$uns$consensus_clustering)
 #> # A tibble: 6 × 2
 #>   gene            cluster
 #>   <chr>           <chr>  
-#> 1 ENSG00000000003 21     
-#> 2 ENSG00000000005 5      
-#> 3 ENSG00000000419 8      
-#> 4 ENSG00000000457 6      
-#> 5 ENSG00000000460 22     
-#> 6 ENSG00000000938 35     
+#> 1 ENSG00000002745 13     
+#> 2 ENSG00000004660 22     
+#> 3 ENSG00000006047 12     
+#> 4 ENSG00000006059 19     
+#> 5 ENSG00000006453 19     
+#> 6 ENSG00000006740 22     
 head(adata_res$obs)
-#> # A tibble: 6 × 13
+#> # A tibble: 6 × 9
 #>   ensembl_id      gene_symbol chromosome_name gene_biotype   start_position
 #>   <chr>           <chr>       <chr>           <chr>                   <dbl>
-#> 1 ENSG00000000003 TSPAN6      X               protein_coding      100627108
-#> 2 ENSG00000000005 TNMD        X               protein_coding      100584936
-#> 3 ENSG00000000419 DPM1        20              protein_coding       50934867
-#> 4 ENSG00000000457 SCYL3       1               protein_coding      169849631
-#> 5 ENSG00000000460 C1orf112    1               protein_coding      169662007
-#> 6 ENSG00000000938 FGR         1               protein_coding       27612064
-#> # ℹ 8 more variables: end_position <dbl>, length <dbl>, n_detected <dbl>,
-#> #   sum_nTPM_counts <dbl>, detected <lgl>, variance <dbl>, cluster <chr>,
+#> 1 ENSG00000002745 WNT16       7               protein_coding      121325367
+#> 2 ENSG00000004660 CAMKK1      17              protein_coding        3860315
+#> 3 ENSG00000006047 YBX2        17              protein_coding        7288263
+#> 4 ENSG00000006059 KRT33A      17              protein_coding       41346092
+#> 5 ENSG00000006453 BAIAP2L1    7               protein_coding       98291650
+#> 6 ENSG00000006740 ARHGAP44    17              protein_coding       12789498
+#> # ℹ 4 more variables: end_position <dbl>, length <dbl>, cluster <chr>,
 #> #   cluster_colors <chr>
 ```

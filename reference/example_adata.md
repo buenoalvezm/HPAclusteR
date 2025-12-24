@@ -1,7 +1,7 @@
 # Human Protein Atlas Tissue Data (transposed and subsampled)
 
 Human Protein Atlas tissue bulk-RNA expression data in AnnDatR format
-transposed and subsampled (first 1000 genes).
+transposed and subsampled (981 selected genes).
 
 ## Usage
 
@@ -15,12 +15,12 @@ An AnnDatR object with the following structure:
 
 - X:
 
-  A data frame with 78 rows and 1001 columns representing the main data
+  A data frame with 78 rows and 982 columns representing the main data
   matrix (e.g., gene expression values).
 
 - obs:
 
-  A data frame with 1000 rows and 11 columns containing metadata for
+  A data frame with 981 rows and 11 columns containing metadata for
   observations (e.g., genes).
 
 - obs_names_col:
@@ -58,21 +58,7 @@ An AnnDatR object with the following structure:
 
 ``` r
 example_adata
-#> <AnnDatR>
-#>   Public:
-#>     X: data.frame
-#>     clone: function (deep = FALSE) 
-#>     filter_obs: function (column, string, negative = FALSE) 
-#>     filter_var: function (column, string, negative = FALSE) 
-#>     initialize: function (prefix_name = NULL, var_names = "ensembl_ids", layer = NULL, 
-#>     layers: list
-#>     obs: spec_tbl_df, tbl_df, tbl, data.frame
-#>     obs_names: function () 
-#>     obs_names_col: ensembl_id
-#>     obsm: NULL
-#>     raw: NULL
-#>     uns: NULL
-#>     var: spec_tbl_df, tbl_df, tbl, data.frame
-#>     var_names: function () 
-#>     var_names_col: sample_id
+#> AnnDatR object with n_obs x n_vars = 981 x 78
+#>     obs: ensembl_id, gene_symbol, chromosome_name, gene_biotype, start_position, end_position, length
+#>     var: sample_id, tissue_name, consensus_tissue, organ_name, color, colors_esk, colors_esj
 ```

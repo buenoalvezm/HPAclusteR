@@ -37,5 +37,5 @@ Distance matrix stored within the AnnDatR object.
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 head(adata_res$uns$distance)
-#> [1] 0.6842105 0.9022556 0.8075188 0.9609023 1.0526316 0.4796992
+#> [1] 0.8857143 1.3804511 1.0812030 0.9609023 1.2120301 1.2451128
 ```

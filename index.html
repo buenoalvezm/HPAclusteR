@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" sizes="any" href="favicon.ico">
 <link rel="manifest" href="site.webmanifest">
-<script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<script src="lightswitch.js"></script><script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
@@ -24,7 +24,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
-    <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
+    <nav class="navbar navbar-expand-lg fixed-top " aria-label="Site navigation"><div class="container">
 
     <a class="navbar-brand me-2" href="index.html">HPAclusteR</a>
 
@@ -45,6 +45,14 @@
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/buenoalvezm/HPAclusteR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-lightswitch">
+<li><button class="dropdown-item" data-bs-theme-value="light"><span class="fa fa-sun"></span> Light</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="dark"><span class="fa fa-moon"></span> Dark</button></li>
+    <li><button class="dropdown-item" data-bs-theme-value="auto"><span class="fa fa-adjust"></span> Auto</button></li>
+  </ul>
+</li>
       </ul>
 </div>
 
@@ -66,9 +74,9 @@
 <div class="section level2">
 <h2 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
 </h2>
-<ul>
-<li>
-<strong>Gene Clustering Pipeline</strong>:
+<div class="section level3">
+<h3 id="gene-clustering-pipeline">Gene Clustering Pipeline:<a class="anchor" aria-label="anchor" href="#gene-clustering-pipeline"></a>
+</h3>
 <ul>
 <li>Perform PCA for dimensionality reduction.</li>
 <li>Calculate distances between genes.</li>
@@ -77,26 +85,39 @@
 <li>Generate UMAP embeddings for visualization.</li>
 <li>Create UMAP cluster hulls to highlight cluster boundaries.</li>
 </ul>
-</li>
-<li>
-<strong>Visualization Functions</strong>:
+</div>
+<div class="section level3">
+<h3 id="annotate-gene-clusters-with-functional-databases">Annotate Gene Clusters with Functional Databases:<a class="anchor" aria-label="anchor" href="#annotate-gene-clusters-with-functional-databases"></a>
+</h3>
 <ul>
-<li>Ready-to-use functions for visualizing clustering results, UMAP embeddings, and cluster hulls.</li>
-</ul>
-</li>
-<li>
-<strong>Cluster Annotation</strong>:
+<li>Gene Ontology (GO)</li>
+<li>KEGG Pathways</li>
+<li>Humnan Protein Atlas (HPA)
 <ul>
-<li>Annotate gene clusters with functional databases such as:
+<li>Tissue Expression</li>
+<li>Single Cell Type Expression</li>
+<li>Blood Expression</li>
+<li>Brain Expression</li>
+<li>Subcellular Location</li>
+<li>Secretome Location</li>
+<li>Protein Class</li>
+</ul>
+</li>
+<li>Reactome Pathways</li>
+<li>PanglaoDB Cell Markers</li>
+<li>Trrusted Cell Markers</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="ready-to-use-visualization-functions">Ready-to-use Visualization Functions:<a class="anchor" aria-label="anchor" href="#ready-to-use-visualization-functions"></a>
+</h3>
 <ul>
-<li><strong>Gene Ontology (GO)</strong></li>
-<li><strong>Reactome Pathways</strong></li>
-<li>Other user-defined databases.</li>
+<li>Plot UMAP embeddings with clusters and/or hulls.</li>
+<li>Plot gene expression per cluster across samples.</li>
+<li>Plot annotation results with treemaps and buble heatmaps.</li>
+<li>Plot cluster comparison results with network graphs.</li>
 </ul>
-</li>
-</ul>
-</li>
-</ul>
+</div>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -112,26 +133,12 @@
 <div class="section level2">
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
-<div class="section level3">
-<h3 id="id_1-pipeline-for-gene-clustering">1. Pipeline for Gene Clustering<a class="anchor" aria-label="anchor" href="#id_1-pipeline-for-gene-clustering"></a>
-</h3>
 <p>Start right away with the <code><a href="reference/hc_auto_cluster.html">hc_auto_cluster()</a></code> function, which performs the complete gene clustering pipeline on an <code>AnnDatR</code> object.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://buenoalvezm.github.io/HPAclusteR/">HPAclusteR</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Example input: AnnDatR object with transcriptomics data</span></span>
 <span><span class="va">adata_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/hc_auto_cluster.html">hc_auto_cluster</a></span><span class="op">(</span><span class="va">example_adata</span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level3">
-<h3 id="id_2-visualization">2. Visualization<a class="anchor" aria-label="anchor" href="#id_2-visualization"></a>
-</h3>
-<p><code>HPAclusteR</code> provides several functions to visualize clustering results, including UMAP embeddings, cluster hulls, and more.</p>
-</div>
-<div class="section level3">
-<h3 id="id_3-cluster-annotation">3. Cluster Annotation<a class="anchor" aria-label="anchor" href="#id_3-cluster-annotation"></a>
-</h3>
-<p>Annotate gene clusters with functional databases such as <strong>Gene Ontology</strong>.</p>
-</div>
 </div>
 <div class="section level2">
 <h2 id="issues-and-support">Issues and Support<a class="anchor" aria-label="anchor" href="#issues-and-support"></a>
@@ -196,7 +203,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Provided without <strong>any warranty</strong>.</p>
 </div>
 
     </footer>

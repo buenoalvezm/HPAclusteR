@@ -72,18 +72,13 @@ adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
 #> Building SNN based on a provided distance matrix
 #> Computing SNN
-adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
-#> Iteration: 0 *** value: 970.898
-#> Iteration: 1 *** value: 281.717
-#> Iteration: 2 *** value: 100.383
-#> Iteration: 3 *** value: 94.5865
-#> Iteration: 4 *** value: 94.2944
-#> Iteration: 5 *** value: 93.8117
-#> Iteration: 6 *** value: 93.2751
-#> Iteration: 7 *** value: 93.0317
-#> Iteration: 8 *** value: 93.0109
-#> Iteration: 9 *** value: 93.0109
-#> Minimum: 93.0109
+adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+#> Iteration: 0 *** value: 948.279
+#> Iteration: 1 *** value: 70.5063
+#> Iteration: 2 *** value: 22.246
+#> Iteration: 3 *** value: 22.2447
+#> Iteration: 4 *** value: 22.2447
+#> Minimum: 22.2447
 #> Joining with `by = join_by(cons_cluster)`
 adata_res <- hc_umap(adata_res)
 adata_res <- hc_cluster_hulls(adata_res)
@@ -91,10 +86,10 @@ head(adata_res$uns$UMAP_hulls$hulls)
 #> # A tibble: 6 × 7
 #>   cluster sub_cluster sub_type landmass      X     Y polygon_id
 #>   <chr>         <dbl> <chr>       <dbl>  <dbl> <dbl> <chr>     
-#> 1 2                 1 primary         1 -0.818 0.161 2_1_1     
-#> 2 2                 1 primary         1 -0.818 0.168 2_1_1     
-#> 3 2                 1 primary         1 -0.818 0.174 2_1_1     
-#> 4 2                 1 primary         1 -0.824 0.181 2_1_1     
-#> 5 2                 1 primary         1 -0.824 0.187 2_1_1     
-#> 6 2                 1 primary         1 -0.811 0.187 2_1_1     
+#> 1 7                 1 primary         1 -0.565 0.432 7_1_1     
+#> 2 7                 1 primary         1 -0.572 0.439 7_1_1     
+#> 3 7                 1 primary         1 -0.579 0.446 7_1_1     
+#> 4 7                 1 primary         1 -0.572 0.453 7_1_1     
+#> 5 7                 1 primary         1 -0.565 0.46  7_1_1     
+#> 6 7                 1 primary         1 -0.558 0.467 7_1_1     
 ```

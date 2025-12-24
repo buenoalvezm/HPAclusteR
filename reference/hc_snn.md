@@ -54,5 +54,5 @@ adata_res <- hc_snn(adata_res, neighbors = 15)
 #> Building SNN based on a provided distance matrix
 #> Computing SNN
 adata_res$uns$neighbors$snn
-#> A Graph object containing 1000 cells
+#> A Graph object containing 981 cells
 ```
