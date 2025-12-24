@@ -152,12 +152,12 @@ uses the constructed SNN graph.
 adata_res <- hc_umap(adata_res, verbose = FALSE)
 head(adata_res$obsm$X_umap)
 #>                     UMAP_1     UMAP_2
-#> ENSG00000002745 -0.9819187 -0.4483994
-#> ENSG00000004660  0.9746076  0.3236996
-#> ENSG00000006047 -0.7493247  0.1869057
-#> ENSG00000006059 -0.8064099 -0.4463627
-#> ENSG00000006453  0.4180833  0.3302964
-#> ENSG00000006740  0.9814169  0.3435077
+#> ENSG00000002745 -0.9777868 -0.8167347
+#> ENSG00000004660  0.9804440  0.2921678
+#> ENSG00000006047 -0.8466706  0.8255373
+#> ENSG00000006059 -0.6987286 -0.7739992
+#> ENSG00000006453  0.4703236  0.1636374
+#> ENSG00000006740  0.9781379  0.3113060
 ```
 
 ### Step 6: Cluster Hulls (Optional)
@@ -171,12 +171,12 @@ head(adata_res$uns$UMAP_hulls$hulls)
 #> # A tibble: 6 × 7
 #>   cluster sub_cluster sub_type landmass      X      Y polygon_id
 #>   <chr>         <dbl> <chr>       <dbl>  <dbl>  <dbl> <chr>     
-#> 1 30                1 primary         1 -0.994 -0.467 30_1_1    
-#> 2 30                1 primary         1 -1.00  -0.46  30_1_1    
-#> 3 30                1 primary         1 -1.00  -0.439 30_1_1    
-#> 4 30                1 primary         1 -0.980 -0.439 30_1_1    
-#> 5 30                1 primary         1 -0.945 -0.446 30_1_1    
-#> 6 30                1 primary         1 -0.945 -0.467 30_1_1
+#> 1 30                1 primary         1 -0.994 -0.832 30_1_1    
+#> 2 30                1 primary         1 -1.00  -0.825 30_1_1    
+#> 3 30                1 primary         1 -1.00  -0.804 30_1_1    
+#> 4 30                1 primary         1 -0.994 -0.797 30_1_1    
+#> 5 30                1 primary         1 -0.980 -0.790 30_1_1    
+#> 6 30                1 primary         1 -0.959 -0.790 30_1_1
 ```
 
 ### Step 7: Visualization

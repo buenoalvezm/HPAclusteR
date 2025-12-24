@@ -218,12 +218,12 @@ It uses the constructed SNN graph.</p>
 <code class="sourceCode R"><span><span class="va">adata_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/hc_umap.html">hc_umap</a></span><span class="op">(</span><span class="va">adata_res</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">adata_res</span><span class="op">$</span><span class="va">obsm</span><span class="op">$</span><span class="va">X_umap</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                     UMAP_1     UMAP_2</span></span>
-<span><span class="co">#&gt; ENSG00000002745 -0.9819187 -0.4483994</span></span>
-<span><span class="co">#&gt; ENSG00000004660  0.9746076  0.3236996</span></span>
-<span><span class="co">#&gt; ENSG00000006047 -0.7493247  0.1869057</span></span>
-<span><span class="co">#&gt; ENSG00000006059 -0.8064099 -0.4463627</span></span>
-<span><span class="co">#&gt; ENSG00000006453  0.4180833  0.3302964</span></span>
-<span><span class="co">#&gt; ENSG00000006740  0.9814169  0.3435077</span></span></code></pre></div>
+<span><span class="co">#&gt; ENSG00000002745 -0.9777868 -0.8167347</span></span>
+<span><span class="co">#&gt; ENSG00000004660  0.9804440  0.2921678</span></span>
+<span><span class="co">#&gt; ENSG00000006047 -0.8466706  0.8255373</span></span>
+<span><span class="co">#&gt; ENSG00000006059 -0.6987286 -0.7739992</span></span>
+<span><span class="co">#&gt; ENSG00000006453  0.4703236  0.1636374</span></span>
+<span><span class="co">#&gt; ENSG00000006740  0.9781379  0.3113060</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-6-cluster-hulls-optional">Step 6: Cluster Hulls (Optional)<a class="anchor" aria-label="anchor" href="#step-6-cluster-hulls-optional"></a>
@@ -236,12 +236,12 @@ cluster in the UMAP plot.</p>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 6 × 7</span></span></span>
 <span><span class="co">#&gt;   cluster sub_cluster sub_type landmass      X      Y polygon_id</span></span>
 <span><span class="co">#&gt;   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 30                1 primary         1 -<span style="color: #BB0000;">0.994</span> -<span style="color: #BB0000;">0.467</span> 30_1_1    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 30                1 primary         1 -<span style="color: #BB0000;">1.00</span>  -<span style="color: #BB0000;">0.46</span>  30_1_1    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 30                1 primary         1 -<span style="color: #BB0000;">1.00</span>  -<span style="color: #BB0000;">0.439</span> 30_1_1    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 30                1 primary         1 -<span style="color: #BB0000;">0.980</span> -<span style="color: #BB0000;">0.439</span> 30_1_1    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 30                1 primary         1 -<span style="color: #BB0000;">0.945</span> -<span style="color: #BB0000;">0.446</span> 30_1_1    </span></span>
-<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 30                1 primary         1 -<span style="color: #BB0000;">0.945</span> -<span style="color: #BB0000;">0.467</span> 30_1_1</span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">1</span> 30                1 primary         1 -<span style="color: #BB0000;">0.994</span> -<span style="color: #BB0000;">0.832</span> 30_1_1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">2</span> 30                1 primary         1 -<span style="color: #BB0000;">1.00</span>  -<span style="color: #BB0000;">0.825</span> 30_1_1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">3</span> 30                1 primary         1 -<span style="color: #BB0000;">1.00</span>  -<span style="color: #BB0000;">0.804</span> 30_1_1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">4</span> 30                1 primary         1 -<span style="color: #BB0000;">0.994</span> -<span style="color: #BB0000;">0.797</span> 30_1_1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">5</span> 30                1 primary         1 -<span style="color: #BB0000;">0.980</span> -<span style="color: #BB0000;">0.790</span> 30_1_1    </span></span>
+<span><span class="co">#&gt; <span style="color: #BCBCBC;">6</span> 30                1 primary         1 -<span style="color: #BB0000;">0.959</span> -<span style="color: #BB0000;">0.790</span> 30_1_1</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="step-7-visualization">Step 7: Visualization<a class="anchor" aria-label="anchor" href="#step-7-visualization"></a>

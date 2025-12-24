@@ -86,10 +86,10 @@ head(adata_res$uns$UMAP_hulls$hulls)
 #> # A tibble: 6 × 7
 #>   cluster sub_cluster sub_type landmass      X     Y polygon_id
 #>   <chr>         <dbl> <chr>       <dbl>  <dbl> <dbl> <chr>     
-#> 1 7                 1 primary         1 -0.565 0.432 7_1_1     
-#> 2 7                 1 primary         1 -0.572 0.439 7_1_1     
-#> 3 7                 1 primary         1 -0.579 0.446 7_1_1     
-#> 4 7                 1 primary         1 -0.572 0.453 7_1_1     
-#> 5 7                 1 primary         1 -0.565 0.46  7_1_1     
-#> 6 7                 1 primary         1 -0.558 0.467 7_1_1     
+#> 1 2                 1 primary         1 -0.931 0.441 2_1_1     
+#> 2 2                 1 primary         1 -0.938 0.447 2_1_1     
+#> 3 2                 1 primary         1 -0.945 0.447 2_1_1     
+#> 4 2                 1 primary         1 -0.945 0.461 2_1_1     
+#> 5 2                 1 primary         1 -0.938 0.467 2_1_1     
+#> 6 2                 1 primary         1 -0.931 0.467 2_1_1     
 ```

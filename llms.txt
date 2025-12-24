@@ -70,7 +70,7 @@ function, which performs the complete gene clustering pipeline on an
 library(HPAclusteR)
 
 # Example input: AnnDatR object with transcriptomics data
-adata_res <- hc_auto_cluster(example_adata)
+adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 10)
 ```
 
 ## Issues and Support
