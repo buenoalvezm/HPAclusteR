@@ -40,7 +40,7 @@ calculate_ari <- function(labels1, labels2) {
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
+#' adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
 #' hc_cluster_stability(adata_res)
 hc_cluster_stability <- function(AnnDatR) {
   if (is.null(AnnDatR[["uns"]][["cluster_data"]])) {

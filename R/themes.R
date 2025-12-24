@@ -17,6 +17,6 @@ theme_hc <- function() {
     panel.grid.major = ggplot2::element_blank(),
     panel.grid.minor = ggplot2::element_blank(),
     panel.border = ggplot2::element_blank(),
-    axis.line = ggplot2::element_line(colour = "black", size = 0.5)
+    axis.line = ggplot2::element_line(colour = "black", linewidth = 0.5)
   )
 }

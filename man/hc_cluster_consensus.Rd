@@ -37,7 +37,7 @@ Clusters genes using multiple runs of a clustering algorithm with different seed
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
+adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
 head(adata_res$uns$consensus_clustering)
 head(adata_res$obs)
 }

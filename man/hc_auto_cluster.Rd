@@ -51,6 +51,6 @@ UMAP embedding, and cluster hull generation. It prints a UMAP plot of the
 resulting clusters.
 }
 \examples{
-adata_res <- hc_auto_cluster(example_adata)
+adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 8)
 head(adata_res$uns$consensus_clustering)
 }

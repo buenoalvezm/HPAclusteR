@@ -12,22 +12,36 @@
 
 ## Features
 
-- **Gene Clustering Pipeline**:
-  - Perform PCA for dimensionality reduction.
-  - Calculate distances between genes.
-  - Construct Shared Nearest Neighbor (SNN) graphs.
-  - Perform consensus clustering to identify robust gene clusters.
-  - Generate UMAP embeddings for visualization.
-  - Create UMAP cluster hulls to highlight cluster boundaries.
+### Gene Clustering Pipeline:
+- Perform PCA for dimensionality reduction.
+- Calculate distances between genes.
+- Construct Shared Nearest Neighbor (SNN) graphs.
+- Perform consensus clustering to identify robust gene clusters.
+- Generate UMAP embeddings for visualization.
+- Create UMAP cluster hulls to highlight cluster boundaries.
 
-- **Visualization Functions**:
-  - Ready-to-use functions for visualizing clustering results, UMAP embeddings, and cluster hulls.
+### Annotate Gene Clusters with Functional Databases:
+- Gene Ontology (GO)
+- KEGG Pathways
+- Humnan Protein Atlas (HPA)
+  - Tissue Expression
+  - Single Cell Type Expression
+  - Blood Expression
+  - Brain Expression
+  - Subcellular Location
+  - Secretome Location
+  - Protein Class
+- Reactome Pathways
+- PanglaoDB Cell Markers
+- Trrusted Cell Markers
 
-- **Cluster Annotation**:
-  - Annotate gene clusters with functional databases such as:
-    - **Gene Ontology (GO)**
-    - **Reactome Pathways**
-    - Other user-defined databases.
+
+### Ready-to-use Visualization Functions:
+- Plot UMAP embeddings with clusters and/or hulls.
+- Plot gene expression per cluster across samples.
+- Plot annotation results with treemaps and buble heatmaps.
+- Plot cluster comparison results with network graphs.
+
 
 ## Installation
 
@@ -43,7 +57,6 @@ devtools::install_github("buenoalvezm/HPAclusteR")
 
 ## Usage
 
-### 1. Pipeline for Gene Clustering
 Start right away with the `hc_auto_cluster()` function, which performs the complete gene clustering pipeline on an `AnnDatR` object.
 
 ```r
@@ -52,12 +65,6 @@ library(HPAclusteR)
 # Example input: AnnDatR object with transcriptomics data
 adata_res <- hc_auto_cluster(example_adata)
 ```
-
-### 2. Visualization
-`HPAclusteR` provides several functions to visualize clustering results, including UMAP embeddings, cluster hulls, and more.
-
-### 3. Cluster Annotation
-Annotate gene clusters with functional databases such as **Gene Ontology**.
 
 ## Issues and Support
 

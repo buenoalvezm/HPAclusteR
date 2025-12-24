@@ -25,6 +25,7 @@ Imports:
     ggplot2,
     matrixStats,
     pcaMethods,
+    R6,
     reticulate,
     rlang,
     Seurat,
@@ -32,15 +33,22 @@ Imports:
     tibble,
     tidyr
 Suggests:
+    clusterProfiler,
     concaveman,
     fpc,
     GGally,
+    ggrepel,
     knitr,
     MASS,
     network,
+    org.Hs.eg.db,
+    patchwork,
+    readr,
     rmarkdown,
+    rrvgo,
     sna,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    treemapify
 VignetteBuilder: 
     knitr
 Config/testthat/edition: 3

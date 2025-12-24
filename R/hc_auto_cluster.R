@@ -21,7 +21,7 @@
 #'
 #' @export
 #' @examples
-#' adata_res <- hc_auto_cluster(example_adata)
+#' adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 8)
 #' head(adata_res$uns$consensus_clustering)
 hc_auto_cluster <- function(
   AnnDatR,
@@ -66,7 +66,7 @@ hc_auto_cluster <- function(
       method = cluster_method,
       verbose = verbose
     ) |>
-    hc_umap() |>
+    hc_umap(verbose = verbose) |>
     hc_cluster_hulls()
 
   umap_plot <- hc_plot_umap(AnnDatR_res)

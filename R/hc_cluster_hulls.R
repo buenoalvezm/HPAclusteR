@@ -14,6 +14,7 @@ get_density <-
       MASS::kde2d(x, y, h = h, n = n, lims = lims)
 
     g_density[["z"]] |>
+      as.data.frame() |>
       tibble::as_tibble(rownames = "x") |>
       tidyr::gather(!!rlang::sym("y"), !!rlang::sym("z"), -!!rlang::sym("x")) |>
       dplyr::mutate(y = gsub("V", "", !!rlang::sym("y"))) |>
@@ -52,7 +53,7 @@ get_density <-
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_cluster_consensus(adata_res, resolution = 6.3)
+#' adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
 #' adata_res <- hc_umap(adata_res)
 #' adata_res <- hc_cluster_hulls(adata_res)
 #' head(adata_res$uns$UMAP_hulls$hulls)
@@ -337,6 +338,7 @@ hc_cluster_hulls <-
                 concavity = poly_concavity,
                 length_threshold = plot_bandwidth * poly_smoothing
               ) |>
+              as.data.frame() |>
               tibble::as_tibble()
           }
         )
