@@ -46,8 +46,8 @@ jobs:
 
       - name: Pin numpy version in reticulate environment
         run: |
-          Rscript -e "reticulate::py_install('numpy==1.23.5', pip = TRUE)"
-          
+          Rscript -e "reticulate::py_install('numpy==1.26.4', pip = TRUE)"
+
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
