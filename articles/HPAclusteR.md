@@ -152,12 +152,12 @@ uses the constructed SNN graph.
 adata_res <- hc_umap(adata_res, verbose = FALSE)
 head(adata_res$obsm$X_umap)
 #>                     UMAP_1     UMAP_2
-#> ENSG00000002745 -0.9777868 -0.8167347
-#> ENSG00000004660  0.9804440  0.2921678
-#> ENSG00000006047 -0.8466706  0.8255373
-#> ENSG00000006059 -0.6987286 -0.7739992
-#> ENSG00000006453  0.4703236  0.1636374
-#> ENSG00000006740  0.9781379  0.3113060
+#> ENSG00000002745  0.2972319  0.5904026
+#> ENSG00000004660 -0.9859446 -0.4686754
+#> ENSG00000006047  0.9013946 -0.4792866
+#> ENSG00000006059  0.1685648  0.4550808
+#> ENSG00000006453 -0.4699026 -0.3761350
+#> ENSG00000006740 -0.9678060 -0.4816415
 ```
 
 ### Step 6: Cluster Hulls (Optional)
@@ -171,12 +171,12 @@ head(adata_res$uns$UMAP_hulls$hulls)
 #> # A tibble: 6 × 7
 #>   cluster sub_cluster sub_type landmass      X      Y polygon_id
 #>   <chr>         <dbl> <chr>       <dbl>  <dbl>  <dbl> <chr>     
-#> 1 30                1 primary         1 -0.994 -0.832 30_1_1    
-#> 2 30                1 primary         1 -1.00  -0.825 30_1_1    
-#> 3 30                1 primary         1 -1.00  -0.804 30_1_1    
-#> 4 30                1 primary         1 -0.994 -0.797 30_1_1    
-#> 5 30                1 primary         1 -0.980 -0.790 30_1_1    
-#> 6 30                1 primary         1 -0.959 -0.790 30_1_1
+#> 1 14                1 primary         1 -0.980 -0.502 14_1_1    
+#> 2 14                1 primary         1 -1.00  -0.502 14_1_1    
+#> 3 14                1 primary         1 -1.00  -0.474 14_1_1    
+#> 4 14                1 primary         1 -0.987 -0.46  14_1_1    
+#> 5 14                1 primary         1 -0.959 -0.46  14_1_1    
+#> 6 14                1 primary         1 -0.952 -0.495 14_1_1
 ```
 
 ### Step 7: Visualization
@@ -214,12 +214,12 @@ head(enrichment_res$enrichment)
 #> # A tibble: 6 × 10
 #>   `Cluster ID` Database      `Term ID` Term          GeneRatio BgRatio `P-value`
 #>   <chr>        <chr>         <chr>     <chr>         <chr>     <chr>       <dbl>
-#> 1 11           KEGG pathways hsa04382  Cornified en… 13/24     40/349    8.68e-8
-#> 2 11           KEGG pathways hsa04915  Estrogen sig… 4/24      12/349    5.92e-3
-#> 3 12           KEGG pathways hsa01100  Metabolic pa… 9/15      67/349    4.12e-4
-#> 4 13           KEGG pathways hsa04814  Motor protei… 3/11      14/349    7.05e-3
-#> 5 17           KEGG pathways hsa03040  Spliceosome   5/20      13/349    3.53e-4
-#> 6 2            KEGG pathways hsa03082  ATP-dependen… 3/5       10/349    1.66e-4
+#> 1 11           KEGG pathways hsa04382  Cornified en… 13/24     40/350    8.38e-8
+#> 2 11           KEGG pathways hsa04915  Estrogen sig… 4/24      12/350    5.86e-3
+#> 3 12           KEGG pathways hsa01100  Metabolic pa… 9/15      67/350    4.03e-4
+#> 4 13           KEGG pathways hsa04814  Motor protei… 3/11      14/350    6.99e-3
+#> 5 17           KEGG pathways hsa03040  Spliceosome   5/20      13/350    3.49e-4
+#> 6 2            KEGG pathways hsa03082  ATP-dependen… 3/5       10/350    1.64e-4
 #> # ℹ 3 more variables: `Adjusted P-value` <dbl>, `Gene IDs` <chr>,
 #> #   `Gene names` <chr>
 enrichment_res$bubblemap_kegg
@@ -305,7 +305,7 @@ comparison_res <- hc_cluster_compare(
 #> ℹ The deprecated feature was likely used in the HPAclusteR package.
 #>   Please report the issue at
 #>   <https://github.com/buenoalvezm/HPAclusteR/issues>.
-#> This warning is displayed once every 8 hours.
+#> This warning is displayed once per session.
 #> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
 #> generated.
 comparison_res$heatmap
@@ -357,74 +357,74 @@ sessionInfo()
 #> loaded via a namespace (and not attached):
 #>   [1] fs_1.6.6                matrixStats_1.5.0       spatstat.sparse_3.1-0  
 #>   [4] enrichplot_1.30.4       httr_1.4.7              RColorBrewer_1.1-3     
-#>   [7] prabclus_2.3-4          tools_4.5.2             sctransform_0.4.2      
+#>   [7] prabclus_2.3-5          tools_4.5.2             sctransform_0.4.3      
 #>  [10] utf8_1.2.6              R6_2.6.1                lazyeval_0.2.2         
 #>  [13] uwot_0.2.4              withr_3.0.2             sp_2.2-0               
 #>  [16] GGally_2.4.0            gridExtra_2.3           progressr_0.18.0       
 #>  [19] cli_3.6.5               Biobase_2.70.0          textshaping_1.0.4      
-#>  [22] factoextra_1.0.7        spatstat.explore_3.6-0  fastDummies_1.7.5      
-#>  [25] network_1.19.0          scatterpie_0.2.6        slam_0.1-55            
+#>  [22] factoextra_1.0.7        spatstat.explore_3.7-0  fastDummies_1.7.5      
+#>  [25] network_1.20.0          scatterpie_0.2.6        slam_0.1-55            
 #>  [28] labeling_0.4.3          sass_0.4.10             diptest_0.77-2         
 #>  [31] Seurat_5.4.0            tm_0.7-17               S7_0.2.1               
-#>  [34] robustbase_0.99-6       spatstat.data_3.1-9     readr_2.1.6            
+#>  [34] robustbase_0.99-7       spatstat.data_3.1-9     readr_2.1.6            
 #>  [37] askpass_1.2.1           ggridges_0.5.7          pbapply_1.7-4          
-#>  [40] pkgdown_2.2.0           systemfonts_1.3.1       yulab.utils_0.2.3      
+#>  [40] pkgdown_2.2.0           systemfonts_1.3.1       yulab.utils_0.2.4      
 #>  [43] gson_0.1.0              DOSE_4.4.0              R.utils_2.13.0         
-#>  [46] parallelly_1.46.0       RSQLite_2.4.5           treemap_2.4-4          
+#>  [46] parallelly_1.46.1       RSQLite_2.4.6           treemap_2.4-4          
 #>  [49] generics_0.1.4          gridGraphics_0.5-1      ica_1.0-3              
-#>  [52] spatstat.random_3.4-3   dplyr_1.1.4             GO.db_3.22.0           
+#>  [52] spatstat.random_3.4-4   dplyr_1.2.0             GO.db_3.22.0           
 #>  [55] Matrix_1.7-4            S4Vectors_0.48.0        abind_1.4-8            
-#>  [58] R.methodsS3_1.8.2       lifecycle_1.0.4         yaml_2.3.12            
+#>  [58] R.methodsS3_1.8.2       lifecycle_1.0.5         yaml_2.3.12            
 #>  [61] qvalue_2.42.0           Rtsne_0.17              grid_4.5.2             
-#>  [64] blob_1.2.4              promises_1.5.0          crayon_1.5.3           
-#>  [67] miniUI_0.1.2            ggtangle_0.0.9          lattice_0.22-7         
+#>  [64] blob_1.3.0              promises_1.5.0          crayon_1.5.3           
+#>  [67] miniUI_0.1.2            ggtangle_0.1.1          lattice_0.22-7         
 #>  [70] cowplot_1.2.0           KEGGREST_1.50.0         sna_2.8                
-#>  [73] pillar_1.11.1           knitr_1.51              fgsea_1.36.0           
-#>  [76] fpc_2.2-13              future.apply_1.20.1     codetools_0.2-20       
-#>  [79] fastmatch_1.1-6         glue_1.8.0              ggiraph_0.9.2          
-#>  [82] V8_8.0.1                ggfun_0.2.0             spatstat.univar_3.1-5  
-#>  [85] fontLiberation_0.1.0    pcaMethods_2.2.0        data.table_1.17.8      
-#>  [88] vctrs_0.6.5             png_0.1-8               treeio_1.34.0          
-#>  [91] spam_2.11-1             gtable_0.3.6            kernlab_0.9-33         
-#>  [94] cachem_1.1.0            xfun_0.55               mime_0.13              
+#>  [73] pillar_1.11.1           knitr_1.51              fgsea_1.36.2           
+#>  [76] fpc_2.2-14              future.apply_1.20.1     codetools_0.2-20       
+#>  [79] fastmatch_1.1-8         glue_1.8.0              ggiraph_0.9.4          
+#>  [82] V8_8.0.1                ggfun_0.2.0             spatstat.univar_3.1-6  
+#>  [85] fontLiberation_0.1.0    pcaMethods_2.2.0        data.table_1.18.2.1    
+#>  [88] vctrs_0.7.1             png_0.1-8               treeio_1.34.0          
+#>  [91] spam_2.11-3             gtable_0.3.6            kernlab_0.9-33         
+#>  [94] cachem_1.1.0            xfun_0.56               mime_0.13              
 #>  [97] Seqinfo_1.0.0           coda_0.19-4.1           survival_3.8-3         
-#> [100] pheatmap_1.0.13         fitdistrplus_1.2-4      ROCR_1.0-11            
-#> [103] nlme_3.1-168            ggtree_4.0.3            bit64_4.6.0-1          
-#> [106] fontquiver_0.2.1        RcppAnnoy_0.0.22        bslib_0.9.0            
-#> [109] irlba_2.3.5.1           KernSmooth_2.23-26      otel_0.2.0             
+#> [100] pheatmap_1.0.13         fitdistrplus_1.2-6      ROCR_1.0-12            
+#> [103] nlme_3.1-168            ggtree_4.0.4            bit64_4.6.0-1          
+#> [106] fontquiver_0.2.1        RcppAnnoy_0.0.23        bslib_0.10.0           
+#> [109] irlba_2.3.7             KernSmooth_2.23-26      otel_0.2.0             
 #> [112] colorspace_2.1-2        rrvgo_1.22.0            BiocGenerics_0.56.0    
 #> [115] DBI_1.2.3               nnet_7.3-20             tidyselect_1.2.1       
 #> [118] bit_4.6.0               compiler_4.5.2          curl_7.0.0             
-#> [121] xml2_1.5.1              NLP_0.3-2               desc_1.4.3             
-#> [124] fontBitstreamVera_0.1.1 plotly_4.11.0           scales_1.4.0           
-#> [127] DEoptimR_1.1-4          lmtest_0.9-40           rappdirs_0.3.3         
+#> [121] xml2_1.5.2              NLP_0.3-2               desc_1.4.3             
+#> [124] fontBitstreamVera_0.1.1 plotly_4.12.0           scales_1.4.0           
+#> [127] DEoptimR_1.1-4          lmtest_0.9-40           rappdirs_0.3.4         
 #> [130] stringr_1.6.0           digest_0.6.39           goftest_1.2-3          
-#> [133] spatstat.utils_3.2-0    rmarkdown_2.30          XVector_0.50.0         
+#> [133] spatstat.utils_3.2-1    rmarkdown_2.30          XVector_0.50.0         
 #> [136] htmltools_0.5.9         pkgconfig_2.0.3         umap_0.2.10.0          
-#> [139] fastmap_1.2.0           rlang_1.1.6             htmlwidgets_1.6.4      
+#> [139] fastmap_1.2.0           rlang_1.1.7             htmlwidgets_1.6.4      
 #> [142] shiny_1.12.1            farver_2.1.2            jquerylib_0.1.4        
 #> [145] zoo_1.8-15              jsonlite_2.0.0          statnet.common_4.13.0  
 #> [148] BiocParallel_1.44.0     mclust_6.1.2            GOSemSim_2.36.0        
 #> [151] R.oo_1.27.1             magrittr_2.0.4          modeltools_0.2-24      
 #> [154] ggplotify_0.1.3         wordcloud_2.6           dotCall64_1.2          
-#> [157] patchwork_1.3.2         Rcpp_1.1.0              ape_5.8-1              
-#> [160] ggnewscale_0.5.2        gdtools_0.4.4           reticulate_1.44.1      
+#> [157] patchwork_1.3.2         Rcpp_1.1.1              ape_5.8-1              
+#> [160] ggnewscale_0.5.2        gdtools_0.5.0           reticulate_1.44.1      
 #> [163] stringi_1.8.7           MASS_7.3-65             org.Hs.eg.db_3.22.0    
 #> [166] plyr_1.8.9              flexmix_2.3-20          ggstats_0.12.0         
 #> [169] parallel_4.5.2          listenv_0.10.0          ggrepel_0.9.6          
 #> [172] deldir_2.0-4            Biostrings_2.78.0       splines_4.5.2          
 #> [175] tensor_1.5.1            hms_1.1.4               igraph_2.2.1           
-#> [178] spatstat.geom_3.6-1     RcppHNSW_0.6.0          reshape2_1.4.5         
+#> [178] spatstat.geom_3.7-0     RcppHNSW_0.6.0          reshape2_1.4.5         
 #> [181] stats4_4.5.2            evaluate_1.0.5          SeuratObject_5.3.0     
 #> [184] tzdb_0.5.0              tweenr_2.0.3            httpuv_1.6.16          
 #> [187] openssl_2.3.4           RANN_2.6.2              tidyr_1.3.2            
-#> [190] purrr_1.2.0             polyclip_1.10-7         future_1.68.0          
-#> [193] clue_0.3-66             scattermore_1.2         ggplot2_4.0.1          
+#> [190] purrr_1.2.1             polyclip_1.10-7         future_1.69.0          
+#> [193] clue_0.3-66             scattermore_1.2         ggplot2_4.0.2          
 #> [196] gridBase_0.4-7          ggforce_0.5.0           xtable_1.8-4           
-#> [199] RSpectra_0.16-2         tidytree_0.4.6          tidydr_0.0.6           
-#> [202] later_1.4.4             viridisLite_0.4.2       class_7.3-23           
-#> [205] ragg_1.5.0              tibble_3.3.0            clusterProfiler_4.18.4 
+#> [199] RSpectra_0.16-2         tidytree_0.4.7          tidydr_0.0.6           
+#> [202] later_1.4.5             viridisLite_0.4.3       class_7.3-23           
+#> [205] ragg_1.5.0              tibble_3.3.1            clusterProfiler_4.18.4 
 #> [208] aplot_0.2.9             memoise_2.0.1           AnnotationDbi_1.72.0   
-#> [211] IRanges_2.44.0          cluster_2.1.8.1         globals_0.18.0         
+#> [211] IRanges_2.44.0          cluster_2.1.8.1         globals_0.19.0         
 #> [214] concaveman_1.2.0
 ```

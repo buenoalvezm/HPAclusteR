@@ -133,7 +133,6 @@ enrichment_results <- hc_annotate(adata_res, dbs = "KEGG")
 #> No KEGG enrichment result for cluster: 9
 #> No KEGG enrichment result for cluster: 31
 #> No KEGG enrichment result for cluster: 23
-#> No KEGG enrichment result for cluster: 15
 #> No KEGG enrichment result for cluster: 24
 #> No KEGG enrichment result for cluster: 8
 #> No KEGG enrichment result for cluster: 28
@@ -153,12 +152,12 @@ head(enrichment_results$enrichment)
 #> # A tibble: 6 × 10
 #>   `Cluster ID` Database      `Term ID` Term          GeneRatio BgRatio `P-value`
 #>   <chr>        <chr>         <chr>     <chr>         <chr>     <chr>       <dbl>
-#> 1 14           KEGG pathways hsa03040  Spliceosome   8/27      13/349    4.40e-7
-#> 2 16           KEGG pathways hsa05020  Prion disease 5/9       20/349    4.02e-5
-#> 3 16           KEGG pathways hsa04540  Gap junction  4/9       10/349    4.06e-5
-#> 4 16           KEGG pathways hsa05130  Pathogenic E… 4/9       13/349    1.33e-4
-#> 5 16           KEGG pathways hsa04814  Motor protei… 4/9       14/349    1.85e-4
-#> 6 16           KEGG pathways hsa05132  Salmonella i… 4/9       14/349    1.85e-4
+#> 1 14           KEGG pathways hsa03040  Spliceosome   8/27      13/350    4.30e-7
+#> 2 15           KEGG pathways hsa01100  Metabolic pa… 6/11      67/350    8.29e-3
+#> 3 16           KEGG pathways hsa05020  Prion disease 5/9       20/350    3.96e-5
+#> 4 16           KEGG pathways hsa04540  Gap junction  4/9       10/350    4.01e-5
+#> 5 16           KEGG pathways hsa05130  Pathogenic E… 4/9       13/350    1.32e-4
+#> 6 16           KEGG pathways hsa04814  Motor protei… 4/9       14/350    1.83e-4
 #> # ℹ 3 more variables: `Adjusted P-value` <dbl>, `Gene IDs` <chr>,
 #> #   `Gene names` <chr>
 ```

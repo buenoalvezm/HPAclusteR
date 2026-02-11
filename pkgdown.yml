@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   HPAclusteR: HPAclusteR.html
-last_built: 2025-12-24T14:34Z
+last_built: 2026-02-11T11:59Z
 urls:
   reference: https://buenoalvezm.github.io/HPAclusteR/reference
   article: https://buenoalvezm.github.io/HPAclusteR/articles
