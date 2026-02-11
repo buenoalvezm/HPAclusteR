@@ -1,5 +1,5 @@
 Package: HPAclusteR
-Title: Clustering pipeline for HPA data
+Title: Gene Clustering and Functional Annotation Pipeline for Transcriptomics Data
 Version: 1.0.0
 Authors@R: c(
     person("Konstantinos", "Antonopoulos", , "k.antono@outlook.com", role = c("aut", "cre"),
