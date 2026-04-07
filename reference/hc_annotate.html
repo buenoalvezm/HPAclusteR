@@ -54,6 +54,7 @@ based on the clustering results stored in the AnnDatR object. It also generates 
 <span>  <span class="va">AnnDatR</span>,</span>
 <span>  dbs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"GO"</span>, <span class="st">"KEGG"</span>, <span class="st">"Others"</span><span class="op">)</span>,</span>
 <span>  universe <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  simplify_go <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  db_loc <span class="op">=</span> <span class="st">"databases"</span>,</span>
 <span>  hpa_version <span class="op">=</span> <span class="fl">24</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -74,6 +75,10 @@ based on the clustering results stored in the AnnDatR object. It also generates 
 
 <dt id="arg-universe">universe<a class="anchor" aria-label="anchor" href="#arg-universe"></a></dt>
 <dd><p>Character vector of background genes (default: NULL, all genes in clustering data)</p></dd>
+
+
+<dt id="arg-simplify-go">simplify_go<a class="anchor" aria-label="anchor" href="#arg-simplify-go"></a></dt>
+<dd><p>Logical, group semantically similar GO terms and plot Tree map</p></dd>
 
 
 <dt id="arg-db-loc">db_loc<a class="anchor" aria-label="anchor" href="#arg-db-loc"></a></dt>

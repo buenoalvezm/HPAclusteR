@@ -15,6 +15,7 @@ hc_annotate(
   AnnDatR,
   dbs = c("GO", "KEGG", "Others"),
   universe = NULL,
+  simplify_go = TRUE,
   db_loc = "databases",
   hpa_version = 24,
   verbose = TRUE
@@ -36,6 +37,10 @@ hc_annotate(
 
   Character vector of background genes (default: NULL, all genes in
   clustering data)
+
+- simplify_go:
+
+  Logical, group semantically similar GO terms and plot Tree map
 
 - db_loc:
 
