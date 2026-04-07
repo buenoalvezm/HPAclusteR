@@ -8,6 +8,7 @@ hc_annotate(
   AnnDatR,
   dbs = c("GO", "KEGG", "Others"),
   universe = NULL,
+  simplify_go = TRUE,
   db_loc = "databases",
   hpa_version = 24,
   verbose = TRUE
@@ -19,6 +20,8 @@ hc_annotate(
 \item{dbs}{Character vector of databases to use for enrichment ("GO", "KEGG", "Others") (default: all)}
 
 \item{universe}{Character vector of background genes (default: NULL, all genes in clustering data)}
+
+\item{simplify_go}{Logical, group semantically similar GO terms and plot Tree map}
 
 \item{db_loc}{Directory to store annotation databases (default: "databases")}
 
