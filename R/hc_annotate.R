@@ -7,6 +7,7 @@
 #' @param AnnDatR AnnDatR object containing clustering results
 #' @param dbs Character vector of databases to use for enrichment ("GO", "KEGG", "Others") (default: all)
 #' @param universe Character vector of background genes (default: NULL, all genes in clustering data)
+#' @param simplify_go Logical, group semantically similar GO terms and plot Tree map
 #' @param db_loc Directory to store annotation databases (default: "databases")
 #' @param hpa_version Version of the Human Protein Atlas to download (default: 24)
 #' @param verbose Logical, print progress messages (default: TRUE)
@@ -49,6 +50,7 @@ hc_annotate <- function(
   AnnDatR,
   dbs = c("GO", "KEGG", "Others"),
   universe = NULL,
+  simplify_go = TRUE,
   db_loc = "databases",
   hpa_version = 24,
   verbose = TRUE
@@ -129,13 +131,17 @@ hc_annotate <- function(
       universe = universe,
       verbose = verbose
     )
-    res_go <- reduce_go_terms(go_enrichment)
+    if (isTRUE(simplify_go)) {
+      res_go <- reduce_go_terms(go_enrichment)
+    }
     if (verbose) {
       message("Start GO enrichment simplification...")
     }
-    go_enrichment <- res_go[["combined"]]
-    treemaps <- plot_enrichment_treemap(res_go[["reducedTerms"]])
-    rm(res_go)
+    if (isTRUE(simplify_go)) {
+      go_enrichment <- res_go[["combined"]]
+      treemaps <- plot_enrichment_treemap(res_go[["reducedTerms"]])
+      rm(res_go)
+    }
     bubblemap_go <- plot_enrichment_bubblemap(go_enrichment)
     if (verbose) {
       message("GO enrichment (with simplification) done.")
