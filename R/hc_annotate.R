@@ -175,7 +175,9 @@ hc_annotate <- function(
   result <- list()
   result$enrichment <- all_enrichment
   if ("GO" %in% dbs && go_enrichment |> nrow() != 0) {
-    result$treemaps <- treemaps
+    if (isTRUE(simplify_go)) {
+      result$treemaps <- treemaps
+    }
     result$bubblemap_go <- bubblemap_go
   }
   if ("KEGG" %in% dbs && kegg_enrichment |> nrow() != 0) {
