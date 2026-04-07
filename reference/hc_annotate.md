@@ -133,18 +133,19 @@ enrichment_results <- hc_annotate(adata_res, dbs = "KEGG")
 #> No KEGG enrichment result for cluster: 9
 #> No KEGG enrichment result for cluster: 31
 #> No KEGG enrichment result for cluster: 23
+#> No KEGG enrichment result for cluster: 15
 #> No KEGG enrichment result for cluster: 24
 #> No KEGG enrichment result for cluster: 8
 #> No KEGG enrichment result for cluster: 28
 #> No KEGG enrichment result for cluster: 10
 #> No KEGG enrichment result for cluster: 1
-#> No KEGG enrichment result for cluster: 20
 #> No KEGG enrichment result for cluster: 6
 #> No KEGG enrichment result for cluster: 25
 #> No KEGG enrichment result for cluster: 4
 #> No KEGG enrichment result for cluster: 11
 #> No KEGG enrichment result for cluster: 18
 #> No KEGG enrichment result for cluster: 30
+#> No KEGG enrichment result for cluster: 16
 #> 'select()' returned 1:many mapping between keys and columns
 #> KEGG enrichment done.
 #> 'select()' returned 1:many mapping between keys and columns
@@ -152,12 +153,12 @@ head(enrichment_results$enrichment)
 #> # A tibble: 6 × 10
 #>   `Cluster ID` Database      `Term ID` Term          GeneRatio BgRatio `P-value`
 #>   <chr>        <chr>         <chr>     <chr>         <chr>     <chr>       <dbl>
-#> 1 14           KEGG pathways hsa03040  Spliceosome   8/27      13/350    4.30e-7
-#> 2 15           KEGG pathways hsa01100  Metabolic pa… 6/11      67/350    8.29e-3
-#> 3 16           KEGG pathways hsa05020  Prion disease 5/9       20/350    3.96e-5
-#> 4 16           KEGG pathways hsa04540  Gap junction  4/9       10/350    4.01e-5
-#> 5 16           KEGG pathways hsa05130  Pathogenic E… 4/9       13/350    1.32e-4
-#> 6 16           KEGG pathways hsa04814  Motor protei… 4/9       14/350    1.83e-4
+#> 1 14           KEGG pathways hsa03040  Spliceosome   8/27      13/349   4.40e- 7
+#> 2 17           KEGG pathways hsa04382  Cornified en… 14/16     40/349   6.84e-13
+#> 3 2            KEGG pathways hsa04660  T cell recep… 6/11      13/349   3.02e- 7
+#> 4 2            KEGG pathways hsa04640  Hematopoieti… 4/11      11/349   1.60e- 4
+#> 5 2            KEGG pathways hsa05166  Human T-cell… 4/11      12/349   2.36e- 4
+#> 6 2            KEGG pathways hsa05170  Human immuno… 3/11      15/349   8.65e- 3
 #> # ℹ 3 more variables: `Adjusted P-value` <dbl>, `Gene IDs` <chr>,
 #> #   `Gene names` <chr>
 ```
