@@ -31,18 +31,26 @@ run_database_enrichment <- function(
   res_list <- lapply(db_ids, function(db_id) {
     db_terms <- annotation_terms[annotation_terms[["db_id"]] == db_id, ]
     term2gene <- db_terms[, c("term_id", "ensg_id")]
+    is_reactome <- db_id == "reactome"
+    if (is_reactome) {
+      term2name <- db_terms[, c("term_id", "term")]
+    }
     clusters <- unique(clustering_data[["cluster"]])
     cluster_res <- lapply(clusters, function(clust) {
       genes_in_cluster <- clustering_data[["gene"]][
         clustering_data[["cluster"]] == clust
       ]
+      enricher_args <- list(
+        gene = genes_in_cluster,
+        universe = universe,
+        TERM2GENE = term2gene
+      )
+      if (is_reactome) {
+        enricher_args[["TERM2NAME"]] <- term2name
+      }
       enr <- tryCatch(
         suppressMessages(
-          clusterProfiler::enricher(
-            gene = genes_in_cluster,
-            universe = universe,
-            TERM2GENE = term2gene
-          )
+          do.call(clusterProfiler::enricher, enricher_args)
         ),
         error = function(e) NULL
       )
