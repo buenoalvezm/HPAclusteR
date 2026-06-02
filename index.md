@@ -52,6 +52,7 @@ identify biologically meaningful gene clusters.
 You can install the development version of `HPAclusteR` from GitHub:
 
 ``` r
+
 # Install devtools if not already installed
 install.packages("devtools")
 
@@ -67,6 +68,7 @@ function, which performs the complete gene clustering pipeline on an
 `AnnDatR` object.
 
 ``` r
+
 library(HPAclusteR)
 
 # Example input: AnnDatR object with transcriptomics data

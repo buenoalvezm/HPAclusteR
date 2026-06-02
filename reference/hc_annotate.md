@@ -139,11 +139,13 @@ enrichment_results <- hc_annotate(adata_res, dbs = "KEGG")
 #> No KEGG enrichment result for cluster: 31
 #> No KEGG enrichment result for cluster: 23
 #> No KEGG enrichment result for cluster: 15
+#> No KEGG enrichment result for cluster: 29
 #> No KEGG enrichment result for cluster: 24
 #> No KEGG enrichment result for cluster: 8
 #> No KEGG enrichment result for cluster: 28
 #> No KEGG enrichment result for cluster: 10
 #> No KEGG enrichment result for cluster: 1
+#> No KEGG enrichment result for cluster: 20
 #> No KEGG enrichment result for cluster: 6
 #> No KEGG enrichment result for cluster: 25
 #> No KEGG enrichment result for cluster: 4
@@ -158,12 +160,12 @@ head(enrichment_results$enrichment)
 #> # A tibble: 6 × 10
 #>   `Cluster ID` Database      `Term ID` Term          GeneRatio BgRatio `P-value`
 #>   <chr>        <chr>         <chr>     <chr>         <chr>     <chr>       <dbl>
-#> 1 14           KEGG pathways hsa03040  Spliceosome   8/27      13/349   4.40e- 7
-#> 2 17           KEGG pathways hsa04382  Cornified en… 14/16     40/349   6.84e-13
-#> 3 2            KEGG pathways hsa04660  T cell recep… 6/11      13/349   3.02e- 7
-#> 4 2            KEGG pathways hsa04640  Hematopoieti… 4/11      11/349   1.60e- 4
-#> 5 2            KEGG pathways hsa05166  Human T-cell… 4/11      12/349   2.36e- 4
-#> 6 2            KEGG pathways hsa05170  Human immuno… 3/11      15/349   8.65e- 3
+#> 1 14           KEGG pathways hsa03040  Spliceosome   8/27      13/350   4.30e- 7
+#> 2 17           KEGG pathways hsa04382  Cornified en… 14/16     40/350   6.57e-13
+#> 3 2            KEGG pathways hsa04660  T cell recep… 6/11      13/350   2.97e- 7
+#> 4 2            KEGG pathways hsa04640  Hematopoieti… 4/11      11/350   1.58e- 4
+#> 5 2            KEGG pathways hsa05166  Human T-cell… 4/11      12/350   2.33e- 4
+#> 6 21           KEGG pathways hsa05012  Parkinson di… 9/27      18/350   7.48e- 7
 #> # ℹ 3 more variables: `Adjusted P-value` <dbl>, `Gene IDs` <chr>,
 #> #   `Gene names` <chr>
 ```

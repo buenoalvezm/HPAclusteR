@@ -16,6 +16,7 @@ integrate into workflows for transcriptomics data analysis.
 To begin, load the `HPAclusteR` package:
 
 ``` r
+
 library(HPAclusteR)
 ```
 
@@ -42,6 +43,7 @@ PCA is the first step in the pipeline, used to reduce the dimensionality
 of the data while retaining the most important features.
 
 ``` r
+
 adata_res <- hc_pca(example_adata, components = 40)
 head(adata_res$obsm$X_pca[, 1:5])  # PCA scores
 #>                        PC1       PC2        PC3        PC4        PC5
@@ -97,6 +99,7 @@ function supports multiple distance metrics, such as “euclidean” and
 rule.
 
 ``` r
+
 adata_res <- hc_distance(
   adata_res, 
   components = hc_kaisers_rule(adata_res), 
@@ -113,6 +116,7 @@ The SNN graph is constructed to identify clusters of similar samples.
 This step uses the distance matrix calculated in the previous step.
 
 ``` r
+
 adata_res <- hc_snn(adata_res, neighbors = 15, prune = 1 / 15)
 adata_res$uns$neighbors$snn
 #> A Graph object containing 981 cells
@@ -128,6 +132,7 @@ data. This step aggregates clustering results from multiple runs, in
 this case 100.
 
 ``` r
+
 adata_res <- hc_cluster_consensus(
   adata_res, 
   resolution = 8, 
@@ -149,6 +154,7 @@ step provides an intuitive way to explore the clustering results. It
 uses the constructed SNN graph.
 
 ``` r
+
 adata_res <- hc_umap(adata_res, verbose = FALSE)
 head(adata_res$obsm$X_umap)
 #>                     UMAP_1     UMAP_2
@@ -166,6 +172,7 @@ Cluster hulls are calculated to visualize the boundaries of each cluster
 in the UMAP plot.
 
 ``` r
+
 adata_res <- hc_cluster_hulls(adata_res, poly_smoothing = 4)
 head(adata_res$uns$UMAP_hulls$hulls)
 #> # A tibble: 6 × 7
@@ -186,6 +193,7 @@ Finally, we visualize the UMAP plot with clusters and hulls using the
 function.
 
 ``` r
+
 hc_plot_umap(adata_res, plot = "both")
 ```
 
@@ -203,6 +211,7 @@ Atlas, Panglao, Trrust and Reactome. Check
 for further details.
 
 ``` r
+
 enrichment_res <- hc_annotate(
   adata_res,
   dbs = "KEGG",
@@ -210,16 +219,22 @@ enrichment_res <- hc_annotate(
 )
 #> Warning in clusterProfiler::bitr(unique(clustering_data[["gene"]]), fromType =
 #> "ENSEMBL", : 0.82% of input gene IDs are fail to map...
+#> Warning in packageDescription(pkgname, fields = "Version"): no package '--> No
+#> gene can be mapped....' was found
+#> Warning in packageDescription(pkgname, fields = "Version"): no package '-->
+#> Expected input gene ID: ' was found
+#> Warning in packageDescription(pkgname, fields = "Version"): no package '-->
+#> return NULL...' was found
 head(enrichment_res$enrichment)
 #> # A tibble: 6 × 10
 #>   `Cluster ID` Database      `Term ID` Term          GeneRatio BgRatio `P-value`
 #>   <chr>        <chr>         <chr>     <chr>         <chr>     <chr>       <dbl>
-#> 1 11           KEGG pathways hsa04382  Cornified en… 13/24     40/349    8.68e-8
-#> 2 11           KEGG pathways hsa04519  Cadherin sig… 8/24      24/349    5.37e-5
-#> 3 11           KEGG pathways hsa04915  Estrogen sig… 4/24      12/349    5.92e-3
-#> 4 12           KEGG pathways hsa01100  Metabolic pa… 9/15      67/349    4.12e-4
-#> 5 13           KEGG pathways hsa04814  Motor protei… 3/11      11/349    3.37e-3
-#> 6 17           KEGG pathways hsa03040  Spliceosome   5/20      13/349    3.53e-4
+#> 1 11           KEGG pathways hsa04382  Cornified en… 13/24     40/350    8.38e-8
+#> 2 11           KEGG pathways hsa04519  Cadherin sig… 8/24      24/350    5.26e-5
+#> 3 12           KEGG pathways hsa01100  Metabolic pa… 9/15      67/350    4.03e-4
+#> 4 17           KEGG pathways hsa03040  Spliceosome   5/20      13/350    3.49e-4
+#> 5 2            KEGG pathways hsa03082  ATP-dependen… 3/5       10/350    1.64e-4
+#> 6 2            KEGG pathways hsa05034  Alcoholism    3/5       14/350    4.90e-4
 #> # ℹ 3 more variables: `Adjusted P-value` <dbl>, `Gene IDs` <chr>,
 #> #   `Gene names` <chr>
 enrichment_res$bubblemap_kegg
@@ -234,6 +249,7 @@ across sample categories (e.g., tissues), providing insights into gene
 function and tissue specificity.
 
 ``` r
+
 classify_res <- hc_classify(
   adata_res,
   sample_categories = "tissue_name"
@@ -260,6 +276,7 @@ profiles across different groups. The confidence of each cluster is also
 presented in the sidebar.
 
 ``` r
+
 expr_heatmaps <- hc_plot_expression(adata_res)
 expr_heatmaps$zscore[["1"]]
 ```
@@ -267,6 +284,7 @@ expr_heatmaps$zscore[["1"]]
 ![](HPAclusteR_files/figure-html/expression-1.png)
 
 ``` r
+
 expr_heatmaps$scaled[["1"]]
 ```
 
@@ -283,6 +301,7 @@ will use the
 function for simplicity.
 
 ``` r
+
 adata_res2 <- hc_auto_cluster(
   example_adata,
   cluster_resolution = 10,
@@ -294,6 +313,7 @@ adata_res2 <- hc_auto_cluster(
 ![](HPAclusteR_files/figure-html/comparison-1.png)
 
 ``` r
+
 
 comparison_res <- hc_cluster_compare(
   adata_res,
@@ -314,6 +334,7 @@ comparison_res$heatmap
 ![](HPAclusteR_files/figure-html/comparison-2.png)
 
 ``` r
+
 comparison_res$network
 ```
 
@@ -330,8 +351,9 @@ transcriptomics data!
 > vignette is to show you how to use the package and its functions.
 
 ``` r
+
 sessionInfo()
-#> R version 4.5.3 (2026-03-11)
+#> R version 4.6.0 (2026-04-24)
 #> Platform: x86_64-pc-linux-gnu
 #> Running under: Ubuntu 24.04.4 LTS
 #> 
@@ -355,76 +377,76 @@ sessionInfo()
 #> [1] HPAclusteR_1.0.0
 #> 
 #> loaded via a namespace (and not attached):
-#>   [1] fs_2.0.1                matrixStats_1.5.0       spatstat.sparse_3.1-0  
-#>   [4] enrichplot_1.30.5       httr_1.4.8              RColorBrewer_1.1-3     
-#>   [7] prabclus_2.3-5          tools_4.5.3             sctransform_0.4.3      
+#>   [1] fs_2.1.0                matrixStats_1.5.0       spatstat.sparse_3.2-0  
+#>   [4] enrichplot_1.32.0       httr_1.4.8              RColorBrewer_1.1-3     
+#>   [7] prabclus_2.3-5          tools_4.6.0             sctransform_0.4.3      
 #>  [10] utf8_1.2.6              R6_2.6.1                lazyeval_0.2.3         
 #>  [13] uwot_0.2.4              withr_3.0.2             sp_2.2-1               
 #>  [16] GGally_2.4.0            gridExtra_2.3           progressr_0.19.0       
-#>  [19] cli_3.6.6               Biobase_2.70.0          textshaping_1.0.5      
-#>  [22] factoextra_2.0.0        spatstat.explore_3.8-0  fastDummies_1.7.5      
+#>  [19] cli_3.6.6               Biobase_2.72.0          textshaping_1.0.5      
+#>  [22] factoextra_2.0.0        spatstat.explore_3.8-1  fastDummies_1.7.6      
 #>  [25] network_1.20.0          scatterpie_0.2.6        slam_0.1-55            
 #>  [28] labeling_0.4.3          sass_0.4.10             diptest_0.77-2         
-#>  [31] Seurat_5.4.0            tm_0.7-18               S7_0.2.1               
+#>  [31] Seurat_5.5.0            tm_0.7-18               S7_0.2.2               
 #>  [34] robustbase_0.99-7       spatstat.data_3.1-9     readr_2.2.0            
 #>  [37] askpass_1.2.1           ggridges_0.5.7          pbapply_1.7-4          
 #>  [40] pkgdown_2.2.0           systemfonts_1.3.2       yulab.utils_0.2.4      
-#>  [43] gson_0.1.0              DOSE_4.4.0              R.utils_2.13.0         
-#>  [46] parallelly_1.46.1       RSQLite_2.4.6           treemap_2.4-4          
-#>  [49] generics_0.1.4          gridGraphics_0.5-1      ica_1.0-3              
-#>  [52] spatstat.random_3.4-5   dplyr_1.2.1             GO.db_3.22.0           
-#>  [55] Matrix_1.7-4            S4Vectors_0.48.1        abind_1.4-8            
-#>  [58] R.methodsS3_1.8.2       lifecycle_1.0.5         yaml_2.3.12            
-#>  [61] qvalue_2.42.0           Rtsne_0.17              grid_4.5.3             
-#>  [64] blob_1.3.0              promises_1.5.0          crayon_1.5.3           
-#>  [67] miniUI_0.1.2            ggtangle_0.1.1          lattice_0.22-9         
-#>  [70] cowplot_1.2.0           KEGGREST_1.50.0         sna_2.8                
-#>  [73] pillar_1.11.1           knitr_1.51              fgsea_1.36.2           
-#>  [76] fpc_2.2-14              future.apply_1.20.2     codetools_0.2-20       
-#>  [79] fastmatch_1.1-8         glue_1.8.0              ggiraph_0.9.6          
-#>  [82] V8_8.1.0                ggfun_0.2.0             spatstat.univar_3.1-7  
-#>  [85] fontLiberation_0.1.0    pcaMethods_2.2.0        data.table_1.18.2.1    
-#>  [88] vctrs_0.7.3             png_0.1-9               treeio_1.34.0          
-#>  [91] spam_2.11-3             gtable_0.3.6            kernlab_0.9-33         
-#>  [94] cachem_1.1.0            xfun_0.57               mime_0.13              
-#>  [97] Seqinfo_1.0.0           coda_0.19-4.1           survival_3.8-6         
-#> [100] pheatmap_1.0.13         fitdistrplus_1.2-6      ROCR_1.0-12            
-#> [103] nlme_3.1-168            ggtree_4.0.5            bit64_4.6.0-1          
-#> [106] fontquiver_0.2.1        RcppAnnoy_0.0.23        bslib_0.10.0           
-#> [109] irlba_2.3.7             KernSmooth_2.23-26      otel_0.2.0             
-#> [112] colorspace_2.1-2        rrvgo_1.22.0            BiocGenerics_0.56.0    
-#> [115] DBI_1.3.0               nnet_7.3-20             tidyselect_1.2.1       
-#> [118] bit_4.6.0               compiler_4.5.3          curl_7.0.0             
-#> [121] xml2_1.5.2              NLP_0.3-2               desc_1.4.3             
-#> [124] fontBitstreamVera_0.1.1 plotly_4.12.0           scales_1.4.0           
-#> [127] DEoptimR_1.1-4          lmtest_0.9-40           rappdirs_0.3.4         
+#>  [43] gson_0.1.0              DOSE_4.6.0              parallelly_1.47.0      
+#>  [46] RSQLite_3.53.1          treemap_2.4-4           generics_0.1.4         
+#>  [49] gridGraphics_0.5-1      ica_1.0-3               spatstat.random_3.5-0  
+#>  [52] dplyr_1.2.1             GO.db_3.23.1            Matrix_1.7-5           
+#>  [55] S4Vectors_0.50.1        abind_1.4-8             lifecycle_1.0.5        
+#>  [58] yaml_2.3.12             qvalue_2.44.0           Rtsne_0.17             
+#>  [61] grid_4.6.0              blob_1.3.0              promises_1.5.0         
+#>  [64] crayon_1.5.3            miniUI_0.1.2            ggtangle_0.1.2         
+#>  [67] lattice_0.22-9          cowplot_1.2.0           KEGGREST_1.52.0        
+#>  [70] sna_2.8                 pillar_1.11.1           knitr_1.51             
+#>  [73] fpc_2.2-14              future.apply_1.20.2     codetools_0.2-20       
+#>  [76] glue_1.8.1              ggiraph_0.9.6           V8_8.2.0               
+#>  [79] ggfun_0.2.0             spatstat.univar_3.2-0   fontLiberation_0.1.0   
+#>  [82] pcaMethods_2.4.0        data.table_1.18.4       vctrs_0.7.3            
+#>  [85] png_0.1-9               treeio_1.36.1           spam_2.11-4            
+#>  [88] gtable_0.3.6            kernlab_0.9-33          cachem_1.1.0           
+#>  [91] xfun_0.58               mime_0.13               Seqinfo_1.2.0          
+#>  [94] coda_0.19-4.1           survival_3.8-6          aisdk_1.4.11           
+#>  [97] pheatmap_1.0.13         fitdistrplus_1.2-6      ROCR_1.0-12            
+#> [100] nlme_3.1-169            ggtree_4.2.0            bit64_4.8.2            
+#> [103] fontquiver_0.2.1        RcppAnnoy_0.0.23        bslib_0.11.0           
+#> [106] irlba_2.3.7             KernSmooth_2.23-26      otel_0.2.0             
+#> [109] colorspace_2.1-2        rrvgo_1.24.0            BiocGenerics_0.58.1    
+#> [112] DBI_1.3.0               nnet_7.3-20             tidyselect_1.2.1       
+#> [115] processx_3.9.0          bit_4.6.0               compiler_4.6.0         
+#> [118] curl_7.1.0              httr2_1.2.2             xml2_1.5.2             
+#> [121] NLP_0.3-2               desc_1.4.3              fontBitstreamVera_0.1.1
+#> [124] plotly_4.12.0           scales_1.4.0            DEoptimR_1.1-4         
+#> [127] lmtest_0.9-40           callr_3.7.6             rappdirs_0.3.4         
 #> [130] stringr_1.6.0           digest_0.6.39           goftest_1.2-3          
-#> [133] spatstat.utils_3.2-2    rmarkdown_2.31          XVector_0.50.0         
+#> [133] spatstat.utils_3.2-3    rmarkdown_2.31          XVector_0.52.0         
 #> [136] htmltools_0.5.9         pkgconfig_2.0.3         umap_0.2.10.0          
 #> [139] fastmap_1.2.0           rlang_1.2.0             htmlwidgets_1.6.4      
 #> [142] shiny_1.13.0            farver_2.1.2            jquerylib_0.1.4        
 #> [145] zoo_1.8-15              jsonlite_2.0.0          statnet.common_4.13.0  
-#> [148] BiocParallel_1.44.0     mclust_6.1.2            GOSemSim_2.36.0        
-#> [151] R.oo_1.27.1             magrittr_2.0.5          modeltools_0.2-24      
-#> [154] ggplotify_0.1.3         wordcloud_2.6           dotCall64_1.2          
-#> [157] patchwork_1.3.2         Rcpp_1.1.1              ape_5.8-1              
-#> [160] ggnewscale_0.5.2        gdtools_0.5.0           reticulate_1.46.0      
-#> [163] stringi_1.8.7           MASS_7.3-65             org.Hs.eg.db_3.22.0    
-#> [166] plyr_1.8.9              flexmix_2.3-20          ggstats_0.13.0         
-#> [169] parallel_4.5.3          listenv_0.10.1          ggrepel_0.9.8          
-#> [172] deldir_2.0-4            Biostrings_2.78.0       splines_4.5.3          
-#> [175] tensor_1.5.1            hms_1.1.4               igraph_2.2.3           
-#> [178] spatstat.geom_3.7-3     RcppHNSW_0.6.0          reshape2_1.4.5         
-#> [181] stats4_4.5.3            evaluate_1.0.5          SeuratObject_5.4.0     
+#> [148] mclust_6.1.2            GOSemSim_2.38.0         magrittr_2.0.5         
+#> [151] modeltools_0.2-24       ggplotify_0.1.3         wordcloud_2.6          
+#> [154] dotCall64_1.2           patchwork_1.3.2         Rcpp_1.1.1-1.1         
+#> [157] ape_5.8-1               ggnewscale_0.5.2        gdtools_0.5.1          
+#> [160] reticulate_1.46.0       stringi_1.8.7           MASS_7.3-65            
+#> [163] org.Hs.eg.db_3.23.1     plyr_1.8.9              flexmix_2.3-20         
+#> [166] ggstats_0.13.0          parallel_4.6.0          listenv_0.10.1         
+#> [169] ggrepel_0.9.8           deldir_2.0-4            Biostrings_2.80.1      
+#> [172] splines_4.6.0           tensor_1.5.1            hms_1.1.4              
+#> [175] ps_1.9.3                igraph_2.3.2            spatstat.geom_3.8-1    
+#> [178] enrichit_0.1.4          RcppHNSW_0.7.0          reshape2_1.4.5         
+#> [181] stats4_4.6.0            evaluate_1.0.5          SeuratObject_5.4.0     
 #> [184] tzdb_0.5.0              tweenr_2.0.3            httpuv_1.6.17          
-#> [187] openssl_2.3.5           RANN_2.6.2              tidyr_1.3.2            
+#> [187] openssl_2.4.1           RANN_2.6.2              tidyr_1.3.2            
 #> [190] purrr_1.2.2             polyclip_1.10-7         future_1.70.0          
-#> [193] clue_0.3-68             scattermore_1.2         ggplot2_4.0.2          
+#> [193] clue_0.3-68             scattermore_1.2         ggplot2_4.0.3          
 #> [196] gridBase_0.4-7          ggforce_0.5.0           xtable_1.8-8           
 #> [199] RSpectra_0.16-2         tidytree_0.4.7          tidydr_0.0.6           
 #> [202] later_1.4.8             viridisLite_0.4.3       class_7.3-23           
-#> [205] ragg_1.5.2              tibble_3.3.1            clusterProfiler_4.18.4 
-#> [208] aplot_0.2.9             memoise_2.0.1           AnnotationDbi_1.72.0   
-#> [211] IRanges_2.44.0          cluster_2.1.8.2         globals_0.19.1         
+#> [205] ragg_1.5.2              tibble_3.3.1            clusterProfiler_4.20.0 
+#> [208] aplot_0.2.9             memoise_2.0.1           AnnotationDbi_1.74.0   
+#> [211] IRanges_2.46.0          cluster_2.1.8.2         globals_0.19.1         
 #> [214] concaveman_1.2.0
 ```
