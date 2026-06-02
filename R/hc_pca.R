@@ -29,7 +29,7 @@ hc_pca <- function(
 ) {
   # Check obj structure
   if (!is.null(layer)) {
-    wide_data <- AnnDatR$layers$layer
+    wide_data <- AnnDatR$layers[[layer]]
   } else {
     wide_data <- AnnDatR$X
   }
@@ -43,20 +43,14 @@ hc_pca <- function(
     components <- dim(wide_data)[1]
   }
 
-  AnnDatR_out <- AnnDatR$clone(deep = TRUE)
-
-  # Apply the desired transformation
+  # Apply the desired transformation - handle numeric columns only
   if (transform == "log1p") {
     transformed_data <- wide_data |>
-      dplyr::mutate_if(is.numeric, function(x) {
-        log1p(x)
-      }) |>
+      dplyr::mutate(dplyr::across(dplyr::where(is.numeric), log1p)) |>
       tibble::column_to_rownames(colnames(wide_data)[1])
   } else if (transform == "sqrt") {
     transformed_data <- wide_data |>
-      dplyr::mutate_if(is.numeric, function(x) {
-        sqrt(x)
-      }) |>
+      dplyr::mutate(dplyr::across(dplyr::where(is.numeric), sqrt)) |>
       tibble::column_to_rownames(colnames(wide_data)[1])
   } else if (transform == "none") {
     transformed_data <- wide_data |>
@@ -74,13 +68,9 @@ hc_pca <- function(
   pca_results <- pcaMethods::pca(scaled_data, nPcs = components)
 
   # Store the PCA results in AnnDatR
+  AnnDatR_out <- AnnDatR$clone(deep = TRUE)
   AnnDatR_out[["uns"]][['pca']] <- pca_results
-  AnnDatR_out[["obsm"]][[paste0(
-    "X_",
-    "pca"
-  )]] <- pcaMethods::scores(AnnDatR_out[[
-    "uns"
-  ]][['pca']])
+  AnnDatR_out[["obsm"]][["X_pca"]] <- pcaMethods::scores(pca_results)
 
   return(AnnDatR_out)
 }
