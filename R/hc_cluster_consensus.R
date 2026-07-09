@@ -161,7 +161,6 @@ find_consensus <- function(
       dplyr::distinct() |>
       dplyr::arrange(!!rlang::sym("new_cluster")) |>
       tibble::rownames_to_column("renumbered_cluster")
-  }
     
     final_clustering <-
       final_clustering_corrected |>
