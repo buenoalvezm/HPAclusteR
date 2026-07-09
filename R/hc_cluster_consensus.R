@@ -122,7 +122,7 @@ find_consensus <- function(
     }
   }
   
-  if (nrow(empty_clusters) > 0) {
+  if (dim(empty_clusters)[1] != 0) {
     empty_cluster_ids <- unique(empty_clusters[["cluster"]])
     
     to_rename <- lapply(seq_len(nrow(empty_clusters)), function(i) {
