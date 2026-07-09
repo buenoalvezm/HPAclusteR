@@ -110,17 +110,6 @@ find_consensus <- function(
     dplyr::filter(!!rlang::sym("size") < 5) |>
     dplyr::select(-!!rlang::sym("size")) |>
     dplyr::mutate(cluster = as.numeric(!!rlang::sym("cluster")))
-
-  if (verbose) {
-    message(sprintf(
-      "[DEBUG] Found %d empty clusters (size < 5).", 
-      nrow(empty_clusters)
-    ))
-    if (nrow(empty_clusters) > 0) {
-      message("[DEBUG] Empty cluster IDs: ", paste(unique(empty_clusters[["cluster"]]), collapse = ", "))
-      message("[DEBUG] Total genes needing reassignment: ", nrow(empty_clusters))
-    }
-  }
   
   if (nrow(empty_clusters) > 0) {
     empty_cluster_ids <- unique(empty_clusters[["cluster"]])
@@ -153,20 +142,6 @@ find_consensus <- function(
       }
     }) |>
       dplyr::bind_rows()
-
-    if (verbose) {
-      failed_reassignments <- sum(is.na(to_rename[["new_cluster"]]))
-      message(sprintf(
-        "[DEBUG] Reassignment complete. %d genes successfully reassigned.", 
-        nrow(to_rename) - failed_reassignments
-      ))
-      if (failed_reassignments > 0) {
-        warning(sprintf(
-          "[DEBUG WARNING] %d genes could not be reassigned (no valid alternative clusters found).", 
-          failed_reassignments
-        ))
-      }
-    }
     
     final_clustering_corrected <-
       final_clustering |>
@@ -186,12 +161,6 @@ find_consensus <- function(
       dplyr::distinct() |>
       dplyr::arrange(!!rlang::sym("new_cluster")) |>
       tibble::rownames_to_column("renumbered_cluster")
-
-    if (verbose) {
-    if (any(is.na(mapping_table[["renumbered_cluster"]]))) {
-      warning("[DEBUG WARNING] NAs detected in the renumbered cluster mapping table.")
-    }
-    message(sprintf("[DEBUG] Total valid clusters after renumbering: %d", nrow(mapping_table)))
   }
     
     final_clustering <-
@@ -216,12 +185,6 @@ find_consensus <- function(
       dplyr::distinct() |>
       dplyr::arrange(as.numeric(!!rlang::sym("new_cluster"))) |>
       tibble::rownames_to_column("renumbered_cluster")
-
-    if (verbose) {
-    if (any(is.na(mapping_table[["renumbered_cluster"]]))) {
-      warning("[DEBUG WARNING] NAs detected in the renumbered cluster mapping table.")
-    }
-    message(sprintf("[DEBUG] Total valid clusters after renumbering: %d", nrow(mapping_table)))
   }
     
     final_clustering <-
@@ -268,62 +231,6 @@ find_consensus <- function(
     ) |>
     dplyr::select(-dplyr::any_of(c("hard_cluster", "cons_cluster")))
 
-  if (verbose) {
-    # 1. Check for missing genes
-    missing_from_matrix <- setdiff(final_clustering[["gene"]], cons_matrix[["gene"]])
-    if (length(missing_from_matrix) > 0) {
-      warning(sprintf(
-        "[DEBUG FATAL] %d genes in consensus_clustering are completely missing from membership_matrix. Example: %s",
-        length(missing_from_matrix),
-        missing_from_matrix[1]
-      ))
-    }
-
-    # 2. Check for mismatched hard assignments
-    # Pull the highest membership cluster for each gene
-    matrix_max_clusters <- cons_matrix |>
-      dplyr::group_by(!!rlang::sym("gene")) |>
-      dplyr::slice_max(order_by = !!rlang::sym("membership"), n = 1, with_ties = FALSE) |>
-      dplyr::ungroup() |>
-      dplyr::select(gene, matrix_cluster = cluster)
-
-    alignment_check <- final_clustering |>
-      dplyr::left_join(matrix_max_clusters, by = "gene") |>
-      dplyr::filter(!!rlang::sym("cluster") != !!rlang::sym("matrix_cluster") | is.na(!!rlang::sym("matrix_cluster")))
-
-    if (nrow(alignment_check) > 0) {
-      warning(sprintf(
-        "[DEBUG WARNING] %d genes have mismatched top clusters between outputs.", 
-        nrow(alignment_check)
-      ))
-    } else {
-      message("[DEBUG] SUCCESS: consensus_clustering and membership_matrix are perfectly aligned.")
-    }
-  }
-  # FINAL SANITY CHECK: Ensure all gene memberships sum to exactly 1
-  gene_prob_sums <- cons_matrix |>
-    dplyr::group_by(!!rlang::sym("gene")) |>
-    dplyr::summarise(
-      total_membership = sum(!!rlang::sym("membership"), na.rm = TRUE),
-      .groups = "drop"
-    )
-
-  # Find any genes that break the rule (outside a tight floating-point tolerance)
-  invalid_prob_genes <- gene_prob_sums |>
-    dplyr::filter(abs(!!rlang::sym("total_membership") - 1) > 1e-6)
-
-  if (nrow(invalid_prob_genes) > 0) {
-    warning(sprintf(
-      "[DEBUG FATAL] %d genes do not have memberships summing to 1! Example: Gene '%s' sums to %f",
-      nrow(invalid_prob_genes),
-      invalid_prob_genes[[1, "gene"]],
-      invalid_prob_genes[[1, "total_membership"]]
-    ))
-  } else {
-    if (verbose) {
-      message("[DEBUG] SUCCESS: All gene membership matrices perfectly sum up to 1.0.")
-    }
-  }
   return(list(
     consensus_clustering = final_clustering,
     membership_matrix = cons_matrix
