@@ -300,7 +300,30 @@ find_consensus <- function(
       message("[DEBUG] SUCCESS: consensus_clustering and membership_matrix are perfectly aligned.")
     }
   }
-  
+  # FINAL SANITY CHECK: Ensure all gene memberships sum to exactly 1
+  gene_prob_sums <- cons_matrix |>
+    dplyr::group_by(!!rlang::sym("gene")) |>
+    dplyr::summarise(
+      total_membership = sum(!!rlang::sym("membership"), na.rm = TRUE),
+      .groups = "drop"
+    )
+
+  # Find any genes that break the rule (outside a tight floating-point tolerance)
+  invalid_prob_genes <- gene_prob_sums |>
+    dplyr::filter(abs(!!rlang::sym("total_membership") - 1) > 1e-6)
+
+  if (nrow(invalid_prob_genes) > 0) {
+    warning(sprintf(
+      "[DEBUG FATAL] %d genes do not have memberships summing to 1! Example: Gene '%s' sums to %f",
+      nrow(invalid_prob_genes),
+      invalid_prob_genes[[1, "gene"]],
+      invalid_prob_genes[[1, "total_membership"]]
+    ))
+  } else {
+    if (verbose) {
+      message("[DEBUG] SUCCESS: All gene membership matrices perfectly sum up to 1.0.")
+    }
+  }
   return(list(
     consensus_clustering = final_clustering,
     membership_matrix = cons_matrix
