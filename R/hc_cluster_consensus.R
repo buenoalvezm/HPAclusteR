@@ -111,7 +111,20 @@ find_consensus <- function(
     dplyr::select(-!!rlang::sym("size")) |>
     dplyr::mutate(cluster = as.numeric(!!rlang::sym("cluster")))
 
-  if (dim(empty_clusters)[1] != 0) {
+  if (verbose) {
+    message(sprintf(
+      "[DEBUG] Found %d empty clusters (size < 5).", 
+      nrow(empty_clusters)
+    ))
+    if (nrow(empty_clusters) > 0) {
+      message("[DEBUG] Empty cluster IDs: ", paste(unique(empty_clusters[["cluster"]]), collapse = ", "))
+      message("[DEBUG] Total genes needing reassignment: ", nrow(empty_clusters))
+    }
+  }
+  
+  if (nrow(empty_clusters) > 0) {
+    empty_cluster_ids <- unique(empty_clusters[["cluster"]])
+    
     to_rename <- lapply(seq_len(nrow(empty_clusters)), function(i) {
       current <- empty_clusters[i, ]
 
@@ -121,16 +134,16 @@ find_consensus <- function(
         dplyr::filter(!!rlang::sym("gene") == current[["gene"]]) |>
         dplyr::select(-dplyr::any_of(c("gene"))) |>
         tidyr::gather(!!rlang::sym("cluster"), !!rlang::sym("probability")) |>
-        dplyr::arrange(-!!rlang::sym("probability")) |>
+        dplyr::arrange(dplyr::desc(!!rlang::sym("probability")), !!rlang::sym("cluster")) |>
         dplyr::mutate(
           cluster = as.numeric(sub("V", "", !!rlang::sym("cluster")))
         ) |>
-        dplyr::filter(!!rlang::sym("cluster") != current[["cluster"]])
+        dplyr::filter(!(!!rlang::sym("cluster") %in% empty_cluster_ids)) |>
 
       if (nrow(probabilities) > 0) {
         data.frame(
           gene = current[["gene"]],
-          new_cluster = probabilities[[1, 1]]
+          new_cluster = probabilities[[1, "cluster"]]
         )
       } else {
         data.frame(
@@ -141,6 +154,20 @@ find_consensus <- function(
     }) |>
       dplyr::bind_rows()
 
+    if (verbose) {
+      failed_reassignments <- sum(is.na(to_rename[["new_cluster"]]))
+      message(sprintf(
+        "[DEBUG] Reassignment complete. %d genes successfully reassigned.", 
+        nrow(to_rename) - failed_reassignments
+      ))
+      if (failed_reassignments > 0) {
+        warning(sprintf(
+          "[DEBUG WARNING] %d genes could not be reassigned (no valid alternative clusters found).", 
+          failed_reassignments
+        ))
+      }
+    }
+    
     final_clustering_corrected <-
       final_clustering |>
       dplyr::mutate(cluster = as.numeric(!!rlang::sym("cluster"))) |>
@@ -160,6 +187,13 @@ find_consensus <- function(
       dplyr::arrange(!!rlang::sym("new_cluster")) |>
       tibble::rownames_to_column("renumbered_cluster")
 
+    if (verbose) {
+    if (any(is.na(mapping_table[["renumbered_cluster"]]))) {
+      warning("[DEBUG WARNING] NAs detected in the renumbered cluster mapping table.")
+    }
+    message(sprintf("[DEBUG] Total valid clusters after renumbering: %d", nrow(mapping_table)))
+  }
+    
     final_clustering <-
       final_clustering_corrected |>
       dplyr::left_join(mapping_table) |>
@@ -183,6 +217,13 @@ find_consensus <- function(
       dplyr::arrange(as.numeric(!!rlang::sym("new_cluster"))) |>
       tibble::rownames_to_column("renumbered_cluster")
 
+    if (verbose) {
+    if (any(is.na(mapping_table[["renumbered_cluster"]]))) {
+      warning("[DEBUG WARNING] NAs detected in the renumbered cluster mapping table.")
+    }
+    message(sprintf("[DEBUG] Total valid clusters after renumbering: %d", nrow(mapping_table)))
+  }
+    
     final_clustering <-
       final_clustering |>
       dplyr::mutate(cons_cluster = as.character(!!rlang::sym("cluster"))) |>
@@ -200,23 +241,53 @@ find_consensus <- function(
     as.data.frame() |>
     tibble::as_tibble(rownames = "gene") |>
     tidyr::gather(!!rlang::sym("cluster"), !!rlang::sym("membership"), -1) |>
-    dplyr::filter(!!rlang::sym("membership") > 0) |>
     dplyr::mutate(
       cluster = as.character(gsub("V", "", !!rlang::sym("cluster")))
     ) |>
+    dplyr::filter(!is.na(!!rlang::sym("cluster"))) |>
     dplyr::rename(cons_cluster = !!rlang::sym("cluster")) |>
     dplyr::left_join(
-      mapping_table |>
-        dplyr::mutate(
-          new_cluster = as.character(!!rlang::sym("new_cluster"))
-        ) |>
-        dplyr::rename(
-          cons_cluster = !!rlang::sym("new_cluster"),
-          cluster = !!rlang::sym("renumbered_cluster")
-        )
+      final_clustering |> dplyr::select(gene, hard_cluster = cluster),
+      by = "gene"
     ) |>
-    dplyr::filter(!is.na(!!rlang::sym("cluster")))
+    dplyr::filter(
+      !!rlang::sym("membership") > 0 | !!rlang::sym("cluster") == !!rlang::sym("hard_cluster")
+    ) |>
+    dplyr::select(-dplyr::any_of(c("hard_cluster", "cons_cluster")))
 
+  if (verbose) {
+    # 1. Check for missing genes
+    missing_from_matrix <- setdiff(final_clustering[["gene"]], cons_matrix[["gene"]])
+    if (length(missing_from_matrix) > 0) {
+      warning(sprintf(
+        "[DEBUG FATAL] %d genes in consensus_clustering are completely missing from membership_matrix. Example: %s",
+        length(missing_from_matrix),
+        missing_from_matrix[1]
+      ))
+    }
+
+    # 2. Check for mismatched hard assignments
+    # Pull the highest membership cluster for each gene
+    matrix_max_clusters <- cons_matrix |>
+      dplyr::group_by(!!rlang::sym("gene")) |>
+      dplyr::slice_max(order_by = !!rlang::sym("membership"), n = 1, with_ties = FALSE) |>
+      dplyr::ungroup() |>
+      dplyr::select(gene, matrix_cluster = cluster)
+
+    alignment_check <- final_clustering |>
+      dplyr::left_join(matrix_max_clusters, by = "gene") |>
+      dplyr::filter(!!rlang::sym("cluster") != !!rlang::sym("matrix_cluster") | is.na(!!rlang::sym("matrix_cluster")))
+
+    if (nrow(alignment_check) > 0) {
+      warning(sprintf(
+        "[DEBUG WARNING] %d genes have mismatched top clusters between outputs.", 
+        nrow(alignment_check)
+      ))
+    } else {
+      message("[DEBUG] SUCCESS: consensus_clustering and membership_matrix are perfectly aligned.")
+    }
+  }
+  
   return(list(
     consensus_clustering = final_clustering,
     membership_matrix = cons_matrix
