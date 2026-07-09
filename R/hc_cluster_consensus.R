@@ -122,7 +122,7 @@ find_consensus <- function(
     }
   }
   
-  if (dim(empty_clusters)[1] != 0) {
+  if (nrow(empty_clusters) > 0) {
     empty_cluster_ids <- unique(empty_clusters[["cluster"]])
     
     to_rename <- lapply(seq_len(nrow(empty_clusters)), function(i) {
@@ -138,7 +138,7 @@ find_consensus <- function(
         dplyr::mutate(
           cluster = as.numeric(sub("V", "", !!rlang::sym("cluster")))
         ) |>
-        dplyr::filter(!(!!rlang::sym("cluster") %in% empty_cluster_ids)) |>
+        dplyr::filter(!(!!rlang::sym("cluster") %in% empty_cluster_ids))
 
       if (nrow(probabilities) > 0) {
         data.frame(
