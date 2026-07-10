@@ -183,10 +183,6 @@ hc_cluster_hulls <-
     subclusters_classed <-
       subclusters |>
       dplyr::left_join(subclusters_classes, by = c("cluster", "sub_cluster"))
-
-    # --- DEBUG STEP 1 ---
-    c46_cells <- subclusters_classed |> dplyr::filter(cluster == "46", sub_type != "outlier") |> nrow()
-    message("DEBUG [Step 1 - DBSCAN]: Cluster 46 has ", c46_cells, " non-outlier cells remaining.")
     
     # Calculate plot density
     plot_density <-
@@ -234,10 +230,6 @@ hc_cluster_hulls <-
       dplyr::top_n(1, !!rlang::sym("z")) |>
       dplyr::slice(1) |>
       dplyr::ungroup()
-
-    # --- DEBUG STEP 2 ---
-    c46_pixels <- plot_density_filtered |> dplyr::filter(cluster == "46") |> nrow()
-    message("DEBUG [Step 2 - Pixel Competition]: Cluster 46 won ", c46_pixels, " pixels on the grid.")
     
     # Calculate size of landmass
     plot_density_landmass <-
@@ -324,10 +316,6 @@ hc_cluster_hulls <-
     # higher values --> less detailed
     # poly concavity: How convex polygons should be -
     # higher values --> less detailed
-
-    # --- DEBUG STEP 3 ---
-    c46_landmass <- plot_density_mainland_filtered |> dplyr::filter(cluster == "46") |> nrow()
-    message("DEBUG [Step 3 - Landmass Filter]: Cluster 46 kept ", c46_landmass, " pixels after the fraction limits.")
     
     plot_data_hulls <-
       plot_density_mainland_filtered |>
@@ -367,10 +355,6 @@ hc_cluster_hulls <-
       ) |>
       dplyr::select(-dplyr::any_of(c("data"))) |>
       dplyr::rename(X = "V1", Y = "V2")
-
-    # --- DEBUG STEP 4 ---
-    c46_coords <- plot_data_hulls |> dplyr::filter(cluster == "46") |> nrow()
-    message("DEBUG [Step 4 - Polygons]: Cluster 46 generated ", c46_coords, " polygon boundary coordinates.")
     
     plot_density_center <-
       plot_density |>
