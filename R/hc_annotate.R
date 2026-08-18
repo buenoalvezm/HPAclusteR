@@ -9,16 +9,18 @@
 #' @param universe Character vector of background genes (default: NULL, all genes in clustering data)
 #' @param simplify_go Logical, group semantically similar GO terms and plot Tree map
 #' @param db_loc Directory to store annotation databases (default: "databases")
-#' @param hpa_version Version of the Human Protein Atlas to download (default: 24)
+#' @param hpa_version Human Protein Atlas release to download. `NULL` (default)
+#'   uses the current release; a number such as `24` pins an archived release.
 #' @param verbose Logical, print progress messages (default: TRUE)
 #'
 #' @details In case some of the databases did not download correctly, please rerun the function.
 #' If that does not help, please manually download the databases, place them in the specified db_loc directory and unzip the zipped files.
 #' Links:
-#' - Human Protein Atlas version 24: https://v%d.proteinatlas.org/download/proteinatlas.tsv.zip
-#' - Reactome: https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt
-#' - Trrust: https://www.grnpedia.org/trrust/data/trrust_rawdata.human.tsv
-#' - Panglao: https://panglaodb.se/markers/PanglaoDB_markers_27_Mar_2020.tsv.gz
+#' - Human Protein Atlas (current release): <https://www.proteinatlas.org/download/proteinatlas.tsv.zip>
+#' - Human Protein Atlas (archived release `n`): `https://vn.proteinatlas.org/download/proteinatlas.tsv.zip`
+#' - Reactome: <https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt>
+#' - TRRUST: <https://www.grnpedia.org/trrust/data/trrust_rawdata.human.tsv>
+#' - PanglaoDB: <https://panglaodb.se/markers/PanglaoDB_markers_27_Mar_2020.tsv.gz>
 #'
 #' Or just run the annotation only using KEGG and GO by setting dbs = c("KEGG", "GO").
 #'
@@ -37,47 +39,45 @@
 #' @export
 #'
 #' @examples
+#' \donttest{
 #' # Run clustering pipeline
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+#' adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
 #'
-#' # Run annotation pipeline
+#' # Enrichment against KEGG. This queries the KEGG web service, so it needs
+#' # network access and takes a while.
 #' enrichment_results <- hc_annotate(adata_res, dbs = "KEGG")
 #' head(enrichment_results$enrichment)
+#' }
 hc_annotate <- function(
   AnnDatR,
   dbs = c("GO", "KEGG", "Others"),
   universe = NULL,
   simplify_go = TRUE,
   db_loc = "databases",
-  hpa_version = 24,
+  hpa_version = NULL,
   verbose = TRUE
 ) {
-  if (!requireNamespace("readr", quietly = TRUE)) {
-    stop(
-      "The 'readr' package is required for this function. Please install it using install.packages('readr')."
-    )
+  dbs <- match.arg(dbs, c("GO", "KEGG", "Others"), several.ok = TRUE)
+
+  check_installed("clusterProfiler", "to run enrichment analysis", bioc = TRUE)
+  check_installed("org.Hs.eg.db", "to map gene identifiers", bioc = TRUE)
+  if ("Others" %in% dbs) {
+    check_installed("readr", "to read the annotation databases")
   }
-  if (!requireNamespace("clusterProfiler", quietly = TRUE)) {
-    stop(
-      "The 'clusterProfiler' package is required for this function. Please install it using BiocManager::install('clusterProfiler')."
-    )
+  if ("GO" %in% dbs && isTRUE(simplify_go)) {
+    check_installed("rrvgo", "to simplify GO terms", bioc = TRUE)
   }
-  if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
-    stop(
-      "The 'org.Hs.eg.db' package is required for KEGG enrichment. Please install it using BiocManager::install('org.Hs.eg.db')."
-    )
-  }
-  if (!requireNamespace("rrvgo", quietly = TRUE) && "GO" %in% dbs) {
-    stop(
-      "The 'rrvgo' package is required for KEGG enrichment. Please install it using BiocManager::install('rrvgo')."
-    )
-  }
+
   if (is.null(AnnDatR[["uns"]][["consensus_clustering"]])) {
     stop(
-      "AnnDatR$uns$consensus_clustering not found. Call `hc_cluster_consensus()` before `hc_annotate()`."
+      paste0(
+        "AnnDatR$uns$consensus_clustering not found. ",
+        "Call `hc_cluster_consensus()` before `hc_annotate()`."
+      ),
+      call. = FALSE
     )
   }
 
@@ -101,7 +101,9 @@ hc_annotate <- function(
       universe = universe,
       verbose = verbose
     )
-    bubblemap_others <- plot_enrichment_bubblemap(database_enrichment)
+    if (nrow(database_enrichment) > 0L) {
+      bubblemap_others <- plot_enrichment_bubblemap(database_enrichment)
+    }
     if (verbose) {
       message("Custom database enrichment done.")
     }
@@ -116,7 +118,9 @@ hc_annotate <- function(
       universe = universe,
       verbose = verbose
     )
-    bubblemap_kegg <- plot_enrichment_bubblemap(kegg_enrichment)
+    if (nrow(kegg_enrichment) > 0L) {
+      bubblemap_kegg <- plot_enrichment_bubblemap(kegg_enrichment)
+    }
     if (verbose) {
       message("KEGG enrichment done.")
     }
@@ -131,60 +135,57 @@ hc_annotate <- function(
       universe = universe,
       verbose = verbose
     )
-    if (isTRUE(simplify_go)) {
+    if (isTRUE(simplify_go) && nrow(go_enrichment) > 0L) {
+      if (verbose) {
+        message("Start GO enrichment simplification...")
+      }
       res_go <- reduce_go_terms(go_enrichment)
-    }
-    if (verbose) {
-      message("Start GO enrichment simplification...")
-    }
-    if (isTRUE(simplify_go)) {
       go_enrichment <- res_go[["combined"]]
       treemaps <- plot_enrichment_treemap(res_go[["reducedTerms"]])
       rm(res_go)
     }
-    bubblemap_go <- plot_enrichment_bubblemap(go_enrichment)
+    if (nrow(go_enrichment) > 0L) {
+      bubblemap_go <- plot_enrichment_bubblemap(go_enrichment)
+    }
     if (verbose) {
-      message("GO enrichment (with simplification) done.")
+      message("GO enrichment done.")
     }
   } else {
     go_enrichment <- dplyr::tibble()
   }
 
-  if (
-    !is.null(database_enrichment) ||
-      !is.null(kegg_enrichment) ||
-      !is.null(go_enrichment)
-  ) {
-    all_enrichment <- dplyr::bind_rows(
-      database_enrichment,
-      kegg_enrichment,
-      go_enrichment
-    ) |>
-      dplyr::filter(!!rlang::sym("Adjusted P-value") < 0.05) |>
-      dplyr::arrange(
-        !!rlang::sym("Cluster ID"),
-        !!rlang::sym("Adjusted P-value")
-      )
-  } else {
-    warning("No enrichment results to combine.")
-    return(NULL)
+  all_enrichment <- dplyr::bind_rows(
+    database_enrichment,
+    kegg_enrichment,
+    go_enrichment
+  )
+
+  if (nrow(all_enrichment) == 0L) {
+    warning("No significant enrichment found for any cluster.", call. = FALSE)
+    return(list(enrichment = empty_enrichment_result()))
   }
+
+  all_enrichment <- all_enrichment |>
+    dplyr::filter(!!rlang::sym("Adjusted P-value") < 0.05) |>
+    dplyr::arrange(
+      !!rlang::sym("Cluster ID"),
+      !!rlang::sym("Adjusted P-value")
+    )
   # Map Ensembl IDs to Gene Symbols for better interpretability
   all_enrichment <- map_ensembl_to_symbol(all_enrichment)
 
-  result <- list()
-  result$enrichment <- all_enrichment
-  if ("GO" %in% dbs && go_enrichment |> nrow() != 0) {
+  result <- list(enrichment = all_enrichment)
+  if ("GO" %in% dbs && nrow(go_enrichment) > 0L) {
     if (isTRUE(simplify_go)) {
-      result$treemaps <- treemaps
+      result[["treemaps"]] <- treemaps
     }
-    result$bubblemap_go <- bubblemap_go
+    result[["bubblemap_go"]] <- bubblemap_go
   }
-  if ("KEGG" %in% dbs && kegg_enrichment |> nrow() != 0) {
-    result$bubblemap_kegg <- bubblemap_kegg
+  if ("KEGG" %in% dbs && nrow(kegg_enrichment) > 0L) {
+    result[["bubblemap_kegg"]] <- bubblemap_kegg
   }
-  if ("Others" %in% dbs && database_enrichment |> nrow() != 0) {
-    result$bubblemap_others <- bubblemap_others
+  if ("Others" %in% dbs && nrow(database_enrichment) > 0L) {
+    result[["bubblemap_others"]] <- bubblemap_others
   }
-  return(result)
+  result
 }

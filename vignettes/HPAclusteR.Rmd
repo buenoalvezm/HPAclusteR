@@ -12,6 +12,11 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+
+# The functional annotation section needs the Bioconductor stack. Skip those
+# chunks gracefully rather than failing the build where it is unavailable.
+annotation_available <- requireNamespace("clusterProfiler", quietly = TRUE) &&
+  requireNamespace("org.Hs.eg.db", quietly = TRUE)
 ```
 
 ## Introduction
@@ -41,10 +46,12 @@ PCA is the first step in the pipeline, used to reduce the dimensionality of the 
 ```{r pca, message=FALSE, warnings=FALSE}
 adata_res <- hc_pca(example_adata, components = 40)
 head(adata_res$obsm$X_pca[, 1:5])  # PCA scores
-adata_res$uns$pca  # Explained variance
+head(adata_res$uns$pca$r2cum)      # Cumulative explained variance
 ```
 
 The PCA step reduces the dimensionality of the data to 40 components, which can be adjusted based on the dataset and analysis goals.
+
+> 💡 If the expression matrix contains missing values, `hc_pca()` reports how many and, by default, imputes them with their column mean so that the fast SVD path is used. Set `na_action = "nipals"` for the slower iterative algorithm that handles missing values directly, or `na_action = "omit"` to drop the affected genes.
 
 ### Step 2: Distance Calculation
 
@@ -52,8 +59,8 @@ Next, we calculate the pairwise distances between samples using the PCA-reduced 
 
 ```{r distance, message=FALSE, warnings=FALSE}
 adata_res <- hc_distance(
-  adata_res, 
-  components = hc_kaisers_rule(adata_res), 
+  adata_res,
+  components = hc_kaisers_rule(adata_res),
   method = "spearman"
 )
 head(adata_res$uns$distance)
@@ -65,7 +72,7 @@ The SNN graph is constructed to identify clusters of similar samples. This step 
 
 ```{r snn, message=FALSE, warnings=FALSE}
 adata_res <- hc_snn(adata_res, neighbors = 15, prune = 1 / 15)
-adata_res$uns$neighbors$snn
+adata_res$uns$neighbors$snn[1:5, 1:5]
 ```
 
 The `neighbors` parameter controls the number of nearest neighbors considered, while `prune` adjusts the sparsity of the graph.
@@ -119,7 +126,7 @@ The `plot` argument can be set to `"points"`, `"hulls"`, or `"both"` to customiz
 
 In this part we will annotate our clusters using the KEGG database. Users can use KEGG, GO or even other databases such as the Human Protein Atlas, Panglao, Trrust and Reactome. Check `hc_annotate()` for further details.
 
-```{r annotate, message=FALSE, warnings=FALSE}
+```{r annotate, message=FALSE, warnings=FALSE, eval=annotation_available}
 enrichment_res <- hc_annotate(
   adata_res,
   dbs = "KEGG",
@@ -155,7 +162,7 @@ Finally, we can compare different clustering results using the `hc_cluster_compa
 ```{r comparison, message=FALSE, warnings=FALSE}
 adata_res2 <- hc_auto_cluster(
   example_adata,
-  cluster_resolution = 10,
+  cluster_resolution = 12,
   verbose = FALSE
 )
 

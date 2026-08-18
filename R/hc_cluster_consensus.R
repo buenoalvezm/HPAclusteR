@@ -1,56 +1,67 @@
+#' Convert a shared nearest neighbour graph to an igraph object
+#'
+#' @param snn Sparse, symmetric, weighted adjacency matrix.
+#'
+#' @returns An undirected weighted `igraph` graph.
+#' @keywords internal
+#' @noRd
+snn_to_igraph <- function(snn) {
+  igraph::graph_from_adjacency_matrix(
+    snn,
+    mode = "undirected",
+    weighted = TRUE,
+    diag = FALSE
+  )
+}
+
 #' Clusters genes using specified method and parameters
 #'
-#' @param genes Gene names
-#' @param neighbors Neighbor graph object
-#' @param method Clustering method: "louvain" or "leiden"
-#' @param resolution Resolution parameter for clustering
-#' @param seed Random seed for clustering
+#' Community detection on the shared nearest neighbour graph. Both algorithms
+#' optimise modularity at the requested resolution and both depend on the
+#' random number generator, so different seeds give different partitions --
+#' which is what makes the consensus step meaningful.
 #'
-#' @returns Data frame with gene cluster assignments
+#' @param genes Gene names, in the row order of the graph.
+#' @param graph An `igraph` graph built from the SNN adjacency matrix.
+#' @param method Clustering method: `"louvain"` or `"leiden"`.
+#' @param resolution Resolution parameter for clustering.
+#' @param seed Random seed for clustering.
+#'
+#' @returns Data frame with gene cluster assignments, numbered from zero.
 #' @keywords internal
 cluster_genes <- function(
   genes,
-  neighbors,
-  method = "louvain",
+  graph,
+  method = c("louvain", "leiden"),
   resolution = 1,
-  seed = seed
+  seed = 42
 ) {
-  if (method == "louvain") {
-    alg = 1
-  } else if (method == "leiden") {
-    alg = 4
-  }
+  method <- match.arg(method)
+  weights <- igraph::edge_attr(graph, "weight")
 
-  suppressWarnings(
-    {
-      empty_matrix <- matrix(
-        0,
-        nrow = length(genes),
-        ncol = length(genes),
-        dimnames = list(genes, genes)
-      )
-      louv <-
-        Seurat::CreateSeuratObject(assay = "Exp", counts = empty_matrix)
-
-      # Create the Seurat object with the correct structure
-      louv@graphs[["Exp_snn"]] <- neighbors[["snn"]]
-
-      louv <- Seurat::FindClusters(
-        louv,
-        graph.name = "Exp_snn",
+  set.seed(seed)
+  membership <- switch(
+    method,
+    louvain = igraph::membership(
+      igraph::cluster_louvain(graph, weights = weights, resolution = resolution)
+    ),
+    leiden = igraph::membership(
+      igraph::cluster_leiden(
+        graph,
+        weights = weights,
         resolution = resolution,
-        algorithm = alg,
-        random.seed = seed,
-        verbose = FALSE
+        objective_function = "modularity",
+        n_iterations = 2L
       )
-    }
+    )
   )
 
-  col <- paste("Exp_snn_res.", resolution, sep = "")
-  res <- as.numeric(as.character(louv@meta.data[, col]))
-  res <- data.frame(gene = genes, cluster = res)
-
-  return(res)
+  data.frame(
+    gene = genes,
+    # Number from zero, so the downstream `+ 1` keeps the historical labels.
+    cluster = as.integer(membership) - 1L,
+    stringsAsFactors = FALSE
+  )
 }
 
 #' Finds consensus clustering from multiple clusterings
@@ -144,7 +155,7 @@ find_consensus <- function(
     final_clustering_corrected <-
       final_clustering |>
       dplyr::mutate(cluster = as.numeric(!!rlang::sym("cluster"))) |>
-      dplyr::left_join(to_rename) |>
+      dplyr::left_join(to_rename, by = "gene") |>
       dplyr::mutate(
         new_cluster = dplyr::if_else(
           is.na(!!rlang::sym("new_cluster")),
@@ -162,7 +173,7 @@ find_consensus <- function(
 
     final_clustering <-
       final_clustering_corrected |>
-      dplyr::left_join(mapping_table) |>
+      dplyr::left_join(mapping_table, by = "new_cluster") |>
       dplyr::select(-dplyr::any_of(c("new_cluster"))) |>
       dplyr::rename(
         cons_cluster = !!rlang::sym("cluster"),
@@ -213,7 +224,8 @@ find_consensus <- function(
         dplyr::rename(
           cons_cluster = !!rlang::sym("new_cluster"),
           cluster = !!rlang::sym("renumbered_cluster")
-        )
+        ),
+      by = "cons_cluster"
     ) |>
     dplyr::filter(!is.na(!!rlang::sym("cluster")))
 
@@ -232,7 +244,19 @@ find_consensus <- function(
 #' @param method Clustering method to use: "louvain" (default) or "leiden".
 #' @param n_seeds Number of different random seeds to use for clustering (default is 100).
 #' @param seed Random seed for reproducibility (default is 42).
+#' @param min_k Lower bound on the median number of communities across seeds
+#'   (default is 30). Resolutions that produce fewer are rejected.
+#' @param max_k Upper bound on the median number of communities across seeds
+#'   (default is 110).
 #' @param verbose Logical indicating whether to print progress messages (default is TRUE).
+#'
+#' @details
+#' The resolution is validated against `min_k` and `max_k`: if the median number
+#' of communities across seeds falls outside that window, the function stops and
+#' asks for a different `resolution`. These bounds were previously hard-coded.
+#'
+#' Re-running this function on an object that already carries a clustering
+#' replaces the previous `cluster` and `cluster_colors` columns in `obs`.
 #'
 #' @returns Consensus clustering results stored within the AnnDatR object.
 #'
@@ -242,64 +266,99 @@ find_consensus <- function(
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+#' adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
 #' head(adata_res$uns$consensus_clustering)
 #' head(adata_res$obs)
 hc_cluster_consensus <- function(
   AnnDatR,
   resolution = 6,
-  method = "louvain",
+  method = c("louvain", "leiden"),
   n_seeds = 100,
   seed = 42,
+  min_k = 30,
+  max_k = 110,
   verbose = TRUE
 ) {
+  method <- match.arg(method)
+  check_installed("igraph", "for community detection")
+
   if (is.null(AnnDatR[["uns"]][["neighbors"]])) {
     stop(
-      "AnnDatR$uns$neighbors not found. Call `hc_snn()` before `hc_cluster_consensus()`."
+      "AnnDatR$uns$neighbors not found. Call `hc_snn()` before `hc_cluster_consensus()`.",
+      call. = FALSE
     )
   }
-  seeds = 1:n_seeds
 
-  cluster_data <-
-    # Create all combinations of resolution and seed
-    tidyr::crossing(resolution = c(resolution), seed = seeds) |>
-    # For each combination, perform clustering with the respective parameters
-    dplyr::rowwise() |>
-    dplyr::mutate(
-      result = list(
-        cluster_genes(
-          genes = AnnDatR[["obs_names"]],
-          neighbors = AnnDatR[["uns"]][["neighbors"]],
-          method = method,
-          resolution = !!rlang::sym("resolution"),
-          seed = !!rlang::sym("seed")
-        )
-      )
-    ) |>
-    dplyr::ungroup() |>
-    tidyr::unnest(!!rlang::sym("result"))
+  # Build the graph once and reuse it for every seed.
+  graph <- snn_to_igraph(AnnDatR[["uns"]][["neighbors"]][["snn"]])
+  # Read the column directly rather than through the `obs_names` active
+  # binding: R6 active bindings are lost when an object is serialised, so a
+  # binding restored from disk can report stale values.
+  genes <- AnnDatR[["obs"]][[AnnDatR[["obs_names_col"]]]]
 
-  # Process clustering results
+  if (verbose) {
+    message(sprintf(
+      "Running %s clustering at resolution %s across %d seeds.",
+      method,
+      format(resolution),
+      n_seeds
+    ))
+  }
+
+  cluster_data <- lapply(seq_len(n_seeds), function(current_seed) {
+    partition <- cluster_genes(
+      genes = genes,
+      graph = graph,
+      method = method,
+      resolution = resolution,
+      seed = current_seed
+    )
+    partition[["resolution"]] <- resolution
+    partition[["seed"]] <- current_seed
+    partition
+  }) |>
+    dplyr::bind_rows() |>
+    dplyr::select(dplyr::any_of(c("resolution", "seed", "gene", "cluster")))
+
+  # Label clusters from 1 and check that the resolution yields a usable number
+  # of communities before spending time on the consensus step.
   cluster_data <- cluster_data |>
-    dplyr::mutate(cluster = as.character(!!rlang::sym("cluster") + 1)) |>
-    dplyr::group_by(!!rlang::sym("resolution"), !!rlang::sym("seed")) |>
-    dplyr::mutate(k = dplyr::n_distinct(!!rlang::sym("cluster"))) |>
-    dplyr::ungroup() |>
-    dplyr::group_by(resolution) |>
-    dplyr::mutate(resolution_k = ceiling(stats::median(!!rlang::sym("k")))) |>
-    dplyr::ungroup() |>
-    dplyr::filter(
-      !!rlang::sym("resolution_k") >= 30,
-      !!rlang::sym("resolution_k") <= 110
-    ) |>
-    dplyr::select(-dplyr::any_of(c("k", "resolution_k")))
+    dplyr::mutate(cluster = as.character(!!rlang::sym("cluster") + 1))
 
-  if (cluster_data |> nrow() == 0) {
+  k_per_seed <- cluster_data |>
+    dplyr::group_by(!!rlang::sym("seed")) |>
+    dplyr::summarise(k = dplyr::n_distinct(!!rlang::sym("cluster")), .groups = "drop") |>
+    dplyr::pull(!!rlang::sym("k"))
+
+  median_k <- ceiling(stats::median(k_per_seed))
+  if (verbose) {
+    message(sprintf(
+      "Median number of communities across seeds: %d (range %d-%d).",
+      median_k,
+      min(k_per_seed),
+      max(k_per_seed)
+    ))
+  }
+
+  if (median_k < min_k || median_k > max_k) {
     stop(
-      "No clusterings found with the specified resolution parameter. Try increasing the `resolution` argument."
+      sprintf(
+        paste0(
+          "Resolution %s produces a median of %d clusters, outside the accepted range [%d, %d]. ",
+          "%s the `resolution` argument, or widen `min_k`/`max_k`."
+        ),
+        format(resolution),
+        median_k,
+        min_k,
+        max_k,
+        if (median_k < min_k) "Increase" else "Decrease"
+      ),
+      call. = FALSE
     )
   }
+
   cluster_data <- cluster_data |>
+    dplyr::select(dplyr::any_of(c("resolution", "seed", "gene", "cluster"))) |>
     tidyr::pivot_wider(
       names_from = seed,
       values_from = !!rlang::sym("cluster"),
@@ -333,15 +392,16 @@ hc_cluster_consensus <- function(
   ]] <- cluster_consensus[["membership_matrix"]] |>
     dplyr::select(-dplyr::any_of(c("cons_cluster")))
 
+  # Drop any clustering left over from a previous call, so that re-running this
+  # function on an already-clustered object replaces rather than duplicates it.
   AnnDatR_out[["obs"]] <- AnnDatR_out[["obs"]] |>
+    dplyr::select(-dplyr::any_of(c("cluster", "cluster_colors"))) |>
     dplyr::left_join(
-      AnnDatR_out[["uns"]][[
-        "consensus_clustering"
-      ]],
+      AnnDatR_out[["uns"]][["consensus_clustering"]],
       by = dplyr::join_by(!!AnnDatR_out[["obs_names_col"]] == "gene")
     )
 
-  names <- AnnDatR_out[["obs"]][["cluster"]] |>
+  cluster_levels <- AnnDatR_out[["obs"]][["cluster"]] |>
     unique() |>
     as.double() |>
     sort() |>
@@ -362,16 +422,14 @@ hc_cluster_consensus <- function(
     "#370054ff",
     "#FFD700"
   )
-  cluster_colors <- base_colors[rep(
-    seq_along(base_colors),
-    length.out = length(names)
-  )]
-
-  cluster_colors <- as.data.frame(cluster_colors, (names)) |>
-    tibble::rownames_to_column("cluster")
+  # Recycle the palette so that every cluster gets a colour.
+  cluster_colors <- tibble::tibble(
+    cluster = cluster_levels,
+    cluster_colors = rep(base_colors, length.out = length(cluster_levels))
+  )
 
   AnnDatR_out[["obs"]] <- AnnDatR_out[["obs"]] |>
     dplyr::left_join(cluster_colors, by = "cluster")
 
-  return(AnnDatR_out)
+  AnnDatR_out
 }

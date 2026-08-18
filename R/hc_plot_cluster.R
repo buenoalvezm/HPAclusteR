@@ -119,7 +119,10 @@ visualize_comparison_heatmap <- function(summary_data) {
       axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5),
       axis.line = ggplot2::element_blank(),
       axis.ticks = ggplot2::element_blank(),
-      panel.grid.major = ggplot2::element_line(color = "lightgrey", size = 0.2)
+      panel.grid.major = ggplot2::element_line(
+        colour = "lightgrey",
+        linewidth = 0.2
+      )
     )
 
   return(heatmap_plot)
@@ -132,150 +135,123 @@ visualize_comparison_heatmap <- function(summary_data) {
 #' @returns A network graph plot
 #' @keywords internal
 visualize_comparison_net <- function(matched_clusters) {
-  if (!requireNamespace("network", quietly = TRUE)) {
-    stop(
-      "The 'network' package is required for this function. Please install it using install.packages('network')."
-    )
-  }
-  if (!requireNamespace("GGally", quietly = TRUE)) {
-    stop(
-      "The 'GGally' package is required for this function. Please install it using install.packages('GGally')."
-    )
-  }
-  if (!requireNamespace("sna", quietly = TRUE)) {
-    stop(
-      "The 'sna' package is required for this function. Please install it using install.packages('sna')."
-    )
-  }
-  set.seed(42)
+  check_installed("igraph", "to lay out the cluster comparison network")
 
-  # Add prefixes to ensure unique node names
+  if (nrow(matched_clusters) == 0L) {
+    stop(
+      "No significant cluster matches to draw a network from.",
+      call. = FALSE
+    )
+  }
+
+  # Prefix node names so that clusters from the two datasets stay distinct.
   edges <- matched_clusters |>
     dplyr::mutate(
       from = paste0("A_", !!rlang::sym("cluster_A")),
       to = paste0("B_", !!rlang::sym("cluster_B"))
     ) |>
-    dplyr::select(dplyr::any_of(c("from", "to", "percentage_overlap")))
+    dplyr::select(dplyr::all_of(c("from", "to", "percentage_overlap")))
 
-  # Combine node sizes from both datasets
-  node_sizes <- matched_clusters |>
-    dplyr::select(dplyr::any_of(c(
-      "cluster_A",
-      "cluster_B",
-      "n_genes_A",
-      "n_genes_B"
-    ))) |>
-    tidyr::pivot_longer(
-      cols = c(!!rlang::sym("cluster_A"), !!rlang::sym("cluster_B")),
-      names_to = "dataset",
-      values_to = "cluster"
-    ) |>
-    dplyr::mutate(
-      size = ifelse(
-        !!rlang::sym("dataset") == "cluster_A",
-        !!rlang::sym("n_genes_A"),
-        !!rlang::sym("n_genes_B")
+  nodes <- dplyr::bind_rows(
+    matched_clusters |>
+      dplyr::transmute(
+        name = paste0("A_", !!rlang::sym("cluster_A")),
+        label = as.character(!!rlang::sym("cluster_A")),
+        size = !!rlang::sym("n_genes_A"),
+        dataset = "Dataset A"
       ),
-      cluster = paste0(
-        ifelse(!!rlang::sym("dataset") == "cluster_A", "A_", "B_"),
-        !!rlang::sym("cluster")
-      ),
-      shape = ifelse(
-        !!rlang::sym("dataset") == "cluster_A",
-        "circle",
-        "triangle"
-      ) # Assign shapes
-    ) |>
-    dplyr::distinct(
-      !!rlang::sym("cluster"),
-      !!rlang::sym("size"),
-      !!rlang::sym("shape")
-    )
-
-  net <- network::network(edges, directed = FALSE)
-
-  # Add node attributes
-  network::set.vertex.attribute(
-    net,
-    "dataset",
-    ifelse(
-      network::get.vertex.attribute(net, "vertex.names") %in% edges$from,
-      "Dataset A",
-      "Dataset B"
-    )
-  )
-  network::set.vertex.attribute(
-    net,
-    "size",
-    node_sizes[["size"]][match(
-      network::get.vertex.attribute(net, "vertex.names"),
-      node_sizes[["cluster"]]
-    )]
-  )
-  network::set.vertex.attribute(
-    net,
-    "shape",
-    node_sizes[["shape"]][match(
-      network::get.vertex.attribute(net, "vertex.names"),
-      node_sizes[["cluster"]]
-    )]
-  )
-
-  # Add edge attributes
-  network::set.edge.attribute(
-    net,
-    "color",
-    ifelse(
-      edges[["percentage_overlap"]] > 90,
-      "#9f9f9f", # Fully solid grey
-      ifelse(
-        edges[["percentage_overlap"]] > 80,
-        "#a8a8a8", # 90% solid
-        ifelse(
-          edges[["percentage_overlap"]] > 70,
-          "#b2b2b2", # 80% solid
-          ifelse(
-            edges[["percentage_overlap"]] > 60,
-            "#bbbbbb", # 70% solid
-            ifelse(
-              edges[["percentage_overlap"]] > 50,
-              "#c4c4c4", # 60% solid
-              ifelse(
-                edges[["percentage_overlap"]] > 40,
-                "#cecece", # 50% solid
-                ifelse(
-                  edges[["percentage_overlap"]] > 30,
-                  "#d8d8d8", # 40% solid
-                  ifelse(
-                    edges[["percentage_overlap"]] > 20,
-                    "#e1e1e1", # 30% solid
-                    "#ebebeb" # 20% solid
-                  )
-                )
-              )
-            )
-          )
-        )
+    matched_clusters |>
+      dplyr::transmute(
+        name = paste0("B_", !!rlang::sym("cluster_B")),
+        label = as.character(!!rlang::sym("cluster_B")),
+        size = !!rlang::sym("n_genes_B"),
+        dataset = "Dataset B"
       )
-    )
+  ) |>
+    dplyr::distinct()
+
+  graph <- igraph::graph_from_data_frame(
+    edges,
+    directed = FALSE,
+    vertices = nodes
   )
 
-  network <- GGally::ggnet2(
-    net,
-    color = "dataset",
-    palette = "Set2",
-    size = "size",
-    shape = "shape",
-    edge.color = "color",
-    edge.size = 0.5,
-    label = TRUE,
-    label.size = 3,
-    vjust = 2
-  ) +
-    ggplot2::guides(size = "none", shape = "none", color = "none") +
-    ggplot2::labs(
-      caption = "Node color/shape = Dataset, Node size = Number of genes in each cluster\nEdge color = Percentage overlap between two clusters"
+  set.seed(42)
+  layout <- igraph::layout_with_fr(graph)
+  colnames(layout) <- c("x", "y")
+
+  node_positions <- dplyr::bind_cols(
+    tibble::tibble(name = igraph::vertex_attr(graph, "name")),
+    tibble::as_tibble(layout)
+  ) |>
+    dplyr::left_join(nodes, by = "name")
+
+  edge_positions <- edges |>
+    dplyr::left_join(
+      node_positions |>
+        dplyr::select(from = "name", x = "x", y = "y"),
+      by = "from"
+    ) |>
+    dplyr::left_join(
+      node_positions |>
+        dplyr::select(to = "name", xend = "x", yend = "y"),
+      by = "to"
+    )
+
+  ggplot2::ggplot() +
+    ggplot2::geom_segment(
+      data = edge_positions,
+      ggplot2::aes(
+        x = !!rlang::sym("x"),
+        y = !!rlang::sym("y"),
+        xend = !!rlang::sym("xend"),
+        yend = !!rlang::sym("yend"),
+        alpha = !!rlang::sym("percentage_overlap")
+      ),
+      colour = "grey40",
+      linewidth = 0.5,
+      show.legend = FALSE
     ) +
+    ggplot2::scale_alpha_continuous(range = c(0.15, 0.9), limits = c(0, 100)) +
+    ggplot2::geom_point(
+      data = node_positions,
+      ggplot2::aes(
+        x = !!rlang::sym("x"),
+        y = !!rlang::sym("y"),
+        size = !!rlang::sym("size"),
+        fill = !!rlang::sym("dataset"),
+        shape = !!rlang::sym("dataset")
+      ),
+      colour = "black",
+      stroke = 0.3
+    ) +
+    ggplot2::scale_shape_manual(
+      values = c("Dataset A" = 21, "Dataset B" = 24)
+    ) +
+    ggplot2::scale_fill_manual(
+      values = c("Dataset A" = "#66C2A5", "Dataset B" = "#FC8D62")
+    ) +
+    ggplot2::scale_size_continuous(range = c(2, 8)) +
+    ggrepel::geom_text_repel(
+      data = node_positions,
+      ggplot2::aes(
+        x = !!rlang::sym("x"),
+        y = !!rlang::sym("y"),
+        label = !!rlang::sym("label")
+      ),
+      size = 3,
+      seed = 42,
+      max.overlaps = Inf
+    ) +
+    ggplot2::guides(size = "none", shape = "none", fill = "none") +
+    ggplot2::coord_equal() +
+    ggplot2::labs(
+      caption = paste0(
+        "Node colour/shape = Dataset, Node size = Number of genes in each cluster\n",
+        "Edge opacity = Percentage overlap between two clusters"
+      )
+    ) +
+    ggplot2::theme_void() +
     ggplot2::theme(
       plot.caption = ggplot2::element_text(
         hjust = 0.5,
@@ -283,6 +259,4 @@ visualize_comparison_net <- function(matched_clusters) {
         face = "italic"
       )
     )
-
-  return(network)
 }

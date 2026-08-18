@@ -11,3 +11,8 @@ logo/
 docs
 inst/doc
 databases/
+Rplots.pdf
+*.tar.gz
+*.Rcheck/
+.posit/
+.vscode/

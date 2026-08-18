@@ -41,7 +41,7 @@ the distribution of these categories within each cluster.
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
 
 # Classify genes based on sample categories
 gene_classification <- hc_classify(adata_res, "tissue_name")

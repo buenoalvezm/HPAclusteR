@@ -18,7 +18,8 @@ get_density(x, y, h = 0.5, n = 100, lims = c(range(x), range(y)))
 \item{lims}{limits}
 }
 \value{
-Tidy tibble with x, y, z (density), x_coord, y_coord
+Tidy tibble with x, y (grid indices), z (density) and the
+corresponding x_coord, y_coord grid coordinates.
 }
 \description{
 Estimate 2D density

@@ -40,41 +40,50 @@ calculate_ari <- function(labels1, labels2) {
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+#' adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
 #' hc_cluster_stability(adata_res)
 hc_cluster_stability <- function(AnnDatR) {
-  if (is.null(AnnDatR[["uns"]][["cluster_data"]])) {
+  cluster_data <- AnnDatR[["uns"]][["cluster_data"]]
+  if (is.null(cluster_data)) {
     stop(
-      "AnnDatR$uns$cluster_data not found. Call `hc_cluster_consensus()` before `hc_cluster_stability()`."
+      paste0(
+        "AnnDatR$uns$cluster_data not found. ",
+        "Call `hc_cluster_consensus()` before `hc_cluster_stability()`."
+      ),
+      call. = FALSE
     )
   }
 
-  n_seeds <- ncol(AnnDatR[["uns"]][["cluster_data"]]) - 2
+  # Pull the per-seed labels out once, rather than re-selecting and deframing
+  # the tibble inside every one of the n_seeds * (n_seeds - 1) / 2 comparisons.
+  seed_columns <- grep("^seed_", names(cluster_data), value = TRUE)
+  seed_numbers <- as.integer(sub("^seed_", "", seed_columns))
+  seed_columns <- seed_columns[order(seed_numbers)]
+  seed_numbers <- sort(seed_numbers)
 
-  ARI_scores <- tidyr::expand_grid(
-    seed1 = 1:n_seeds,
-    seed2 = 1:n_seeds
-  ) |>
-    dplyr::filter(!!rlang::sym("seed1") < !!rlang::sym("seed2")) |>
-    dplyr::group_by(!!rlang::sym("seed1"), !!rlang::sym("seed2")) |>
-    dplyr::mutate(
-      ARI = calculate_ari(
-        AnnDatR[["uns"]][["cluster_data"]] |>
-          dplyr::select(
-            !!rlang::sym("gene"),
-            paste("seed", !!rlang::sym("seed1"), sep = "_")
-          ) |>
-          tibble::deframe(),
-        AnnDatR[["uns"]][["cluster_data"]] |>
-          dplyr::select(
-            !!rlang::sym("gene"),
-            paste("seed", !!rlang::sym("seed2"), sep = "_")
-          ) |>
-          tibble::deframe()
-      )
+  labels <- as.matrix(cluster_data[, seed_columns, drop = FALSE])
+  n_seeds <- length(seed_columns)
+
+  if (n_seeds < 2L) {
+    stop(
+      "At least two clustering seeds are required to assess stability.",
+      call. = FALSE
     )
+  }
 
-  ARI_res <- visualize_ari(ARI_scores)
+  pairs <- utils::combn(n_seeds, 2L)
 
-  return(ARI_res)
+  ARI_scores <- tibble::tibble(
+    seed1 = seed_numbers[pairs[1, ]],
+    seed2 = seed_numbers[pairs[2, ]],
+    ARI = vapply(
+      seq_len(ncol(pairs)),
+      function(pair) {
+        calculate_ari(labels[, pairs[1, pair]], labels[, pairs[2, pair]])
+      },
+      numeric(1)
+    )
+  )
+
+  visualize_ari(ARI_scores)
 }

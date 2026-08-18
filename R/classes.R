@@ -16,18 +16,16 @@ check_annotation_alignment <- function(adata) {
     obs_names <- as.character(obs[[1]])
 
     # Extract row identifiers from first column and var
-    x_varorder <- x[[1]]
-    var_order <- var[[1]]
+    x_varorder <- as.character(x[[1]])
+    var_order <- as.character(var[[1]])
 
     col_match <- identical(x_colnames, obs_names)
     row_match <- identical(x_varorder, var_order)
 
-    if (col_match && row_match) {
-        message(
-            "Column names and row identifiers match and are in the same order."
-        )
-        return(TRUE)
-    }
+    # Always return a length-one logical: returning NULL on a mismatch made the
+    # caller's `if (!check_annotation_alignment(...))` fail with
+    # "argument is of length zero" instead of reporting the misalignment.
+    col_match && row_match
 }
 
 #' AnnDatR Class

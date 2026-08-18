@@ -12,9 +12,10 @@ hc_auto_cluster(
   distance_components = NULL,
   distance_method = "spearman",
   snn_neighbors = 20,
-  snn_similarity = "euclidean",
+  snn_prune = 1/15,
   cluster_resolution = 6,
   cluster_method = "louvain",
+  cluster_seeds = 100,
   verbose = TRUE
 )
 }
@@ -33,11 +34,14 @@ hc_auto_cluster(
 
 \item{snn_neighbors}{Number of nearest neighbors to consider (default is 20).}
 
-\item{snn_similarity}{Distance metric to use for nearest neighbor search (default is "euclidean"). Other options include "cosine", "manhattan", and "hamming".}
+\item{snn_prune}{Pruning threshold for the SNN graph (default is 1/15).}
 
 \item{cluster_resolution}{Resolution parameter for clustering (default is 6).}
 
 \item{cluster_method}{Clustering method to use: "louvain" (default) or "leiden".}
+
+\item{cluster_seeds}{Number of random seeds to aggregate over in the
+consensus step (default is 100).}
 
 \item{verbose}{Logical indicating whether to print progress messages (default is TRUE).}
 }
@@ -51,6 +55,10 @@ UMAP embedding, and cluster hull generation. It prints a UMAP plot of the
 resulting clusters.
 }
 \examples{
-adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 8)
+adata_res <- hc_auto_cluster(
+  example_adata,
+  cluster_resolution = 8,
+  cluster_seeds = 20
+)
 head(adata_res$uns$consensus_clustering)
 }

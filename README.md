@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/buenoalvezm/HPAclusteR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/buenoalvezm/HPAclusteR/actions/workflows/R-CMD-check.yaml)
-[![Version](https://img.shields.io/badge/Version-1.0.0-purple)](https://github.com/buenoalvezm/HPAclusteR) 
+[![Version](https://img.shields.io/badge/Version-1.1.0-purple)](https://github.com/buenoalvezm/HPAclusteR) 
 [![License](https://img.shields.io/badge/license-Apache2.0-yellow)](https://github.com/buenoalvezm/HPAclusteR/blob/master/LICENSE.md)
 <!-- badges: end -->
 
@@ -33,7 +33,7 @@
   - Protein Class
 - Reactome Pathways
 - PanglaoDB Cell Markers
-- Trrusted Cell Markers
+- TRRUST Transcription Factors
 
 
 ### Ready-to-use Visualization Functions:
@@ -55,6 +55,17 @@ install.packages("devtools")
 devtools::install_github("buenoalvezm/HPAclusteR")
 ```
 
+The clustering, visualization and comparison functions need nothing beyond
+CRAN — no Python interpreter and no Bioconductor packages.
+
+Functional enrichment (`hc_annotate()`) additionally needs the Bioconductor
+annotation stack:
+
+```r
+install.packages("BiocManager")
+BiocManager::install(c("clusterProfiler", "org.Hs.eg.db", "rrvgo"))
+```
+
 ## Usage
 
 Start right away with the `hc_auto_cluster()` function, which performs the complete gene clustering pipeline on an `AnnDatR` object.
@@ -63,7 +74,20 @@ Start right away with the `hc_auto_cluster()` function, which performs the compl
 library(HPAclusteR)
 
 # Example input: AnnDatR object with transcriptomics data
-adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 10)
+adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 8)
+```
+
+Or run the pipeline step by step:
+
+```r
+adata_res <- hc_pca(example_adata, components = 40)
+adata_res <- hc_distance(adata_res, components = hc_kaisers_rule(adata_res))
+adata_res <- hc_snn(adata_res, neighbors = 15)
+adata_res <- hc_cluster_consensus(adata_res, resolution = 8)
+adata_res <- hc_umap(adata_res)
+adata_res <- hc_cluster_hulls(adata_res)
+
+hc_plot_umap(adata_res, plot = "both")
 ```
 
 ## Issues and Support

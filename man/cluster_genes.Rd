@@ -6,27 +6,30 @@
 \usage{
 cluster_genes(
   genes,
-  neighbors,
-  method = "louvain",
+  graph,
+  method = c("louvain", "leiden"),
   resolution = 1,
-  seed = seed
+  seed = 42
 )
 }
 \arguments{
-\item{genes}{Gene names}
+\item{genes}{Gene names, in the row order of the graph.}
 
-\item{neighbors}{Neighbor graph object}
+\item{graph}{An \code{igraph} graph built from the SNN adjacency matrix.}
 
-\item{method}{Clustering method: "louvain" or "leiden"}
+\item{method}{Clustering method: \code{"louvain"} or \code{"leiden"}.}
 
-\item{resolution}{Resolution parameter for clustering}
+\item{resolution}{Resolution parameter for clustering.}
 
-\item{seed}{Random seed for clustering}
+\item{seed}{Random seed for clustering.}
 }
 \value{
-Data frame with gene cluster assignments
+Data frame with gene cluster assignments, numbered from zero.
 }
 \description{
-Clusters genes using specified method and parameters
+Community detection on the shared nearest neighbour graph. Both algorithms
+optimise modularity at the requested resolution and both depend on the
+random number generator, so different seeds give different partitions --
+which is what makes the consensus step meaningful.
 }
 \keyword{internal}

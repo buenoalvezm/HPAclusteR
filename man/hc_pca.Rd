@@ -2,14 +2,16 @@
 % Please edit documentation in R/hc_pca.R
 \name{hc_pca}
 \alias{hc_pca}
-\title{Perform PCA on AnnDatR object}
+\title{Perform PCA on an AnnDatR object}
 \usage{
 hc_pca(
   AnnDatR,
   components = 50,
-  transform = "log1p",
+  transform = c("log1p", "sqrt", "none"),
   scale_by = "sample",
-  layer = NULL
+  layer = NULL,
+  na_action = c("impute", "nipals", "omit", "error"),
+  verbose = TRUE
 )
 }
 \arguments{
@@ -17,25 +19,52 @@ hc_pca(
 
 \item{components}{Number of principal components to compute (default is 50).}
 
-\item{transform}{Data transformation method to apply before PCA. Options are "log1p", "sqrt", or "none" (default is "log1p").}
+\item{transform}{Data transformation method to apply before PCA. Options are
+\code{"log1p"}, \code{"sqrt"} or \code{"none"} (default is \code{"log1p"}).}
 
-\item{scale_by}{Scaling method to apply to the data before PCA. Options include "sample", "gene", "pareto", "vector", "min-max", "max_sequencial", or "max" (default is "sample").}
+\item{scale_by}{Scaling method to apply to the data before PCA. Options
+include \code{"sample"}, \code{"gene"}, \code{"pareto"}, \code{"vector"}, \code{"min-max"},
+\code{"max_sequencial"} or \code{"max"} (default is \code{"sample"}).}
 
-\item{layer}{Optional layer name within the AnnDatR object to use for PCA. If NULL, the main data matrix is used (default is NULL).}
+\item{layer}{Optional layer name within the AnnDatR object to use for PCA.
+If \code{NULL}, the main data matrix is used (default is \code{NULL}).}
+
+\item{na_action}{How to deal with missing values in the expression matrix.
+One of \code{"impute"} (default, replace missing values by their column mean and
+run a fast SVD), \code{"nipals"} (iterative PCA that handles missing values
+directly; exact but much slower, and requires the \code{pcaMethods} package),
+\code{"omit"} (drop genes with any missing value) or \code{"error"} (stop).}
+
+\item{verbose}{Logical indicating whether to report on missing values
+(default is \code{TRUE}).}
 }
 \value{
-PCA object and scores are stored within the AnnDatR object.
+An AnnDatR object with the PCA fit stored in \code{uns$pca} (a list with
+\code{scores}, \code{loadings}, \code{sdev}, \code{r2cum} and \code{method}) and the scores in
+\code{obsm$X_pca}.
 }
 \description{
-\code{hc_pca()} performs Principal Component Analysis (PCA) on the data contained within an AnnDatR object.
+\code{hc_pca()} performs Principal Component Analysis (PCA) on the data contained
+within an AnnDatR object.
+}
+\details{
+Missing values are the main performance trap in this step. Earlier versions
+of this package delegated to \code{pcaMethods::pca()}, which silently fell back to
+the iterative NIPALS algorithm whenever it encountered an \code{NA}. NIPALS is
+orders of magnitude slower than an SVD on a complete matrix, and nothing in
+the output indicated why the call had become slow.
+
+\code{hc_pca()} now reports how many values are missing and, by default, imputes
+them with their column mean so that the fast SVD path is taken. Set
+\code{na_action = "nipals"} to reproduce the previous behaviour exactly.
 }
 \examples{
 # Run PCA on an AnnDatR object
 adata_res <- hc_pca(example_adata, components = 40)
 
-# PCA results
-adata_res$obsm$X_pca
+# PCA scores
+head(adata_res$obsm$X_pca[, 1:5])
 
-# Explained variance
-adata_res$uns$pca
+# Cumulative explained variance
+head(adata_res$uns$pca$r2cum)
 }

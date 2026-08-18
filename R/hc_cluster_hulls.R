@@ -6,30 +6,22 @@
 #' @param n number of grid points
 #' @param lims limits
 #'
-#' @returns Tidy tibble with x, y, z (density), x_coord, y_coord
+#' @returns Tidy tibble with x, y (grid indices), z (density) and the
+#'   corresponding x_coord, y_coord grid coordinates.
 #' @keywords internal
 get_density <-
   function(x, y, h = 0.5, n = 100, lims = c(range(x), range(y))) {
-    g_density <-
-      MASS::kde2d(x, y, h = h, n = n, lims = lims)
+    grid_density <- kde_2d(x, y, h = h, n = n, lims = lims)
 
-    g_density[["z"]] |>
-      as.data.frame() |>
-      tibble::as_tibble(rownames = "x") |>
-      tidyr::gather(!!rlang::sym("y"), !!rlang::sym("z"), -!!rlang::sym("x")) |>
-      dplyr::mutate(y = gsub("V", "", !!rlang::sym("y"))) |>
-      dplyr::mutate_at(
-        dplyr::vars(!!rlang::sym("x"), !!rlang::sym("y")),
-        as.integer
-      ) |>
-      dplyr::left_join(
-        tibble::enframe(g_density[["x"]], "x", "x_coord"),
-        by = "x"
-      ) |>
-      dplyr::left_join(
-        tibble::enframe(g_density[["y"]], "y", "y_coord"),
-        by = "y"
-      )
+    # Build the long form directly rather than reshaping and re-joining; the
+    # grid has n^2 cells, so this is the hot path of hc_cluster_hulls().
+    tibble::tibble(
+      x = rep(seq_len(n), times = n),
+      y = rep(seq_len(n), each = n),
+      z = as.vector(grid_density[["z"]]),
+      x_coord = rep(grid_density[["x"]], times = n),
+      y_coord = rep(grid_density[["y"]], each = n)
+    )
   }
 
 #' Calculate UMAP cluster hulls
@@ -53,7 +45,7 @@ get_density <-
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+#' adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
 #' adata_res <- hc_umap(adata_res)
 #' adata_res <- hc_cluster_hulls(adata_res)
 #' head(adata_res$uns$UMAP_hulls$hulls)
@@ -75,37 +67,24 @@ hc_cluster_hulls <-
     poly_smoothing = 1,
     relative_bandwidth = 1 / 200
   ) {
-    if (!requireNamespace("fpc", quietly = TRUE)) {
-      stop(
-        "The 'fpc' package is required for this function. Please install it using install.packages('fpc')."
-      )
-    }
-    if (!requireNamespace("MASS", quietly = TRUE)) {
-      stop(
-        "The 'MASS' package is required for this function. Please install it using install.packages('MASS')."
-      )
-    }
-    if (!requireNamespace("concaveman", quietly = TRUE)) {
-      stop(
-        "The 'concaveman' package is required for this function. Please install it using install.packages('concaveman')."
-      )
-    }
     if (
-      is.null(AnnDatR[["obs"]][["UMAP1"]]) &&
+      is.null(AnnDatR[["obs"]][["UMAP1"]]) ||
         is.null(AnnDatR[["obs"]][["UMAP2"]])
     ) {
       stop(
-        "UMAP1 or 2 was not found in AnnDatR$obs. Call `hc_umap()` before `hc_cluster_hulls()`."
+        "UMAP1 or UMAP2 was not found in AnnDatR$obs. Call `hc_umap()` before `hc_cluster_hulls()`.",
+        call. = FALSE
       )
     }
     if (is.null(AnnDatR[["obs"]][["cluster"]])) {
       stop(
-        "AnnDatR$obs$cluster not found. Call `hc_cluster_consensus()` before `hc_cluster_hulls()`."
+        "AnnDatR$obs$cluster not found. Call `hc_cluster_consensus()` before `hc_cluster_hulls()`.",
+        call. = FALSE
       )
     }
     V1 <- AnnDatR[["obs"]][["UMAP1"]]
     V2 <- AnnDatR[["obs"]][["UMAP2"]]
-    element_id <- AnnDatR[["obs"]][["ensembl_id"]]
+    element_id <- AnnDatR[["obs"]][[AnnDatR[["obs_names_col"]]]]
     cluster_membership <- AnnDatR[["obs"]][["cluster"]]
 
     # Combine input data
@@ -138,10 +117,10 @@ hc_cluster_hulls <-
       dplyr::group_by(!!rlang::sym("cluster")) |>
       dplyr::mutate(
         n_cluster_genes = dplyr::n_distinct(!!rlang::sym("element_id")),
-        sub_cluster = {
-          dbscan_result <- fpc::dbscan(data.frame(V1, V2), eps = plot_bandwidth)
-          dbscan_result[["cluster"]]
-        }
+        sub_cluster = dbscan_cluster(
+          cbind(V1, V2),
+          eps = plot_bandwidth
+        )
       ) |>
       dplyr::ungroup() |>
       dplyr::group_by(!!rlang::sym("cluster"), !!rlang::sym("sub_cluster")) |>
@@ -236,16 +215,10 @@ hc_cluster_hulls <-
       plot_density_filtered |>
       dplyr::group_by(!!rlang::sym("cluster"), !!rlang::sym("sub_cluster")) |>
       dplyr::mutate(
-        landmass = {
-          dbscan_result <- fpc::dbscan(
-            data.frame(
-              !!rlang::sym("x_coord"),
-              !!rlang::sym("y_coord")
-            ),
-            eps = plot_bandwidth
-          )
-          dbscan_result[["cluster"]]
-        }
+        landmass = dbscan_cluster(
+          cbind(!!rlang::sym("x_coord"), !!rlang::sym("y_coord")),
+          eps = plot_bandwidth
+        )
       ) |>
       dplyr::group_by(
         !!rlang::sym("cluster"),
@@ -330,15 +303,13 @@ hc_cluster_hulls <-
         coords = lapply(
           !!rlang::sym("data"),
           function(.x) {
-            as.matrix(data.frame(
-              x = .x[["x_coord"]],
-              y = .x[["y_coord"]]
-            )) |>
-              concaveman::concaveman(
+            cbind(.x[["x_coord"]], .x[["y_coord"]]) |>
+              concave_hull(
                 concavity = poly_concavity,
                 length_threshold = plot_bandwidth * poly_smoothing
               ) |>
               as.data.frame() |>
+              stats::setNames(c("V1", "V2")) |>
               tibble::as_tibble()
           }
         )
@@ -354,7 +325,14 @@ hc_cluster_hulls <-
         )
       ) |>
       dplyr::select(-dplyr::any_of(c("data"))) |>
-      dplyr::rename(X = "V1", Y = "V2")
+      dplyr::rename(X = "V1", Y = "V2") |>
+      # A landmass of one or two pixels cannot form a polygon; keeping it would
+      # put invisible, degenerate rings into the plot data.
+      dplyr::group_by(!!rlang::sym("polygon_id")) |>
+      dplyr::filter(
+        dplyr::n_distinct(paste(!!rlang::sym("X"), !!rlang::sym("Y"))) >= 3L
+      ) |>
+      dplyr::ungroup()
 
     plot_density_center <-
       plot_density |>

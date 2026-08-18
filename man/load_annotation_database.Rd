@@ -2,12 +2,12 @@
 % Please edit documentation in R/hc_annot_databases.R
 \name{load_annotation_database}
 \alias{load_annotation_database}
-\title{Load and format an annotation database}
+\title{Load and format a single annotation database}
 \usage{
 load_annotation_database(db_id, db_files, AnnDatR)
 }
 \arguments{
-\item{db_id}{The ID of the database to load (e.g., "reactome").}
+\item{db_id}{The ID of the database to load (e.g. \code{"reactome"}).}
 
 \item{db_files}{Named list mapping database IDs to file paths.}
 
@@ -17,6 +17,6 @@ load_annotation_database(db_id, db_files, AnnDatR)
 A tibble with standardized columns: \code{ensg_id}, \code{term}, \code{term_id}.
 }
 \description{
-Load and format an annotation database
+Load and format a single annotation database
 }
 \keyword{internal}

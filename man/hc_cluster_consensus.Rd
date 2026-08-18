@@ -7,9 +7,11 @@
 hc_cluster_consensus(
   AnnDatR,
   resolution = 6,
-  method = "louvain",
+  method = c("louvain", "leiden"),
   n_seeds = 100,
   seed = 42,
+  min_k = 30,
+  max_k = 110,
   verbose = TRUE
 )
 }
@@ -24,6 +26,12 @@ hc_cluster_consensus(
 
 \item{seed}{Random seed for reproducibility (default is 42).}
 
+\item{min_k}{Lower bound on the median number of communities across seeds
+(default is 30). Resolutions that produce fewer are rejected.}
+
+\item{max_k}{Upper bound on the median number of communities across seeds
+(default is 110).}
+
 \item{verbose}{Logical indicating whether to print progress messages (default is TRUE).}
 }
 \value{
@@ -32,12 +40,20 @@ Consensus clustering results stored within the AnnDatR object.
 \description{
 Clusters genes using multiple runs of a clustering algorithm with different seeds and resolutions, then derives a consensus clustering.
 }
+\details{
+The resolution is validated against \code{min_k} and \code{max_k}: if the median number
+of communities across seeds falls outside that window, the function stops and
+asks for a different \code{resolution}. These bounds were previously hard-coded.
+
+Re-running this function on an object that already carries a clustering
+replaces the previous \code{cluster} and \code{cluster_colors} columns in \code{obs}.
+}
 \examples{
 # Perform consensus clustering on an AnnDatR object after SNN graph computation
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
 head(adata_res$uns$consensus_clustering)
 head(adata_res$obs)
 }

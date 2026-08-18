@@ -1,13 +1,56 @@
+#' Rescale UMAP coordinates to a centred, symmetric range
+#'
+#' Both axes are mapped jointly onto `[-1, 1]` so that the aspect ratio of the
+#' embedding is preserved, then each axis is centred on its own midpoint.
+#'
+#' @param embedding Two-column numeric matrix of UMAP coordinates.
+#'
+#' @returns A matrix with the same dimensions and row names.
+#' @keywords internal
+#' @noRd
+rescale_umap <- function(embedding) {
+  overall_range <- range(embedding, na.rm = TRUE)
+  rescaled <- (embedding - overall_range[1]) /
+    (overall_range[2] - overall_range[1]) *
+    2 -
+    1
+
+  # Centre each axis on the midpoint of its own range.
+  axis_midpoints <- apply(rescaled, 2L, function(axis) mean(range(axis)))
+  sweep(rescaled, 2L, axis_midpoints, "-")
+}
+
 #' Create UMAP embeddings from SNN graph
 #'
-#' `hc_umap()` generates UMAP embeddings based on the Shared Nearest Neighbors (SNN) graph stored in the AnnDatR object.
+#' `hc_umap()` generates UMAP embeddings based on the Shared Nearest Neighbors
+#' (SNN) graph stored in the AnnDatR object.
 #'
 #' @param AnnDatR An AnnDatR object containing the data with SNN graph results.
-#' @param n_epochs Number of epochs for UMAP optimization. If NULL, it will be set to 200 for datasets with more than 10,000 cells and 500 otherwise (default is NULL).
+#' @param n_epochs Number of epochs for UMAP optimization. If `NULL`, it will be
+#'   set to 200 for datasets with more than 10,000 observations and 500
+#'   otherwise (default is `NULL`).
+#' @param min_dist Minimum distance between embedded points (default is 0.3).
+#' @param spread Effective scale of the embedded points (default is 1).
 #' @param seed Random seed for reproducibility (default is 42).
-#' @param verbose Logical indicating whether to print progress messages (default is TRUE).
+#' @param verbose Logical indicating whether to print progress messages
+#'   (default is `TRUE`).
 #'
-#' @returns UMAP embeddings stored within the AnnDatR object.
+#' @details
+#' The embedding is produced by [uwot::optimize_graph_layout()], a native R and
+#' C++ implementation of UMAP's simplicial set embedding. Earlier versions
+#' called the Python `umap-learn` package through `reticulate` by way of
+#' `Seurat::RunUMAP()`, which required a working Python installation with
+#' pinned `numpy` and `umap-learn` versions and was the main source of
+#' installation and continuous integration failures.
+#'
+#' The algorithm and its parameters are the same, but the two implementations
+#' use different random number generators and optimisers, so embeddings are
+#' equivalent in structure rather than numerically identical to those produced
+#' by earlier versions.
+#'
+#' @returns An AnnDatR object with the raw embedding in `obsm$X_umap_raw`, the
+#'   rescaled embedding in `obsm$X_umap`, and `UMAP1`/`UMAP2` columns added to
+#'   `obs`.
 #'
 #' @export
 #' @examples
@@ -17,87 +60,71 @@
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
 #' adata_res <- hc_umap(adata_res)
 #' head(adata_res$obsm$X_umap)
-hc_umap <- function(AnnDatR, n_epochs = NULL, seed = 42, verbose = TRUE) {
+hc_umap <- function(
+  AnnDatR,
+  n_epochs = NULL,
+  min_dist = 0.3,
+  spread = 1,
+  seed = 42,
+  verbose = TRUE
+) {
+  check_installed("uwot", "to compute UMAP embeddings")
+
   if (is.null(AnnDatR[["uns"]][["neighbors"]])) {
     stop(
-      "AnnDatR$uns$neighbors not found. Call `hc_snn()` before `hc_umap()`."
+      "AnnDatR$uns$neighbors not found. Call `hc_snn()` before `hc_umap()`.",
+      call. = FALSE
     )
   }
 
-  n_cells <- nrow(AnnDatR[["uns"]][["neighbors"]][["snn"]])
-  if (is.null(n_epochs)) {
-    n_epochs <- ifelse(n_cells > 10000, 200, 500)
-  }
+  snn_graph <- AnnDatR[["uns"]][["neighbors"]][["snn"]]
+  n_observations <- nrow(snn_graph)
+  n_epochs <- n_epochs %||% if (n_observations > 10000) 200L else 500L
 
-  # Check if umap-learn is available
-  if (!reticulate::py_module_available("umap")) {
-    message(
-      "The 'umap-learn' Python package is not installed. Installing it now..."
-    )
-    reticulate::py_install("umap-learn")
-  }
-
-  # Import the umap module and fix issue with version string
-  umap <- reticulate::import("umap", delay_load = TRUE)
-  umap$`__version__` <- gsub("[^0-9.]", "", umap$`__version__`) # Remove non-numeric parts
+  graph <- snn_graph
+  Matrix::diag(graph) <- 0
+  graph <- Matrix::drop0(graph)
 
   set.seed(seed)
+  embedding <- uwot::optimize_graph_layout(
+    graph = graph,
+    n_components = 2L,
+    n_epochs = n_epochs,
+    learning_rate = 1,
+    init = "spectral",
+    min_dist = min_dist,
+    spread = spread,
+    repulsion_strength = 1,
+    negative_sample_rate = 5,
+    verbose = verbose
+  )
 
-  # exact piping and extraction as in original:
-  umap_raw_mat <- AnnDatR[["uns"]][["neighbors"]][["snn"]] |>
-    Seurat::RunUMAP(
-      umap.method = "umap-learn",
-      n.epochs = n_epochs,
-      seed.use = seed,
-      assay = "RNA",
-      verbose = verbose
-    ) |>
-    (\(x) x@cell.embeddings)()
+  embedding <- as.matrix(embedding)
 
-  if (is.null(rownames(umap_raw_mat))) {
-    rownames(umap_raw_mat) <- rownames(AnnDatR[["uns"]][["neighbors"]][["snn"]])
-  }
+  # Mean-centre each axis, as `Seurat::RunUMAP()` did before returning. uwot
+  # already returns a centred embedding, so this is normally a no-op, but it
+  # keeps the downstream rescaling independent of that implementation detail.
+  embedding <- sweep(embedding, 2L, colMeans(embedding), "-")
+
+  rownames(embedding) <- rownames(snn_graph)
+  colnames(embedding) <- c("UMAP_1", "UMAP_2")
 
   AnnDatR_out <- AnnDatR$clone(deep = TRUE)
+  AnnDatR_out[["obsm"]][["X_umap_raw"]] <- embedding
+  AnnDatR_out[["obsm"]][["X_umap"]] <- rescale_umap(embedding)
 
-  AnnDatR_out[["obsm"]][["X_umap_raw"]] <- umap_raw_mat
-  AnnDatR_out[["obsm"]][["X_umap"]] <-
-    umap_raw_mat |>
-    tibble::as_tibble(rownames = "gene") |>
-    tidyr::gather(
-      !!rlang::sym("UMAP"),
-      !!rlang::sym("UMAP_value"),
-      !!rlang::sym("UMAP_1"),
-      !!rlang::sym("UMAP_2")
-    ) |>
-    dplyr::mutate(
-      UMAP_value = (!!rlang::sym("UMAP_value") -
-        min(!!rlang::sym("UMAP_value"))) /
-        (max(!!rlang::sym("UMAP_value")) - min(!!rlang::sym("UMAP_value"))) *
-        2 -
-        1
-    ) |>
-    dplyr::group_by(!!rlang::sym("UMAP")) |>
-    dplyr::mutate(
-      UMAP_value = !!rlang::sym("UMAP_value") -
-        mean(range(!!rlang::sym("UMAP_value")))
-    ) |>
-    dplyr::ungroup() |>
-    tidyr::spread(!!rlang::sym("UMAP"), !!rlang::sym("UMAP_value")) |>
-    tibble::column_to_rownames("gene") |>
-    as.matrix()
+  gene_column <- AnnDatR_out[["obs_names_col"]]
+  rescaled <- AnnDatR_out[["obsm"]][["X_umap"]]
+  umap_coordinates <- tibble::tibble(
+    gene = rownames(rescaled),
+    UMAP1 = rescaled[, 1],
+    UMAP2 = rescaled[, 2]
+  )
+  names(umap_coordinates)[1] <- gene_column
 
   AnnDatR_out[["obs"]] <- AnnDatR_out[["obs"]] |>
-    dplyr::left_join(
-      AnnDatR_out[["obsm"]][["X_umap"]] |>
-        tibble::as_tibble() |>
-        (\(x) {
-          colnames(x) <- paste0("UMAP", 1:ncol(x))
-          x
-        })() |>
-        dplyr::mutate(ensembl_id = rownames(AnnDatR_out[["obsm"]][["X_umap"]])),
-      by = dplyr::join_by(!!rlang::sym("ensembl_id"))
-    )
+    dplyr::select(-dplyr::any_of(c("UMAP1", "UMAP2"))) |>
+    dplyr::left_join(umap_coordinates, by = gene_column)
 
-  return(AnnDatR_out)
+  AnnDatR_out
 }

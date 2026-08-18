@@ -4,22 +4,52 @@
 \alias{hc_umap}
 \title{Create UMAP embeddings from SNN graph}
 \usage{
-hc_umap(AnnDatR, n_epochs = NULL, seed = 42, verbose = TRUE)
+hc_umap(
+  AnnDatR,
+  n_epochs = NULL,
+  min_dist = 0.3,
+  spread = 1,
+  seed = 42,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{AnnDatR}{An AnnDatR object containing the data with SNN graph results.}
 
-\item{n_epochs}{Number of epochs for UMAP optimization. If NULL, it will be set to 200 for datasets with more than 10,000 cells and 500 otherwise (default is NULL).}
+\item{n_epochs}{Number of epochs for UMAP optimization. If \code{NULL}, it will be
+set to 200 for datasets with more than 10,000 observations and 500
+otherwise (default is \code{NULL}).}
+
+\item{min_dist}{Minimum distance between embedded points (default is 0.3).}
+
+\item{spread}{Effective scale of the embedded points (default is 1).}
 
 \item{seed}{Random seed for reproducibility (default is 42).}
 
-\item{verbose}{Logical indicating whether to print progress messages (default is TRUE).}
+\item{verbose}{Logical indicating whether to print progress messages
+(default is \code{TRUE}).}
 }
 \value{
-UMAP embeddings stored within the AnnDatR object.
+An AnnDatR object with the raw embedding in \code{obsm$X_umap_raw}, the
+rescaled embedding in \code{obsm$X_umap}, and \code{UMAP1}/\code{UMAP2} columns added to
+\code{obs}.
 }
 \description{
-\code{hc_umap()} generates UMAP embeddings based on the Shared Nearest Neighbors (SNN) graph stored in the AnnDatR object.
+\code{hc_umap()} generates UMAP embeddings based on the Shared Nearest Neighbors
+(SNN) graph stored in the AnnDatR object.
+}
+\details{
+The embedding is produced by \code{\link[uwot:optimize_graph_layout]{uwot::optimize_graph_layout()}}, a native R and
+C++ implementation of UMAP's simplicial set embedding. Earlier versions
+called the Python \code{umap-learn} package through \code{reticulate} by way of
+\code{Seurat::RunUMAP()}, which required a working Python installation with
+pinned \code{numpy} and \code{umap-learn} versions and was the main source of
+installation and continuous integration failures.
+
+The algorithm and its parameters are the same, but the two implementations
+use different random number generators and optimisers, so embeddings are
+equivalent in structure rather than numerically identical to those produced
+by earlier versions.
 }
 \examples{
 # Generate UMAP embeddings on an AnnDatR object after SNN graph computation

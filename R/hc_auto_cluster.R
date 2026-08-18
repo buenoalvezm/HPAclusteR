@@ -12,16 +12,22 @@
 #' @param distance_components Number of principal components to be used. If NULL, uses Kaiser’s rule to determine the number of components.
 #' @param distance_method Distance metric to use (default is 'spearman'). This must be one of "euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski", "pearson", "spearman" or "kendall".
 #' @param snn_neighbors Number of nearest neighbors to consider (default is 20).
-#' @param snn_similarity Distance metric to use for nearest neighbor search (default is "euclidean"). Other options include "cosine", "manhattan", and "hamming".
+#' @param snn_prune Pruning threshold for the SNN graph (default is 1/15).
 #' @param cluster_resolution Resolution parameter for clustering (default is 6).
 #' @param cluster_method Clustering method to use: "louvain" (default) or "leiden".
+#' @param cluster_seeds Number of random seeds to aggregate over in the
+#'   consensus step (default is 100).
 #' @param verbose Logical indicating whether to print progress messages (default is TRUE).
 #'
 #' @returns An AnnDataR object with clustering and intermediate results added. The UMAP plot of the clusters is also printed.
 #'
 #' @export
 #' @examples
-#' adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 8)
+#' adata_res <- hc_auto_cluster(
+#'   example_adata,
+#'   cluster_resolution = 8,
+#'   cluster_seeds = 20
+#' )
 #' head(adata_res$uns$consensus_clustering)
 hc_auto_cluster <- function(
   AnnDatR,
@@ -31,46 +37,42 @@ hc_auto_cluster <- function(
   distance_components = NULL,
   distance_method = "spearman",
   snn_neighbors = 20,
-  snn_similarity = "euclidean",
+  snn_prune = 1 / 15,
   cluster_resolution = 6,
   cluster_method = "louvain",
+  cluster_seeds = 100,
   verbose = TRUE
 ) {
-  AnnDatR_out <- AnnDatR$clone(deep = TRUE)
-
-  AnnDatR_res <- AnnDatR_out |>
+  AnnDatR_res <- AnnDatR |>
     hc_pca(
       components = pca_components,
       transform = pca_transform,
       scale_by = "sample",
-      layer = layer
+      layer = layer,
+      verbose = verbose
     )
 
   AnnDatR_res <- AnnDatR_res |>
     hc_distance(
-      components = if (is.null(distance_components)) {
-        hc_kaisers_rule(AnnDatR_res)
-      } else {
-        distance_components
-      },
+      components = distance_components %||%
+        hc_kaisers_rule(AnnDatR_res, verbose = verbose),
       method = distance_method
     ) |>
     hc_snn(
       neighbors = snn_neighbors,
-      prune = 1 / 15,
-      similarity = snn_similarity,
+      prune = snn_prune,
       verbose = verbose
     ) |>
     hc_cluster_consensus(
       resolution = cluster_resolution,
       method = cluster_method,
+      n_seeds = cluster_seeds,
       verbose = verbose
     ) |>
     hc_umap(verbose = verbose) |>
     hc_cluster_hulls()
 
-  umap_plot <- hc_plot_umap(AnnDatR_res)
-  print(umap_plot)
+  print(hc_plot_umap(AnnDatR_res))
 
-  return(AnnDatR_res)
+  AnnDatR_res
 }

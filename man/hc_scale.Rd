@@ -2,19 +2,20 @@
 % Please edit documentation in R/hc_scale.R
 \name{hc_scale}
 \alias{hc_scale}
-\title{Scale data matrix}
+\title{Scale a data matrix}
 \usage{
 hc_scale(data, method = "sample")
 }
 \arguments{
-\item{data}{Data to be scaled}
+\item{data}{Data to be scaled, with samples in rows and genes in columns.}
 
-\item{method}{Scaling method: 'sample' (default), 'gene', 'pareto', 'vector', 'min-max', 'max_sequencial', or 'max'}
+\item{method}{Scaling method: \code{"sample"} (default), \code{"gene"}, \code{"pareto"},
+\code{"vector"}, \code{"min-max"}, \code{"max_sequencial"} or \code{"max"}.}
 }
 \value{
-Scaled data matrix
+Scaled data matrix with genes in rows and samples in columns.
 }
 \description{
-Scale data matrix
+Scale a data matrix
 }
 \keyword{internal}

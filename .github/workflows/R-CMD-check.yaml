@@ -2,8 +2,9 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
-    branches: [master]
+    branches: [main, master]
   pull_request:
+  workflow_dispatch:
 
 name: R-CMD-check.yaml
 
@@ -19,17 +20,22 @@ jobs:
       fail-fast: false
       matrix:
         config:
+          - {os: windows-latest, r: 'release'}
           - {os: macos-latest,   r: 'release'}
-          - {os: ubuntu-latest,   r: 'devel', http-user-agent: 'release'}
-          - {os: ubuntu-latest,   r: 'release'}
+          - {os: ubuntu-latest,  r: 'devel', http-user-agent: 'release'}
+          - {os: ubuntu-latest,  r: 'release'}
+          - {os: ubuntu-latest,  r: 'oldrel-1'}
 
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       R_KEEP_PKG_SOURCE: yes
+      # The vignette and examples must not reach out to the network during a
+      # check run; the annotation databases are downloaded on demand only.
+      NOT_CRAN: true
 
     steps:
       - uses: actions/checkout@v4
-   
+
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
@@ -38,14 +44,15 @@ jobs:
           http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
+      # pak resolves the Bioconductor-only Suggests (clusterProfiler,
+      # org.Hs.eg.db, rrvgo, pcaMethods) on its own; no manual BiocManager
+      # bootstrap is needed. Every function that uses them guards on
+      # requireNamespace(), so a failure to install them degrades the vignette
+      # rather than the check.
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
-
-      - name: Pin numpy version in reticulate environment
-        run: |
-          Rscript -e "reticulate::py_install('numpy==1.26.4', pip = TRUE)"
 
       - uses: r-lib/actions/check-r-package@v2
         with:

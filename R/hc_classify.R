@@ -20,7 +20,7 @@ hc_classify_fun <- function(
   sample_id <- AnnDatR[["var_names_col"]]
   df <- AnnDatR[["X"]] |>
     tidyr::pivot_longer(
-      cols = -sample_id,
+      cols = -dplyr::all_of(sample_id),
       names_to = "ENSG",
       values_to = "Value"
     ) |>
@@ -47,16 +47,48 @@ hc_classify_fun <- function(
   genes <- df_sorted |>
     dplyr::group_by(!!rlang::sym("ENSG")) |>
     dplyr::summarise(
-      categories = list(get(sample_categories)),
+      categories = list(!!rlang::sym(sample_categories)),
       exps = list(!!rlang::sym("Value")),
       exp_avg = mean(!!rlang::sym("Value"), na.rm = TRUE),
       .groups = "drop"
     )
 
-  out_ens <- character()
-  out_cat <- character()
-  out_categories <- character()
-  out_tau <- numeric()
+  # Distribution statistics, computed once for every gene instead of
+  # re-filtering the full long table inside the classification loop.
+  distribution <- df |>
+    dplyr::group_by(!!rlang::sym("ENSG")) |>
+    dplyr::summarise(
+      n_detected = sum(
+        !!rlang::sym("Value") >= cutoff_detected,
+        na.rm = TRUE
+      ),
+      n_total = sum(!is.na(!!rlang::sym("Value"))),
+      .groups = "drop"
+    )
+  detected_counts <- stats::setNames(
+    distribution[["n_detected"]],
+    distribution[["ENSG"]]
+  )
+  total_counts <- stats::setNames(
+    distribution[["n_total"]],
+    distribution[["ENSG"]]
+  )
+
+  # Preallocate; the loop below appends one entry per gene at most.
+  n_genes <- nrow(genes)
+  out_ens <- character(n_genes)
+  out_cat <- character(n_genes)
+  out_categories <- character(n_genes)
+  out_tau <- numeric(n_genes)
+  n_out <- 0L
+
+  record <- function(ens, category, categories, tau) {
+    n_out <<- n_out + 1L
+    out_ens[n_out] <<- ens
+    out_cat[n_out] <<- category
+    out_categories[n_out] <<- categories
+    out_tau[n_out] <<- tau
+  }
 
   for (r in seq_len(nrow(genes))) {
     ens <- genes[["ENSG"]][[r]]
@@ -84,18 +116,12 @@ hc_classify_fun <- function(
     }
 
     if (max_exp < cutoff_detected) {
-      out_ens <- c(out_ens, ens)
-      out_cat <- c(out_cat, "Not detected")
-      out_categories <- c(out_categories, NA_character_)
-      out_tau <- c(out_tau, tau_val)
+      record(ens, "Not detected", NA_character_, tau_val)
       next
     }
 
     if ((max_exp / second_max) >= fold) {
-      out_ens <- c(out_ens, ens)
-      out_cat <- c(out_cat, "Enriched")
-      out_categories <- c(out_categories, categories[[1]])
-      out_tau <- c(out_tau, tau_val)
+      record(ens, "Enriched", categories[[1]], tau_val)
       next
     }
 
@@ -134,13 +160,12 @@ hc_classify_fun <- function(
         }
 
         if ((mean_group / max_other) >= fold) {
-          out_ens <- c(out_ens, ens)
-          out_cat <- c(out_cat, "Group enriched")
-          out_categories <- c(
-            out_categories,
-            paste(unique(categories[1:group_size]), collapse = ";")
+          record(
+            ens,
+            "Group enriched",
+            paste(unique(categories[1:group_size]), collapse = ";"),
+            tau_val
           )
-          out_tau <- c(out_tau, tau_val)
           next
         }
       }
@@ -154,42 +179,32 @@ hc_classify_fun <- function(
       }
     }
     if (length(enhanced) > 0) {
-      out_ens <- c(out_ens, ens)
-      out_cat <- c(out_cat, "Enhanced")
-      out_categories <- c(
-        out_categories,
-        paste(unique(enhanced), collapse = ";")
-      )
-      out_tau <- c(out_tau, tau_val)
+      record(ens, "Enhanced", paste(unique(enhanced), collapse = ";"), tau_val)
       next
     }
 
-    out_ens <- c(out_ens, ens)
-    out_cat <- c(out_cat, "Low specificity")
-    out_categories <- c(out_categories, NA_character_)
-    out_tau <- c(out_tau, tau_val)
+    record(ens, "Low specificity", NA_character_, tau_val)
   }
 
-  # Distribution classification
-  dist_category <- vector("character", length(out_ens))
-  for (i in seq_along(out_ens)) {
-    ens <- out_ens[i]
-    gene_df <- df |> dplyr::filter(!!rlang::sym("ENSG") == ens)
-    n_detected <- sum(gene_df[["Value"]] >= cutoff_detected, na.rm = TRUE)
-    n_total <- sum(!is.na(gene_df[["Value"]]))
-    frac <- n_detected / n_total * 100
-    if (n_detected == 0) {
-      dist_category[i] <- "Not detected"
-    } else if (frac == 100) {
-      dist_category[i] <- "Detected in all"
-    } else if (frac >= 31) {
-      dist_category[i] <- "Detected in many"
-    } else if (n_detected > 1) {
-      dist_category[i] <- "Detected in some"
-    } else if (n_detected == 1) {
-      dist_category[i] <- "Detected in single"
-    }
-  }
+  # Trim the preallocated vectors to the genes that were actually classified.
+  kept <- seq_len(n_out)
+  out_ens <- out_ens[kept]
+  out_cat <- out_cat[kept]
+  out_categories <- out_categories[kept]
+  out_tau <- out_tau[kept]
+
+  # Distribution classification, vectorised over the precomputed counts.
+  n_detected <- unname(detected_counts[out_ens])
+  n_total <- unname(total_counts[out_ens])
+  detected_fraction <- n_detected / n_total * 100
+
+  dist_category <- dplyr::case_when(
+    n_detected == 0 ~ "Not detected",
+    detected_fraction == 100 ~ "Detected in all",
+    detected_fraction >= 31 ~ "Detected in many",
+    n_detected > 1 ~ "Detected in some",
+    n_detected == 1 ~ "Detected in single"
+  )
 
   tibble::tibble(
     ENSG = out_ens,
@@ -373,7 +388,7 @@ plot_specificity_distribution <- function(class_tbl) {
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+#' adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
 #'
 #' # Classify genes based on sample categories
 #' gene_classification <- hc_classify(adata_res, "tissue_name")
