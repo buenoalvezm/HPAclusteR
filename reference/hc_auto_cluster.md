@@ -16,9 +16,10 @@ hc_auto_cluster(
   distance_components = NULL,
   distance_method = "spearman",
   snn_neighbors = 20,
-  snn_similarity = "euclidean",
+  snn_prune = 1/15,
   cluster_resolution = 6,
   cluster_method = "louvain",
+  cluster_seeds = 100,
   verbose = TRUE
 )
 ```
@@ -58,11 +59,9 @@ hc_auto_cluster(
 
   Number of nearest neighbors to consider (default is 20).
 
-- snn_similarity:
+- snn_prune:
 
-  Distance metric to use for nearest neighbor search (default is
-  "euclidean"). Other options include "cosine", "manhattan", and
-  "hamming".
+  Pruning threshold for the SNN graph (default is 1/15).
 
 - cluster_resolution:
 
@@ -71,6 +70,11 @@ hc_auto_cluster(
 - cluster_method:
 
   Clustering method to use: "louvain" (default) or "leiden".
+
+- cluster_seeds:
+
+  Number of random seeds to aggregate over in the consensus step
+  (default is 100).
 
 - verbose:
 
@@ -85,33 +89,37 @@ UMAP plot of the clusters is also printed.
 ## Examples
 
 ``` r
-adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 8)
-#> [1] "Kaiser's rule is above 80% variation. Success"
-#> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
-#> Also defined by ‘spam’
-#> Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
-#> Also defined by ‘spam’
-#> Building SNN based on a provided distance matrix
-#> Computing SNN
-#> Iteration: 0 *** value: 947.234
-#> Iteration: 1 *** value: 212.952
-#> Iteration: 2 *** value: 42.2765
-#> Iteration: 3 *** value: 22.1534
-#> Iteration: 4 *** value: 22.1534
-#> Minimum: 22.1534
-#> Joining with `by = join_by(cons_cluster)`
-#> The 'umap-learn' Python package is not installed. Installing it now...
-#> Using virtual environment '/home/runner/.virtualenvs/r-reticulate' ...
-#> + /home/runner/.virtualenvs/r-reticulate/bin/python -m pip install --upgrade --no-user umap-learn
+adata_res <- hc_auto_cluster(
+  example_adata,
+  cluster_resolution = 8,
+  cluster_seeds = 20
+)
+#> 111 of 76518 values (0.15%) are missing; using na_action = 'impute'.
+#> Kaiser's rule is above 80% variation. Success.
+#> Building SNN graph from the provided distance matrix.
+#> Running louvain clustering at resolution 8 across 20 seeds.
+#> Median number of communities across seeds: 31 (range 29-33).
+#> Iteration: 0 *** value: 948.105
+#> Iteration: 1 *** value: 226.66
+#> Iteration: 2 *** value: 70.0129
+#> Iteration: 3 *** value: 69.8398
+#> Iteration: 4 *** value: 69.8181
+#> Iteration: 5 *** value: 69.8181
+#> Minimum: 69.8181
+#> 22:44:26 UMAP embedding parameters a = 0.9922 b = 1.112
+#> 22:44:26 Initializing from normalized Laplacian + noise (using RSpectra)
+#> 22:44:26 Commencing optimization for 500 epochs, with 55050 positive edges
+#> 22:44:26 Using rng type: pcg
+#> 22:44:28 Optimization finished
 
 head(adata_res$uns$consensus_clustering)
 #> # A tibble: 6 × 2
 #>   gene            cluster
 #>   <chr>           <chr>  
-#> 1 ENSG00000002745 30     
-#> 2 ENSG00000004660 6      
-#> 3 ENSG00000006047 29     
-#> 4 ENSG00000006059 27     
-#> 5 ENSG00000006453 22     
-#> 6 ENSG00000006740 6      
+#> 1 ENSG00000002745 23     
+#> 2 ENSG00000004660 30     
+#> 3 ENSG00000006047 4      
+#> 4 ENSG00000006059 3      
+#> 5 ENSG00000006453 11     
+#> 6 ENSG00000006740 8      
 ```

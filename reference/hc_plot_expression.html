@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HPAclusteR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,6 +17,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/HPAclusteR.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/buenoalvezm/HPAclusteR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -72,18 +73,21 @@
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Run clustering pipeline</span></span></span>
 <span class="r-in"><span><span class="va">adata_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="hc_pca.html">hc_pca</a></span><span class="op">(</span><span class="va">example_adata</span>, components <span class="op">=</span> <span class="fl">40</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 111 of 76518 values (0.15%) are missing; using na_action = 'impute'.</span>
 <span class="r-in"><span><span class="va">adata_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="hc_distance.html">hc_distance</a></span><span class="op">(</span><span class="va">adata_res</span>, components <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">adata_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="hc_snn.html">hc_snn</a></span><span class="op">(</span><span class="va">adata_res</span>, neighbors <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Building SNN based on a provided distance matrix</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Computing SNN</span>
-<span class="r-in"><span><span class="va">adata_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="hc_cluster_consensus.html">hc_cluster_consensus</a></span><span class="op">(</span><span class="va">adata_res</span>, resolution <span class="op">=</span> <span class="fl">7</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 0 *** value: 948.279</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 1 *** value: 70.5063</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 2 *** value: 22.246</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 3 *** value: 22.2447</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 4 *** value: 22.2447</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Minimum: 22.2447</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Joining with `by = join_by(cons_cluster)`</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Building SNN graph from the provided distance matrix.</span>
+<span class="r-in"><span><span class="va">adata_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="hc_cluster_consensus.html">hc_cluster_consensus</a></span><span class="op">(</span><span class="va">adata_res</span>, resolution <span class="op">=</span> <span class="fl">8</span>, n_seeds <span class="op">=</span> <span class="fl">20</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Running louvain clustering at resolution 8 across 20 seeds.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Median number of communities across seeds: 34 (range 32-36).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 0 *** value: 950.475</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 1 *** value: 273.082</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 2 *** value: 101.189</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 3 *** value: 92.0887</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 4 *** value: 90.7377</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 5 *** value: 86.5719</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Iteration: 6 *** value: 86.5719</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Minimum: 86.5719</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Plot expression heatmaps</span></span></span>
 <span class="r-in"><span><span class="va">expression_plots</span> <span class="op">&lt;-</span> <span class="fu">hc_plot_expression</span><span class="op">(</span><span class="va">adata_res</span>, show_sample_labels <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>

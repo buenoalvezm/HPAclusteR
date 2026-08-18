@@ -1,9 +1,9 @@
 pandoc: 3.8.3
-pkgdown: 2.2.0
+pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
   HPAclusteR: HPAclusteR.html
-last_built: 2026-06-02T17:16Z
+last_built: 2026-08-18T22:43Z
 urls:
   reference: https://buenoalvezm.github.io/HPAclusteR/reference
   article: https://buenoalvezm.github.io/HPAclusteR/articles

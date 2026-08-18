@@ -1,6 +1,6 @@
-# Load and format an annotation database
+# Load and format a single annotation database
 
-Load and format an annotation database
+Load and format a single annotation database
 
 ## Usage
 
@@ -12,7 +12,7 @@ load_annotation_database(db_id, db_files, AnnDatR)
 
 - db_id:
 
-  The ID of the database to load (e.g., "reactome").
+  The ID of the database to load (e.g. `"reactome"`).
 
 - db_files:
 

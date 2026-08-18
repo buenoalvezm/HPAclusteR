@@ -38,18 +38,21 @@ objects per cluster
 ``` r
 # Run clustering pipeline
 adata_res <- hc_pca(example_adata, components = 40)
+#> 111 of 76518 values (0.15%) are missing; using na_action = 'impute'.
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-#> Building SNN based on a provided distance matrix
-#> Computing SNN
-adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
-#> Iteration: 0 *** value: 948.279
-#> Iteration: 1 *** value: 70.5063
-#> Iteration: 2 *** value: 22.246
-#> Iteration: 3 *** value: 22.2447
-#> Iteration: 4 *** value: 22.2447
-#> Minimum: 22.2447
-#> Joining with `by = join_by(cons_cluster)`
+#> Building SNN graph from the provided distance matrix.
+adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
+#> Running louvain clustering at resolution 8 across 20 seeds.
+#> Median number of communities across seeds: 34 (range 32-36).
+#> Iteration: 0 *** value: 950.475
+#> Iteration: 1 *** value: 273.082
+#> Iteration: 2 *** value: 101.189
+#> Iteration: 3 *** value: 92.0887
+#> Iteration: 4 *** value: 90.7377
+#> Iteration: 5 *** value: 86.5719
+#> Iteration: 6 *** value: 86.5719
+#> Minimum: 86.5719
 
 # Plot expression heatmaps
 expression_plots <- hc_plot_expression(adata_res, show_sample_labels = FALSE)

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">HPAclusteR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,6 +17,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/HPAclusteR.html">Get started</a></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/buenoalvezm/HPAclusteR/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -49,35 +50,35 @@
 <dd><p>Primary expression data matrix (features x samples).</p></dd>
 
 
-<dt><code>var</code></dt>
+    <dt><code>var</code></dt>
 <dd><p>Feature/Gene metadata (data.frame).</p></dd>
 
 
-<dt><code>obs</code></dt>
+    <dt><code>obs</code></dt>
 <dd><p>Cell/Sample metadata (data.frame).</p></dd>
 
 
-<dt><code>var_names_col</code></dt>
+    <dt><code>var_names_col</code></dt>
 <dd><p>Column name in <code>var</code> used as feature names.</p></dd>
 
 
-<dt><code>layers</code></dt>
+    <dt><code>layers</code></dt>
 <dd><p>List of alternative expression data matrices (features x samples).</p></dd>
 
 
-<dt><code>obs_names_col</code></dt>
+    <dt><code>obs_names_col</code></dt>
 <dd><p>Column name in <code>obs</code> used as sample names.</p></dd>
 
 
-<dt><code>uns</code></dt>
+    <dt><code>uns</code></dt>
 <dd><p>Unstructured data (list).</p></dd>
 
 
-<dt><code>obsm</code></dt>
+    <dt><code>obsm</code></dt>
 <dd><p>Multidimensional annotations of observations (list).</p></dd>
 
 
-<dt><code>raw</code></dt>
+    <dt><code>raw</code></dt>
 <dd><p>Raw unprocessed data (AnnDatR object or NULL).</p></dd>
 
 
@@ -89,19 +90,19 @@
 <dd><p>Number of observations (samples/cells)</p></dd>
 
 
-<dt><code>n_vars</code></dt>
+    <dt><code>n_vars</code></dt>
 <dd><p>Number of variables (features/genes)</p></dd>
 
 
-<dt><code>shape</code></dt>
+    <dt><code>shape</code></dt>
 <dd><p>Dimensions of the expression matrix (n_obs, n_vars)</p></dd>
 
 
-<dt><code>obs_names</code></dt>
+    <dt><code>obs_names</code></dt>
 <dd><p>Sample/cell names from obs metadata</p></dd>
 
 
-<dt><code>var_names</code></dt>
+    <dt><code>var_names</code></dt>
 <dd><p>Feature/gene names from var metadata</p></dd>
 
 
@@ -112,14 +113,12 @@
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-AnnDatR-new"><code>AnnDatR$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-AnnDatR-initialize"><code>AnnDatR$new()</code></a></p></li>
 <li><p><a href="#method-AnnDatR-validate"><code>AnnDatR$validate()</code></a></p></li>
 <li><p><a href="#method-AnnDatR-clone"><code>AnnDatR$clone()</code></a></p></li>
-</ul></div><p></p><hr><a id="method-AnnDatR-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
-
-<div class="section">
+</ul></div><p></p><hr><a id="method-AnnDatR-initialize"></a><div class="section">
+<h3 id="anndatr-new-"><code>AnnDatR$new()</code><a class="anchor" aria-label="anchor" href="#anndatr-new-"></a></h3>
+<p></p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/AnnDatR.html">AnnDatR</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  prefix_name <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -130,35 +129,27 @@
 <span>  var <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  obs <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>prefix_name</code></dt>
 <dd><p>Optional prefix for loading data from files.</p></dd>
 
-
-<dt><code>var_names</code></dt>
+      <dt><code>var_names</code></dt>
 <dd><p>Column name in <code>var</code> to use as feature names. Defaults to "ensembl_ids".</p></dd>
 
-
-<dt><code>layer</code></dt>
+      <dt><code>layer</code></dt>
 <dd><p>Optional layer to load as X.</p></dd>
 
-
-<dt><code>file_dir</code></dt>
+      <dt><code>file_dir</code></dt>
 <dd><p>Directory containing the data files. Defaults to "./".</p></dd>
 
-
-<dt><code>X</code></dt>
+      <dt><code>X</code></dt>
 <dd><p>Optional expression matrix (features x samples).</p></dd>
 
-
-<dt><code>var</code></dt>
+      <dt><code>var</code></dt>
 <dd><p>Optional feature metadata data.frame.</p></dd>
 
-
-<dt><code>obs</code></dt>
+      <dt><code>obs</code></dt>
 <dd><p>Optional sample metadata data.frame.
 Validates the consistency and integrity of the AnnDatR object.</p></dd>
 
@@ -166,32 +157,29 @@ Validates the consistency and integrity of the AnnDatR object.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-AnnDatR-validate"></a><div class="section">
-<h3 id="method-validate-">Method <code>validate()</code><a class="anchor" aria-label="anchor" href="#method-validate-"></a></h3>
+</div>
 
-<div class="section">
+<p></p><hr><a id="method-AnnDatR-validate"></a><div class="section">
+<h3 id="anndatr-validate-"><code>AnnDatR$validate()</code><a class="anchor" aria-label="anchor" href="#anndatr-validate-"></a></h3>
+<p></p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AnnDatR</span><span class="op">$</span><span class="fu">validate</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h4>
 <p>Checks that core matrices (X, obs, var, layers) share correct dimensions and names.</p>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>The object itself (invisibly) if validation passes, otherwise stops with an error.</p>
 </div>
 
-</div><p></p><hr><a id="method-AnnDatR-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-AnnDatR-clone"></a><div class="section">
+<h3 id="anndatr-clone-"><code>AnnDatR$clone()</code><a class="anchor" aria-label="anchor" href="#anndatr-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">AnnDatR</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -201,6 +189,7 @@ Validates the consistency and integrity of the AnnDatR object.</p></dd>
 </div>
 
 </div>
+
 
     </div>
 

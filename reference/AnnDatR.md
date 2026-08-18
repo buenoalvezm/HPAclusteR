@@ -66,7 +66,7 @@ A flexible, Anndata-like container for transcriptomics data.
 
 ### Public methods
 
-- [`AnnDatR$new()`](#method-AnnDatR-new)
+- [`AnnDatR$new()`](#method-AnnDatR-initialize)
 
 - [`AnnDatR$validate()`](#method-AnnDatR-validate)
 
@@ -74,7 +74,7 @@ A flexible, Anndata-like container for transcriptomics data.
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `AnnDatR$new()`
 
 #### Usage
 
@@ -122,7 +122,7 @@ A flexible, Anndata-like container for transcriptomics data.
 
 ------------------------------------------------------------------------
 
-### Method `validate()`
+### `AnnDatR$validate()`
 
 #### Usage
 
@@ -140,7 +140,7 @@ an error.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `AnnDatR$clone()`
 
 The objects of this class are cloneable with this method.
 

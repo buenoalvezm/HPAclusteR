@@ -9,7 +9,7 @@ of components that achieves at least 80% explained variance.
 ## Usage
 
 ``` r
-hc_kaisers_rule(AnnDatR, with_alternative = TRUE)
+hc_kaisers_rule(AnnDatR, with_alternative = TRUE, verbose = TRUE)
 ```
 
 ## Arguments
@@ -22,7 +22,12 @@ hc_kaisers_rule(AnnDatR, with_alternative = TRUE)
 
   Logical indicating whether to suggest an alternative number of
   components if the explained variance at Kaiser's rule is below 80%
-  (default is TRUE).
+  (default is `TRUE`).
+
+- verbose:
+
+  Logical indicating whether to report which rule was applied (default
+  is `TRUE`).
 
 ## Value
 
@@ -33,8 +38,9 @@ Number of principal components to retain based on Kaiser's rule.
 ``` r
 # Determine number of components using Kaiser's rule
 adata_res <- hc_pca(example_adata, components = 40)
+#> 111 of 76518 values (0.15%) are missing; using na_action = 'impute'.
 n_components <- hc_kaisers_rule(adata_res)
-#> [1] "Kaiser's rule is above 80% variation. Success"
+#> Kaiser's rule is above 80% variation. Success.
 print(n_components)
 #> PC11 
 #>   11 

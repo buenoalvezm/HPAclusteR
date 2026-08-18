@@ -59,30 +59,33 @@ category
 ``` r
 # Run clustering pipeline
 adata_res <- hc_pca(example_adata, components = 40)
+#> 111 of 76518 values (0.15%) are missing; using na_action = 'impute'.
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-#> Building SNN based on a provided distance matrix
-#> Computing SNN
-adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
-#> Iteration: 0 *** value: 948.279
-#> Iteration: 1 *** value: 70.5063
-#> Iteration: 2 *** value: 22.246
-#> Iteration: 3 *** value: 22.2447
-#> Iteration: 4 *** value: 22.2447
-#> Minimum: 22.2447
-#> Joining with `by = join_by(cons_cluster)`
+#> Building SNN graph from the provided distance matrix.
+adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
+#> Running louvain clustering at resolution 8 across 20 seeds.
+#> Median number of communities across seeds: 34 (range 32-36).
+#> Iteration: 0 *** value: 950.475
+#> Iteration: 1 *** value: 273.082
+#> Iteration: 2 *** value: 101.189
+#> Iteration: 3 *** value: 92.0887
+#> Iteration: 4 *** value: 90.7377
+#> Iteration: 5 *** value: 86.5719
+#> Iteration: 6 *** value: 86.5719
+#> Minimum: 86.5719
 
 # Classify genes based on sample categories
 gene_classification <- hc_classify(adata_res, "tissue_name")
 head(gene_classification$classification[["1"]])
 #> # A tibble: 6 × 5
-#>   ENSG            spec_category   spec_sample_categories   tau dist_category   
-#>   <chr>           <chr>           <chr>                  <dbl> <chr>           
-#> 1 ENSG00000072501 Low specificity NA                      0.35 Detected in all 
-#> 2 ENSG00000072736 Enhanced        thymus                  0.51 Detected in all 
-#> 3 ENSG00000077147 Low specificity NA                      0.28 Detected in all 
-#> 4 ENSG00000078177 Enhanced        thymus                  0.64 Detected in many
-#> 5 ENSG00000100629 Enhanced        thymus                  0.74 Detected in many
-#> 6 ENSG00000101868 Enhanced        thymus                  0.51 Detected in many
+#>   ENSG            spec_category  spec_sample_categories   tau dist_category   
+#>   <chr>           <chr>          <chr>                  <dbl> <chr>           
+#> 1 ENSG00000105428 Enriched       testis                  0.99 Detected in some
+#> 2 ENSG00000124449 Enriched       testis                  0.98 Detected in some
+#> 3 ENSG00000153498 Group enriched testis                  0.98 Detected in some
+#> 4 ENSG00000163958 Group enriched testis                  0.97 Detected in some
+#> 5 ENSG00000166329 Group enriched testis                  0.99 Detected in some
+#> 6 ENSG00000173699 Group enriched testis                  0.97 Detected in some
 gene_classification$pie_charts[["1"]]
 ```

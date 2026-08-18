@@ -1,16 +1,19 @@
 # Clusters genes using specified method and parameters
 
-Clusters genes using specified method and parameters
+Community detection on the shared nearest neighbour graph. Both
+algorithms optimise modularity at the requested resolution and both
+depend on the random number generator, so different seeds give different
+partitions – which is what makes the consensus step meaningful.
 
 ## Usage
 
 ``` r
 cluster_genes(
   genes,
-  neighbors,
-  method = "louvain",
+  graph,
+  method = c("louvain", "leiden"),
   resolution = 1,
-  seed = seed
+  seed = 42
 )
 ```
 
@@ -18,24 +21,24 @@ cluster_genes(
 
 - genes:
 
-  Gene names
+  Gene names, in the row order of the graph.
 
-- neighbors:
+- graph:
 
-  Neighbor graph object
+  An `igraph` graph built from the SNN adjacency matrix.
 
 - method:
 
-  Clustering method: "louvain" or "leiden"
+  Clustering method: `"louvain"` or `"leiden"`.
 
 - resolution:
 
-  Resolution parameter for clustering
+  Resolution parameter for clustering.
 
 - seed:
 
-  Random seed for clustering
+  Random seed for clustering.
 
 ## Value
 
-Data frame with gene cluster assignments
+Data frame with gene cluster assignments, numbered from zero.

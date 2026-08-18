@@ -68,28 +68,36 @@ AnnDatR object with UMAP cluster hulls within the AnnDatR object.
 ``` r
 # Calculate UMAP cluster hulls on an AnnDatR object after UMAP and clustering
 adata_res <- hc_pca(example_adata, components = 40)
+#> 111 of 76518 values (0.15%) are missing; using na_action = 'impute'.
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-#> Building SNN based on a provided distance matrix
-#> Computing SNN
-adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
-#> Iteration: 0 *** value: 948.279
-#> Iteration: 1 *** value: 70.5063
-#> Iteration: 2 *** value: 22.246
-#> Iteration: 3 *** value: 22.2447
-#> Iteration: 4 *** value: 22.2447
-#> Minimum: 22.2447
-#> Joining with `by = join_by(cons_cluster)`
+#> Building SNN graph from the provided distance matrix.
+adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
+#> Running louvain clustering at resolution 8 across 20 seeds.
+#> Median number of communities across seeds: 34 (range 32-36).
+#> Iteration: 0 *** value: 950.475
+#> Iteration: 1 *** value: 273.082
+#> Iteration: 2 *** value: 101.189
+#> Iteration: 3 *** value: 92.0887
+#> Iteration: 4 *** value: 90.7377
+#> Iteration: 5 *** value: 86.5719
+#> Iteration: 6 *** value: 86.5719
+#> Minimum: 86.5719
 adata_res <- hc_umap(adata_res)
+#> 22:44:46 UMAP embedding parameters a = 0.9922 b = 1.112
+#> 22:44:47 Initializing from normalized Laplacian + noise (using RSpectra)
+#> 22:44:47 Commencing optimization for 500 epochs, with 49428 positive edges
+#> 22:44:47 Using rng type: pcg
+#> 22:44:49 Optimization finished
 adata_res <- hc_cluster_hulls(adata_res)
 head(adata_res$uns$UMAP_hulls$hulls)
 #> # A tibble: 6 × 7
-#>   cluster sub_cluster sub_type landmass      X     Y polygon_id
-#>   <chr>         <dbl> <chr>       <dbl>  <dbl> <dbl> <chr>     
-#> 1 17                1 primary         1 -0.994 0.432 17_1_1    
-#> 2 17                1 primary         1 -1.00  0.439 17_1_1    
-#> 3 17                1 primary         1 -1.00  0.446 17_1_1    
-#> 4 17                1 primary         1 -0.994 0.453 17_1_1    
-#> 5 17                1 primary         1 -0.987 0.446 17_1_1    
-#> 6 17                1 primary         1 -0.973 0.446 17_1_1    
+#>   cluster sub_cluster sub_type landmass      X      Y polygon_id
+#>   <chr>         <int> <chr>       <int>  <dbl>  <dbl> <chr>     
+#> 1 32                1 primary         1 -0.929 -0.889 32_1_1    
+#> 2 32                1 primary         1 -0.936 -0.882 32_1_1    
+#> 3 32                1 primary         1 -0.949 -0.882 32_1_1    
+#> 4 32                1 primary         1 -0.956 -0.889 32_1_1    
+#> 5 32                1 primary         1 -0.956 -0.903 32_1_1    
+#> 6 32                1 primary         1 -0.949 -0.909 32_1_1    
 ```

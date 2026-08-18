@@ -19,7 +19,7 @@ Functions for complete, one-call workflows.
 Functions for gene clustering.
 
 - [`hc_pca()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_pca.md)
-  : Perform PCA on AnnDatR object
+  : Perform PCA on an AnnDatR object
 - [`hc_kaisers_rule()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_kaisers_rule.md)
   : Determine number of components using Kaiser's rule
 - [`hc_distance()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_distance.md)

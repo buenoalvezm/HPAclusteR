@@ -46,48 +46,26 @@ of the data while retaining the most important features.
 
 adata_res <- hc_pca(example_adata, components = 40)
 head(adata_res$obsm$X_pca[, 1:5])  # PCA scores
-#>                        PC1       PC2        PC3        PC4        PC5
-#> ENSG00000002745  2.5250898 -1.245267  4.9538170 -2.9612872  0.5522311
-#> ENSG00000004660 -3.9791370 -4.237506  1.0128910 -2.3799084  0.1714757
-#> ENSG00000006047 -3.3357725  5.230900  0.2779654  0.8539579 -1.0689779
-#> ENSG00000006059  0.3849729  1.662731  4.2587010 -1.7739603  0.3751746
-#> ENSG00000006453  4.3272116  2.237562  2.0914290  0.3764680 -5.5500274
-#> ENSG00000006740 -3.4995078 -4.826965 -1.0965416  0.6870355 -3.5294865
-adata_res$uns$pca  # Explained variance
-#> nipals calculated PCA
-#> Importance of component(s):
-#>                  PC1    PC2     PC3     PC4     PC5     PC6     PC7     PC8
-#> R2            0.2353 0.1895 0.09884 0.07956 0.06474 0.05336 0.02484 0.02105
-#> Cumulative R2 0.2353 0.4248 0.52366 0.60323 0.66797 0.72133 0.74617 0.76721
-#>                  PC9    PC10    PC11    PC12    PC13     PC14     PC15     PC16
-#> R2            0.0169 0.01463 0.01307 0.01153 0.01092 0.009315 0.008165 0.007873
-#> Cumulative R2 0.7841 0.79874 0.81180 0.82333 0.83426 0.843573 0.851738 0.859611
-#>                   PC17     PC18    PC19    PC20     PC21     PC22     PC23
-#> R2            0.007254 0.007048 0.00658 0.00588 0.005541 0.005381 0.005207
-#> Cumulative R2 0.866864 0.873913 0.88049 0.88637 0.891914 0.897295 0.902502
-#>                   PC24     PC25     PC26     PC27     PC28     PC29     PC30
-#> R2            0.004988 0.004932 0.004718 0.004567 0.004482 0.004177 0.003912
-#> Cumulative R2 0.907490 0.912421 0.917139 0.921706 0.926188 0.930364 0.934277
-#>                   PC31     PC32     PC33     PC34     PC35     PC36     PC37
-#> R2            0.003712 0.003605 0.003258 0.003229 0.003022 0.002936 0.002783
-#> Cumulative R2 0.937988 0.941593 0.944851 0.948080 0.951102 0.954038 0.956821
-#>                   PC38     PC39     PC40
-#> R2            0.002728 0.002528 0.002346
-#> Cumulative R2 0.959549 0.962078 0.964423
-#> 78   Variables
-#> 981  Samples
-#> 111  NAs ( 0.145 %)
-#> 40   Calculated component(s)
-#> Data was mean centered before running PCA 
-#> Data was NOT scaled before running PCA 
-#> Scores structure:
-#> [1] 981  40
-#> Loadings structure:
-#> [1] 78 40
+#>                       PC1       PC2        PC3        PC4        PC5
+#> ENSG00000002745  2.525134  1.244945  4.9524275  2.9628522  0.5502585
+#> ENSG00000004660 -3.978987  4.237604  1.0125002  2.3806353  0.1701373
+#> ENSG00000006047 -3.335958 -5.230821  0.2785071 -0.8539639 -1.0674333
+#> ENSG00000006059  0.384914 -1.662885  4.2574866  1.7776202  0.3784697
+#> ENSG00000006453  4.327132 -2.237923  2.0932705 -0.3790134 -5.5485171
+#> ENSG00000006740 -3.499337  4.827055 -1.0947394 -0.6904189 -3.5299211
+head(adata_res$uns$pca$r2cum)      # Cumulative explained variance
+#> [1] 0.2353205 0.4247893 0.5235696 0.6031322 0.6678779 0.7212278
 ```
 
 The PCA step reduces the dimensionality of the data to 40 components,
 which can be adjusted based on the dataset and analysis goals.
+
+> 💡 If the expression matrix contains missing values,
+> [`hc_pca()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_pca.md)
+> reports how many and, by default, imputes them with their column mean
+> so that the fast SVD path is used. Set `na_action = "nipals"` for the
+> slower iterative algorithm that handles missing values directly, or
+> `na_action = "omit"` to drop the affected genes.
 
 ### Step 2: Distance Calculation
 
@@ -101,13 +79,12 @@ rule.
 ``` r
 
 adata_res <- hc_distance(
-  adata_res, 
-  components = hc_kaisers_rule(adata_res), 
+  adata_res,
+  components = hc_kaisers_rule(adata_res),
   method = "spearman"
 )
-#> [1] "Kaiser's rule is above 80% variation. Success"
 head(adata_res$uns$distance)
-#> [1] 0.9545455 1.3545455 0.4727273 0.8636364 1.1818182 1.3909091
+#> [1] 1.0090909 1.3363636 0.3363636 0.6090909 1.3454545 1.2454545
 ```
 
 ### Step 3: Shared Nearest Neighbor (SNN) Graph Construction
@@ -118,8 +95,20 @@ This step uses the distance matrix calculated in the previous step.
 ``` r
 
 adata_res <- hc_snn(adata_res, neighbors = 15, prune = 1 / 15)
-adata_res$uns$neighbors$snn
-#> A Graph object containing 981 cells
+adata_res$uns$neighbors$snn[1:5, 1:5]
+#> 5 x 5 sparse Matrix of class "dgCMatrix"
+#>                 ENSG00000002745 ENSG00000004660 ENSG00000006047 ENSG00000006059
+#> ENSG00000002745      1.00000000               .               .      0.07142857
+#> ENSG00000004660      .                        1               .      .         
+#> ENSG00000006047      .                        .               1      .         
+#> ENSG00000006059      0.07142857               .               .      1.00000000
+#> ENSG00000006453      .                        .               .      .         
+#>                 ENSG00000006453
+#> ENSG00000002745               .
+#> ENSG00000004660               .
+#> ENSG00000006047               .
+#> ENSG00000006059               .
+#> ENSG00000006453               1
 ```
 
 The `neighbors` parameter controls the number of nearest neighbors
@@ -141,7 +130,7 @@ adata_res <- hc_cluster_consensus(
 )
 
 head(adata_res$obs$cluster)
-#> [1] "30" "14" "4"  "11" "21" "14"
+#> [1] "13" "8"  "14" "13" "27" "8"
 ```
 
 The `resolution` parameter controls the granularity of the clustering.
@@ -158,12 +147,12 @@ uses the constructed SNN graph.
 adata_res <- hc_umap(adata_res, verbose = FALSE)
 head(adata_res$obsm$X_umap)
 #>                     UMAP_1     UMAP_2
-#> ENSG00000002745  0.2972319  0.5904026
-#> ENSG00000004660 -0.9859446 -0.4686754
-#> ENSG00000006047  0.9013946 -0.4792866
-#> ENSG00000006059  0.1685648  0.4550808
-#> ENSG00000006453 -0.4699026 -0.3761350
-#> ENSG00000006740 -0.9678060 -0.4816415
+#> ENSG00000002745 -0.1701197 -0.7438677
+#> ENSG00000004660  0.2096964 -0.8561486
+#> ENSG00000006047  0.3996527  0.7626277
+#> ENSG00000006059 -0.1950597 -0.7427994
+#> ENSG00000006453 -0.2141915 -0.6715012
+#> ENSG00000006740  0.2142968 -0.8946852
 ```
 
 ### Step 6: Cluster Hulls (Optional)
@@ -177,13 +166,13 @@ adata_res <- hc_cluster_hulls(adata_res, poly_smoothing = 4)
 head(adata_res$uns$UMAP_hulls$hulls)
 #> # A tibble: 6 × 7
 #>   cluster sub_cluster sub_type landmass      X      Y polygon_id
-#>   <chr>         <dbl> <chr>       <dbl>  <dbl>  <dbl> <chr>     
-#> 1 14                1 primary         1 -0.980 -0.502 14_1_1    
-#> 2 14                1 primary         1 -1.00  -0.502 14_1_1    
-#> 3 14                1 primary         1 -1.00  -0.474 14_1_1    
-#> 4 14                1 primary         1 -0.987 -0.46  14_1_1    
-#> 5 14                1 primary         1 -0.959 -0.46  14_1_1    
-#> 6 14                1 primary         1 -0.952 -0.495 14_1_1
+#>   <chr>         <int> <chr>       <int>  <dbl>  <dbl> <chr>     
+#> 1 15                1 primary         1 -0.376 -0.256 15_1_1    
+#> 2 15                1 primary         1 -0.390 -0.235 15_1_1    
+#> 3 15                1 primary         1 -0.411 -0.249 15_1_1    
+#> 4 15                1 primary         1 -0.418 -0.256 15_1_1    
+#> 5 15                1 primary         1 -0.418 -0.263 15_1_1    
+#> 6 15                1 primary         1 -0.404 -0.270 15_1_1
 ```
 
 ### Step 7: Visualization
@@ -219,22 +208,22 @@ enrichment_res <- hc_annotate(
 )
 #> Warning in clusterProfiler::bitr(unique(clustering_data[["gene"]]), fromType =
 #> "ENSEMBL", : 0.82% of input gene IDs are fail to map...
-#> Warning in packageDescription(pkgname, fields = "Version"): no package '--> No
-#> gene can be mapped....' was found
-#> Warning in packageDescription(pkgname, fields = "Version"): no package '-->
-#> Expected input gene ID: ' was found
-#> Warning in packageDescription(pkgname, fields = "Version"): no package '-->
-#> return NULL...' was found
+#> Warning in calculate_qvalue(ora_res$pvalue): qvalue::qvalue() failed, returning
+#> NA for qvalue. Error: missing values and NaN's not allowed if 'na.rm' is FALSE
+#> Warning in calculate_qvalue(ora_res$pvalue): qvalue::qvalue() failed, returning
+#> NA for qvalue. Error: missing values and NaN's not allowed if 'na.rm' is FALSE
+#> Warning in calculate_qvalue(ora_res$pvalue): qvalue::qvalue() failed, returning
+#> NA for qvalue. Error: missing values and NaN's not allowed if 'na.rm' is FALSE
 head(enrichment_res$enrichment)
 #> # A tibble: 6 × 10
 #>   `Cluster ID` Database      `Term ID` Term          GeneRatio BgRatio `P-value`
 #>   <chr>        <chr>         <chr>     <chr>         <chr>     <chr>       <dbl>
-#> 1 11           KEGG pathways hsa04382  Cornified en… 13/24     40/350    8.38e-8
-#> 2 11           KEGG pathways hsa04519  Cadherin sig… 8/24      24/350    5.26e-5
-#> 3 12           KEGG pathways hsa01100  Metabolic pa… 9/15      67/350    4.03e-4
-#> 4 17           KEGG pathways hsa03040  Spliceosome   5/20      13/350    3.49e-4
-#> 5 2            KEGG pathways hsa03082  ATP-dependen… 3/5       10/350    1.64e-4
-#> 6 2            KEGG pathways hsa05034  Alcoholism    3/5       14/350    4.90e-4
+#> 1 11           KEGG pathways hsa04814  Motor protei… 1/1       11/352    3.12e-2
+#> 2 12           KEGG pathways hsa01100  Metabolic pa… 11/21     69/352    5.31e-4
+#> 3 13           KEGG pathways hsa04382  Cornified en… 11/24     40/352    9.01e-6
+#> 4 13           KEGG pathways hsa04519  Cadherin sig… 8/24      24/352    5.05e-5
+#> 5 13           KEGG pathways hsa04915  Estrogen sig… 4/24      12/352    5.74e-3
+#> 6 2            KEGG pathways hsa04660  T cell recep… 5/12      13/352    2.03e-5
 #> # ℹ 3 more variables: `Adjusted P-value` <dbl>, `Gene IDs` <chr>,
 #> #   `Gene names` <chr>
 enrichment_res$bubblemap_kegg
@@ -258,12 +247,12 @@ head(classify_res$classification[["1"]])
 #> # A tibble: 6 × 5
 #>   ENSG            spec_category   spec_sample_categories   tau dist_category   
 #>   <chr>           <chr>           <chr>                  <dbl> <chr>           
-#> 1 ENSG00000069974 Enhanced        stomach;bone marrow     0.43 Detected in all 
-#> 2 ENSG00000072501 Low specificity NA                      0.35 Detected in all 
+#> 1 ENSG00000054219 Enhanced        thymus;lymph node       0.7  Detected in many
+#> 2 ENSG00000069974 Enhanced        stomach;bone marrow     0.43 Detected in all 
 #> 3 ENSG00000077147 Low specificity NA                      0.28 Detected in all 
-#> 4 ENSG00000078177 Enhanced        thymus                  0.64 Detected in many
+#> 4 ENSG00000079385 Enhanced        colon;rectum            0.63 Detected in many
 #> 5 ENSG00000081923 Enhanced        colon;rectum;stomach    0.59 Detected in many
-#> 6 ENSG00000101868 Enhanced        thymus                  0.51 Detected in many
+#> 6 ENSG00000101972 Low specificity NA                      0.32 Detected in all
 classify_res$pie_charts[["1"]]
 ```
 
@@ -304,10 +293,9 @@ function for simplicity.
 
 adata_res2 <- hc_auto_cluster(
   example_adata,
-  cluster_resolution = 10,
+  cluster_resolution = 12,
   verbose = FALSE
 )
-#> [1] "Kaiser's rule is above 80% variation. Success"
 ```
 
 ![](HPAclusteR_files/figure-html/comparison-1.png)
@@ -320,14 +308,6 @@ comparison_res <- hc_cluster_compare(
   adata_res2,
   graph_type = "bipartite"
 )
-#> Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
-#> ℹ Please use the `linewidth` argument instead.
-#> ℹ The deprecated feature was likely used in the HPAclusteR package.
-#>   Please report the issue at
-#>   <https://github.com/buenoalvezm/HPAclusteR/issues>.
-#> This warning is displayed once per session.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 comparison_res$heatmap
 ```
 
@@ -353,7 +333,7 @@ transcriptomics data!
 ``` r
 
 sessionInfo()
-#> R version 4.6.0 (2026-04-24)
+#> R version 4.6.1 (2026-06-24)
 #> Platform: x86_64-pc-linux-gnu
 #> Running under: Ubuntu 24.04.4 LTS
 #> 
@@ -374,79 +354,48 @@ sessionInfo()
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] HPAclusteR_1.0.0
+#> [1] HPAclusteR_1.1.0
 #> 
 #> loaded via a namespace (and not attached):
-#>   [1] fs_2.1.0                matrixStats_1.5.0       spatstat.sparse_3.2-0  
-#>   [4] enrichplot_1.32.0       httr_1.4.8              RColorBrewer_1.1-3     
-#>   [7] prabclus_2.3-5          tools_4.6.0             sctransform_0.4.3      
-#>  [10] utf8_1.2.6              R6_2.6.1                lazyeval_0.2.3         
-#>  [13] uwot_0.2.4              withr_3.0.2             sp_2.2-1               
-#>  [16] GGally_2.4.0            gridExtra_2.3           progressr_0.19.0       
-#>  [19] cli_3.6.6               Biobase_2.72.0          textshaping_1.0.5      
-#>  [22] factoextra_2.0.0        spatstat.explore_3.8-1  fastDummies_1.7.6      
-#>  [25] network_1.20.0          scatterpie_0.2.6        slam_0.1-55            
-#>  [28] labeling_0.4.3          sass_0.4.10             diptest_0.77-2         
-#>  [31] Seurat_5.5.0            tm_0.7-18               S7_0.2.2               
-#>  [34] robustbase_0.99-7       spatstat.data_3.1-9     readr_2.2.0            
-#>  [37] askpass_1.2.1           ggridges_0.5.7          pbapply_1.7-4          
-#>  [40] pkgdown_2.2.0           systemfonts_1.3.2       yulab.utils_0.2.4      
-#>  [43] gson_0.1.0              DOSE_4.6.0              parallelly_1.47.0      
-#>  [46] RSQLite_3.53.1          treemap_2.4-4           generics_0.1.4         
-#>  [49] gridGraphics_0.5-1      ica_1.0-3               spatstat.random_3.5-0  
-#>  [52] dplyr_1.2.1             GO.db_3.23.1            Matrix_1.7-5           
-#>  [55] S4Vectors_0.50.1        abind_1.4-8             lifecycle_1.0.5        
-#>  [58] yaml_2.3.12             qvalue_2.44.0           Rtsne_0.17             
-#>  [61] grid_4.6.0              blob_1.3.0              promises_1.5.0         
-#>  [64] crayon_1.5.3            miniUI_0.1.2            ggtangle_0.1.2         
-#>  [67] lattice_0.22-9          cowplot_1.2.0           KEGGREST_1.52.0        
-#>  [70] sna_2.8                 pillar_1.11.1           knitr_1.51             
-#>  [73] fpc_2.2-14              future.apply_1.20.2     codetools_0.2-20       
-#>  [76] glue_1.8.1              ggiraph_0.9.6           V8_8.2.0               
-#>  [79] ggfun_0.2.0             spatstat.univar_3.2-0   fontLiberation_0.1.0   
-#>  [82] pcaMethods_2.4.0        data.table_1.18.4       vctrs_0.7.3            
-#>  [85] png_0.1-9               treeio_1.36.1           spam_2.11-4            
-#>  [88] gtable_0.3.6            kernlab_0.9-33          cachem_1.1.0           
-#>  [91] xfun_0.58               mime_0.13               Seqinfo_1.2.0          
-#>  [94] coda_0.19-4.1           survival_3.8-6          aisdk_1.4.11           
-#>  [97] pheatmap_1.0.13         fitdistrplus_1.2-6      ROCR_1.0-12            
-#> [100] nlme_3.1-169            ggtree_4.2.0            bit64_4.8.2            
-#> [103] fontquiver_0.2.1        RcppAnnoy_0.0.23        bslib_0.11.0           
-#> [106] irlba_2.3.7             KernSmooth_2.23-26      otel_0.2.0             
-#> [109] colorspace_2.1-2        rrvgo_1.24.0            BiocGenerics_0.58.1    
-#> [112] DBI_1.3.0               nnet_7.3-20             tidyselect_1.2.1       
-#> [115] processx_3.9.0          bit_4.6.0               compiler_4.6.0         
-#> [118] curl_7.1.0              httr2_1.2.2             xml2_1.5.2             
-#> [121] NLP_0.3-2               desc_1.4.3              fontBitstreamVera_0.1.1
-#> [124] plotly_4.12.0           scales_1.4.0            DEoptimR_1.1-4         
-#> [127] lmtest_0.9-40           callr_3.7.6             rappdirs_0.3.4         
-#> [130] stringr_1.6.0           digest_0.6.39           goftest_1.2-3          
-#> [133] spatstat.utils_3.2-3    rmarkdown_2.31          XVector_0.52.0         
-#> [136] htmltools_0.5.9         pkgconfig_2.0.3         umap_0.2.10.0          
-#> [139] fastmap_1.2.0           rlang_1.2.0             htmlwidgets_1.6.4      
-#> [142] shiny_1.13.0            farver_2.1.2            jquerylib_0.1.4        
-#> [145] zoo_1.8-15              jsonlite_2.0.0          statnet.common_4.13.0  
-#> [148] mclust_6.1.2            GOSemSim_2.38.0         magrittr_2.0.5         
-#> [151] modeltools_0.2-24       ggplotify_0.1.3         wordcloud_2.6          
-#> [154] dotCall64_1.2           patchwork_1.3.2         Rcpp_1.1.1-1.1         
-#> [157] ape_5.8-1               ggnewscale_0.5.2        gdtools_0.5.1          
-#> [160] reticulate_1.46.0       stringi_1.8.7           MASS_7.3-65            
-#> [163] org.Hs.eg.db_3.23.1     plyr_1.8.9              flexmix_2.3-20         
-#> [166] ggstats_0.13.0          parallel_4.6.0          listenv_0.10.1         
-#> [169] ggrepel_0.9.8           deldir_2.0-4            Biostrings_2.80.1      
-#> [172] splines_4.6.0           tensor_1.5.1            hms_1.1.4              
-#> [175] ps_1.9.3                igraph_2.3.2            spatstat.geom_3.8-1    
-#> [178] enrichit_0.1.4          RcppHNSW_0.7.0          reshape2_1.4.5         
-#> [181] stats4_4.6.0            evaluate_1.0.5          SeuratObject_5.4.0     
-#> [184] tzdb_0.5.0              tweenr_2.0.3            httpuv_1.6.17          
-#> [187] openssl_2.4.1           RANN_2.6.2              tidyr_1.3.2            
-#> [190] purrr_1.2.2             polyclip_1.10-7         future_1.70.0          
-#> [193] clue_0.3-68             scattermore_1.2         ggplot2_4.0.3          
-#> [196] gridBase_0.4-7          ggforce_0.5.0           xtable_1.8-8           
-#> [199] RSpectra_0.16-2         tidytree_0.4.7          tidydr_0.0.6           
-#> [202] later_1.4.8             viridisLite_0.4.3       class_7.3-23           
-#> [205] ragg_1.5.2              tibble_3.3.1            clusterProfiler_4.20.0 
-#> [208] aplot_0.2.9             memoise_2.0.1           AnnotationDbi_1.74.0   
-#> [211] IRanges_2.46.0          cluster_2.1.8.2         globals_0.19.1         
-#> [214] concaveman_1.2.0
+#>   [1] DBI_1.3.0               gson_0.2.1              httr2_1.3.0            
+#>   [4] rlang_1.3.0             magrittr_2.0.5          clue_0.3-68            
+#>   [7] DOSE_4.6.0              otel_0.2.0              compiler_4.6.1         
+#>  [10] RSQLite_3.53.3          png_0.1-9               systemfonts_1.3.2      
+#>  [13] callr_3.8.0             vctrs_0.7.3             reshape2_1.4.5         
+#>  [16] stringr_1.6.0           pkgconfig_2.0.3         crayon_1.5.3           
+#>  [19] fastmap_1.2.0           XVector_0.52.0          labeling_0.4.3         
+#>  [22] utf8_1.2.6              rmarkdown_2.31          enrichplot_1.32.0      
+#>  [25] ps_1.9.3                ragg_1.5.2              purrr_1.2.2            
+#>  [28] bit_4.6.0               xfun_0.60               cachem_1.1.0           
+#>  [31] aplot_0.3.1             jsonlite_2.0.0          blob_1.3.0             
+#>  [34] tidydr_0.0.6            tweenr_2.0.3            cluster_2.1.8.2        
+#>  [37] parallel_4.6.1          R6_2.6.1                bslib_0.12.0           
+#>  [40] stringi_1.8.9           RColorBrewer_1.1-3      enrichit_0.2.1         
+#>  [43] jquerylib_0.1.4         GOSemSim_2.38.3         Rcpp_1.1.2             
+#>  [46] Seqinfo_1.2.0           knitr_1.51              ggtangle_0.1.2         
+#>  [49] IRanges_2.46.0          splines_4.6.1           Matrix_1.7-5           
+#>  [52] igraph_2.3.3            aisdk_1.4.12            tidyselect_1.2.1       
+#>  [55] qvalue_2.44.0           yaml_2.3.12             processx_3.9.0         
+#>  [58] lattice_0.22-9          tibble_3.3.1            plyr_1.8.9             
+#>  [61] withr_3.0.3             Biobase_2.72.0          treeio_1.36.1          
+#>  [64] KEGGREST_1.52.2         S7_0.2.2                evaluate_1.0.5         
+#>  [67] gridGraphics_0.5-1      desc_1.4.3              polyclip_1.10-7        
+#>  [70] scatterpie_0.2.6        Biostrings_2.80.1       pillar_1.11.1          
+#>  [73] ggtree_4.2.0            stats4_4.6.1            clusterProfiler_4.20.0 
+#>  [76] ggfun_0.2.1             generics_0.1.4          S4Vectors_0.50.1       
+#>  [79] ggplot2_4.0.3           scales_1.4.0            tidytree_0.4.8         
+#>  [82] glue_1.8.1              gdtools_0.5.1           lazyeval_0.2.3         
+#>  [85] tools_4.6.1             ggnewscale_0.5.2        RSpectra_0.16-2        
+#>  [88] ggiraph_0.9.6           fs_2.1.0                grid_4.6.1             
+#>  [91] tidyr_1.3.2             ape_5.8-1               AnnotationDbi_1.74.0   
+#>  [94] nlme_3.1-169            patchwork_1.3.2         ggforce_0.5.0          
+#>  [97] cli_3.6.6               rappdirs_0.3.4          textshaping_1.0.5      
+#> [100] fontBitstreamVera_0.1.1 dplyr_1.2.1             uwot_0.2.4             
+#> [103] gtable_0.3.6            yulab.utils_0.2.4       sass_0.4.10            
+#> [106] digest_0.6.39           fontquiver_0.2.1        BiocGenerics_0.58.1    
+#> [109] ggrepel_0.9.8           ggplotify_0.1.3         org.Hs.eg.db_3.23.1    
+#> [112] htmlwidgets_1.6.4       farver_2.1.2            memoise_2.0.1          
+#> [115] htmltools_0.5.9         pkgdown_2.2.1           lifecycle_1.0.5        
+#> [118] httr_1.4.8              GO.db_3.23.1            fontLiberation_0.1.0   
+#> [121] bit64_4.8.2             MASS_7.3-65
 ```

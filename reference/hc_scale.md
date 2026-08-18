@@ -1,6 +1,6 @@
-# Scale data matrix
+# Scale a data matrix
 
-Scale data matrix
+Scale a data matrix
 
 ## Usage
 
@@ -12,13 +12,13 @@ hc_scale(data, method = "sample")
 
 - data:
 
-  Data to be scaled
+  Data to be scaled, with samples in rows and genes in columns.
 
 - method:
 
-  Scaling method: 'sample' (default), 'gene', 'pareto', 'vector',
-  'min-max', 'max_sequencial', or 'max'
+  Scaling method: `"sample"` (default), `"gene"`, `"pareto"`,
+  `"vector"`, `"min-max"`, `"max_sequencial"` or `"max"`.
 
 ## Value
 
-Scaled data matrix
+Scaled data matrix with genes in rows and samples in columns.

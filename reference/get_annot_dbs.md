@@ -5,7 +5,7 @@ Download annotation databases
 ## Usage
 
 ``` r
-get_annot_dbs(db_loc = "databases", hpa_version = 24)
+get_annot_dbs(db_loc = "databases", hpa_version = NULL, timeout = 1800)
 ```
 
 ## Arguments
@@ -13,11 +13,17 @@ get_annot_dbs(db_loc = "databases", hpa_version = 24)
 - db_loc:
 
   Destination directory to save the downloaded databases (default:
-  "databases").
+  `"databases"`).
 
 - hpa_version:
 
-  Version of the Human Protein Atlas to download (default: 24).
+  Human Protein Atlas release to download. `NULL` (default) uses the
+  current release; a number such as `24` pins an archived release.
+
+- timeout:
+
+  Download timeout in seconds (default: 1800). These files are large,
+  and R's 60 second default is not enough.
 
 ## Value
 

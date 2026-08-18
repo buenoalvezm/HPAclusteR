@@ -64,56 +64,55 @@ will:
 ``` r
 # Run clustering A
 adata_res <- hc_pca(example_adata, components = 40)
+#> 111 of 76518 values (0.15%) are missing; using na_action = 'impute'.
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-#> Building SNN based on a provided distance matrix
-#> Computing SNN
-adata_res_a <- hc_cluster_consensus(adata_res, resolution = 9)
-#> Iteration: 0 *** value: 951.642
-#> Iteration: 1 *** value: 198.957
-#> Iteration: 2 *** value: 73.707
-#> Iteration: 3 *** value: 64.7548
-#> Iteration: 4 *** value: 47.8331
-#> Iteration: 5 *** value: 47.6047
-#> Iteration: 6 *** value: 46.7243
-#> Iteration: 7 *** value: 46.1215
-#> Iteration: 8 *** value: 46.1215
-#> Minimum: 46.1215
-#> Joining with `by = join_by(cons_cluster)`
+#> Building SNN graph from the provided distance matrix.
+adata_res_a <- hc_cluster_consensus(adata_res, resolution = 10, n_seeds = 20)
+#> Running louvain clustering at resolution 10 across 20 seeds.
+#> Median number of communities across seeds: 44 (range 42-47).
+#> Iteration: 0 *** value: 955.881
+#> Iteration: 1 *** value: 335.09
+#> Iteration: 2 *** value: 130.357
+#> Iteration: 3 *** value: 103.718
+#> Iteration: 4 *** value: 103.171
+#> Iteration: 5 *** value: 103.046
+#> Iteration: 6 *** value: 102.761
+#> Iteration: 7 *** value: 102.621
+#> Iteration: 8 *** value: 102.621
+#> Minimum: 102.621
 
 # Run clustering B
-adata_res_b <- hc_cluster_consensus(adata_res, resolution = 7)
-#> Iteration: 0 *** value: 948.279
-#> Iteration: 1 *** value: 70.5063
-#> Iteration: 2 *** value: 22.246
-#> Iteration: 3 *** value: 22.2447
-#> Iteration: 4 *** value: 22.2447
-#> Minimum: 22.2447
-#> Joining with `by = join_by(cons_cluster)`
+adata_res_b <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
+#> Running louvain clustering at resolution 8 across 20 seeds.
+#> Median number of communities across seeds: 34 (range 32-36).
+#> Iteration: 0 *** value: 950.475
+#> Iteration: 1 *** value: 273.082
+#> Iteration: 2 *** value: 101.189
+#> Iteration: 3 *** value: 92.0887
+#> Iteration: 4 *** value: 90.7377
+#> Iteration: 5 *** value: 86.5719
+#> Iteration: 6 *** value: 86.5719
+#> Minimum: 86.5719
 
 # Compare clusters between the two results
 hc_cluster_compare(adata_res_a, adata_res_b)
 #> 0.00% of genes do not match between the two datasets.
-#> Warning: The `size` argument of `element_line()` is deprecated as of ggplot2 3.4.0.
-#> ℹ Please use the `linewidth` argument instead.
-#> ℹ The deprecated feature was likely used in the HPAclusteR package.
-#>   Please report the issue at
-#>   <https://github.com/buenoalvezm/HPAclusteR/issues>.
 #> $matches
-#> # A tibble: 42 × 8
+#> # A tibble: 47 × 8
 #>    cluster_A cluster_B n_genes_A n_genes_B n_overlap percentage_overlap    p_val
 #>    <chr>     <chr>         <int>     <int>     <int>              <dbl>    <dbl>
-#>  1 1         1                36        45        36              100   1.26e-57
-#>  2 10        10               19        18        18              100   2.01e-37
-#>  3 11        11               28        30        28              100   3.35e-52
-#>  4 12        4                21        19        18               94.7 2.67e-34
-#>  5 13        13               12         7         7              100   4.66e-15
-#>  6 13        3                12        45         4               33.3 1.46e- 3
-#>  7 14        16               24        21        21              100   1.92e-40
-#>  8 15        18               26        27        26              100   2.50e-50
-#>  9 16        19                7        26         4               57.1 1.29e- 5
-#> 10 16        27                7        33         2               28.6 2.07e- 2
-#> # ℹ 32 more rows
+#>  1 1         16               34         9         4               44.4 1.35e- 4
+#>  2 1         20               34        43        28               82.4 1.43e-37
+#>  3 10        29               20        19        19              100   4.17e-39
+#>  4 11        2                19        59        16               84.2 3.01e-18
+#>  5 12        33               16        53        16              100   4.77e-22
+#>  6 13        14               19        16        15               93.8 1.20e-28
+#>  7 13        32               19        36         4               21.0 4.00e- 3
+#>  8 14        31               28        33        26               92.9 1.48e-42
+#>  9 15        7                36        40        36              100   1.30e-61
+#> 10 16        1                24        29        24              100   1.55e-43
+#> # ℹ 37 more rows
 #> # ℹ 1 more variable: adj_p_val <dbl>
 #> 
 #> $heatmap

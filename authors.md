@@ -20,13 +20,13 @@ Source:
 
 Antonopoulos K, Bueno Alvez M, Skarwan E, Uhlen M (2026). *HPAclusteR:
 Gene Clustering and Functional Annotation Pipeline for Transcriptomics
-Data*. R package version 1.0.0,
+Data*. R package version 1.1.0,
 <https://buenoalvezm.github.io/HPAclusteR/>.
 
     @Manual{,
       title = {HPAclusteR: Gene Clustering and Functional Annotation Pipeline for Transcriptomics Data},
       author = {Konstantinos Antonopoulos and Maria {Bueno Alvez} and Emilio Skarwan and Mathias Uhlen},
       year = {2026},
-      note = {R package version 1.0.0},
+      note = {R package version 1.1.0},
       url = {https://buenoalvezm.github.io/HPAclusteR/},
     }

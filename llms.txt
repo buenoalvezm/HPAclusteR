@@ -38,7 +38,7 @@ identify biologically meaningful gene clusters.
   - Protein Class
 - Reactome Pathways
 - PanglaoDB Cell Markers
-- Trrusted Cell Markers
+- TRRUST Transcription Factors
 
 ### Ready-to-use Visualization Functions:
 
@@ -60,6 +60,19 @@ install.packages("devtools")
 devtools::install_github("buenoalvezm/HPAclusteR")
 ```
 
+The clustering, visualization and comparison functions need nothing
+beyond CRAN — no Python interpreter and no Bioconductor packages.
+
+Functional enrichment
+([`hc_annotate()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_annotate.md))
+additionally needs the Bioconductor annotation stack:
+
+``` r
+
+install.packages("BiocManager")
+BiocManager::install(c("clusterProfiler", "org.Hs.eg.db", "rrvgo"))
+```
+
 ## Usage
 
 Start right away with the
@@ -72,7 +85,21 @@ function, which performs the complete gene clustering pipeline on an
 library(HPAclusteR)
 
 # Example input: AnnDatR object with transcriptomics data
-adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 10)
+adata_res <- hc_auto_cluster(example_adata, cluster_resolution = 8)
+```
+
+Or run the pipeline step by step:
+
+``` r
+
+adata_res <- hc_pca(example_adata, components = 40)
+adata_res <- hc_distance(adata_res, components = hc_kaisers_rule(adata_res))
+adata_res <- hc_snn(adata_res, neighbors = 15)
+adata_res <- hc_cluster_consensus(adata_res, resolution = 8)
+adata_res <- hc_umap(adata_res)
+adata_res <- hc_cluster_hulls(adata_res)
+
+hc_plot_umap(adata_res, plot = "both")
 ```
 
 ## Issues and Support
@@ -108,7 +135,7 @@ Functions for complete, one-call workflows.
 Functions for gene clustering.
 
 - [`hc_pca()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_pca.md)
-  : Perform PCA on AnnDatR object
+  : Perform PCA on an AnnDatR object
 - [`hc_kaisers_rule()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_kaisers_rule.md)
   : Determine number of components using Kaiser's rule
 - [`hc_distance()`](https://buenoalvezm.github.io/HPAclusteR/reference/hc_distance.md)
