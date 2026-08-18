@@ -4,35 +4,40 @@
 \alias{hc_snn}
 \title{Compute Shared Nearest Neighbors (SNN) Graph}
 \usage{
-hc_snn(
-  AnnDatR,
-  neighbors = 20,
-  prune = 1/15,
-  similarity = "euclidean",
-  verbose = TRUE
-)
+hc_snn(AnnDatR, neighbors = 20, prune = 1/15, verbose = TRUE)
 }
 \arguments{
-\item{AnnDatR}{An AnnDatR object containing the data with distance matrix results.}
+\item{AnnDatR}{An AnnDatR object containing the data with distance matrix
+results.}
 
 \item{neighbors}{Number of nearest neighbors to consider (default is 20).}
 
-\item{prune}{Pruning threshold for the SNN graph (default is 1/15).}
+\item{prune}{Pruning threshold for the SNN graph (default is 1/15). Edges
+with a Jaccard weight below this value are removed.}
 
-\item{similarity}{Distance metric to use for nearest neighbor search (default is "euclidean"). Other options include "cosine", "manhattan", and "hamming".}
-
-\item{verbose}{Logical indicating whether to print progress messages (default is TRUE).}
+\item{verbose}{Logical indicating whether to print progress messages
+(default is \code{TRUE}).}
 }
 \value{
-SNN graph stored within the AnnDatR object.
+An AnnDatR object with the nearest neighbour and shared nearest
+neighbour graphs stored in \code{uns$neighbors}.
 }
 \description{
-\code{hc_snn()} computes a Shared Nearest Neighbors (SNN) graph from the distance matrix stored in the AnnDatR object.
+\code{hc_snn()} computes a Shared Nearest Neighbors (SNN) graph from the distance
+matrix stored in the AnnDatR object.
+}
+\details{
+Neighbours are read directly from the distance matrix computed by
+\code{\link[=hc_distance]{hc_distance()}}, so the metric is the one chosen there. Earlier versions
+accepted a \code{similarity} argument that was passed to \code{Seurat} as an Annoy
+metric; it never had any effect on this code path, because Annoy is only
+used when neighbours are searched in a coordinate space rather than taken
+from a precomputed distance matrix. The argument has been removed.
 }
 \examples{
 # Compute SNN graph on an AnnDatR object after distance calculation
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-adata_res$uns$neighbors$snn
+adata_res$uns$neighbors$snn[1:5, 1:5]
 }

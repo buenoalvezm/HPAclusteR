@@ -7,14 +7,21 @@
 build_annotation_terms_tibble(db_files, AnnDatR)
 }
 \arguments{
-\item{db_files}{Named list mapping database IDs to file paths (as returned by get_annot_dbs()).}
+\item{db_files}{Named list mapping database IDs to file paths (as returned
+by \code{\link[=get_annot_dbs]{get_annot_dbs()}}).}
 
 \item{AnnDatR}{AnnDatR object containing clustering results.}
 }
 \value{
-A tibble with columns: db_id, ensg_id, term, term_id.
+A tibble with columns: \code{db_id}, \code{ensg_id}, \code{term}, \code{term_id}.
 }
 \description{
 Build annotation terms tibble from all databases in db_files
+}
+\details{
+Eight of the supported databases are different columns of the same Human
+Protein Atlas table, and two more need it to map gene symbols to Ensembl
+IDs. That file is several hundred megabytes, so it is read once here and
+shared across all formatters rather than re-read for each database.
 }
 \keyword{internal}

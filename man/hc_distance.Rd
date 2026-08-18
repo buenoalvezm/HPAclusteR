@@ -9,15 +9,19 @@ hc_distance(AnnDatR, components = NULL, method = "spearman")
 \arguments{
 \item{AnnDatR}{An AnnDatR object containing the data with PCA results.}
 
-\item{components}{Number of principal components to be used. If NULL, it will be set to the first component with over 80\% explained variance.}
+\item{components}{Number of principal components to be used. If \code{NULL}, it
+will be set to the first component with over 80\% explained variance.}
 
-\item{method}{Distance metric to use (default is 'spearman'). This must be one of "euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski", "pearson", "spearman" or "kendall".}
+\item{method}{Distance metric to use (default is \code{"spearman"}). This must be
+one of \code{"euclidean"}, \code{"maximum"}, \code{"manhattan"}, \code{"canberra"},
+\code{"binary"}, \code{"minkowski"}, \code{"pearson"}, \code{"spearman"} or \code{"kendall"}.}
 }
 \value{
-Distance matrix stored within the AnnDatR object.
+An AnnDatR object with the distance matrix stored in \code{uns$distance}.
 }
 \description{
-\code{hc_distance()} computes a distance matrix based on PCA scores stored in the AnnDatR object.
+\code{hc_distance()} computes a distance matrix based on PCA scores stored in the
+AnnDatR object.
 }
 \examples{
 # Compute distance matrix on an AnnDatR object after PCA

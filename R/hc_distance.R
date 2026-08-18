@@ -1,12 +1,16 @@
 #' Compute distance matrix from PCA scores
 #'
-#' `hc_distance()` computes a distance matrix based on PCA scores stored in the AnnDatR object.
+#' `hc_distance()` computes a distance matrix based on PCA scores stored in the
+#' AnnDatR object.
 #'
 #' @param AnnDatR An AnnDatR object containing the data with PCA results.
-#' @param components Number of principal components to be used. If NULL, it will be set to the first component with over 80% explained variance.
-#' @param method Distance metric to use (default is 'spearman'). This must be one of "euclidean", "maximum", "manhattan", "canberra", "binary", "minkowski", "pearson", "spearman" or "kendall".
+#' @param components Number of principal components to be used. If `NULL`, it
+#'   will be set to the first component with over 80% explained variance.
+#' @param method Distance metric to use (default is `"spearman"`). This must be
+#'   one of `"euclidean"`, `"maximum"`, `"manhattan"`, `"canberra"`,
+#'   `"binary"`, `"minkowski"`, `"pearson"`, `"spearman"` or `"kendall"`.
 #'
-#' @returns Distance matrix stored within the AnnDatR object.
+#' @returns An AnnDatR object with the distance matrix stored in `uns$distance`.
 #'
 #' @export
 #' @examples
@@ -19,35 +23,49 @@ hc_distance <- function(
   components = NULL,
   method = "spearman"
 ) {
-  if (is.null(AnnDatR[["uns"]][["pca"]])) {
+  pca_results <- AnnDatR[["uns"]][["pca"]]
+  if (is.null(pca_results)) {
     stop(
-      "AnnDatR$uns$pca not found. Call `hc_pca()` before `hc_distance()`."
+      "AnnDatR$uns$pca not found. Call `hc_pca()` before `hc_distance()`.",
+      call. = FALSE
     )
   }
-  pca_results <- AnnDatR[["uns"]][["pca"]]
-  AnnDatR_out <- AnnDatR$clone(deep = TRUE)
+
+  n_available <- ncol(pca_results[["scores"]])
 
   if (is.null(components)) {
+    components <- which(pca_results[["r2cum"]] > 0.8)[1]
+    if (is.na(components)) {
+      stop(
+        paste0(
+          "No principal component reaches 80% explained variance. ",
+          "Specify `components` explicitly, or compute more components in `hc_pca()`."
+        ),
+        call. = FALSE
+      )
+    }
     warning(
-      "Number of components not specified. Setting components to first component with over 80% explained variance."
+      "Number of components not specified. Setting components to ",
+      components,
+      ", the first component with over 80% explained variance.",
+      call. = FALSE
     )
-    components <- which(pca_results@R2cum > 0.8)[1]
-  } else if (components > pca_results@nPcs) {
+  } else if (components > n_available) {
     warning(
       "Number of components exceeds number of PCA components. Setting components to ",
-      pca_results@nPcs
+      n_available,
+      call. = FALSE
     )
-    components <- pca_results@nPcs
+    components <- n_available
   }
 
-  if (is.null(AnnDatR_out[["uns"]][["distance"]])) {
-    AnnDatR_out[["uns"]][["distance"]] = list()
-  }
+  distance <- hc_dist(
+    pca_results[["scores"]][, seq_len(components), drop = FALSE],
+    method = method
+  )
 
-  distance <- pca_results@scores[, 1:components] |>
-    factoextra::get_dist(method = method)
-
+  AnnDatR_out <- AnnDatR$clone(deep = TRUE)
   AnnDatR_out[["uns"]][["distance"]] <- distance
 
-  return(AnnDatR_out)
+  AnnDatR_out
 }

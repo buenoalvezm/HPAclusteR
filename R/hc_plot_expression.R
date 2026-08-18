@@ -14,7 +14,7 @@
 #' adata_res <- hc_pca(example_adata, components = 40)
 #' adata_res <- hc_distance(adata_res, components = 20)
 #' adata_res <- hc_snn(adata_res, neighbors = 15)
-#' adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+#' adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
 #'
 #' # Plot expression heatmaps
 #' expression_plots <- hc_plot_expression(adata_res, show_sample_labels = FALSE)
@@ -44,18 +44,18 @@ hc_plot_expression <- function(
 
   expr_long <- X |>
     tidyr::pivot_longer(
-      -!!rlang::sym("sample_col"),
+      -dplyr::all_of(sample_col),
       names_to = "gene",
       values_to = "value"
     ) |>
-    dplyr::rename(sample = !!rlang::sym("sample_col"))
+    dplyr::rename(sample = dplyr::all_of(sample_col))
 
   # Add cluster info and filter NAs
   expr_long <- expr_long |>
     dplyr::left_join(
       obs |>
         dplyr::select(
-          gene = !!rlang::sym("gene_col"),
+          gene = dplyr::all_of(gene_col),
           cluster = "cluster"
         ),
       by = "gene"

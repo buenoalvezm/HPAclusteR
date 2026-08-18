@@ -4,18 +4,27 @@
 \alias{hc_kaisers_rule}
 \title{Determine number of components using Kaiser's rule}
 \usage{
-hc_kaisers_rule(AnnDatR, with_alternative = TRUE)
+hc_kaisers_rule(AnnDatR, with_alternative = TRUE, verbose = TRUE)
 }
 \arguments{
 \item{AnnDatR}{An AnnDatR object containing the data with PCA results.}
 
-\item{with_alternative}{Logical indicating whether to suggest an alternative number of components if the explained variance at Kaiser's rule is below 80\% (default is TRUE).}
+\item{with_alternative}{Logical indicating whether to suggest an alternative
+number of components if the explained variance at Kaiser's rule is below
+80\% (default is \code{TRUE}).}
+
+\item{verbose}{Logical indicating whether to report which rule was applied
+(default is \code{TRUE}).}
 }
 \value{
 Number of principal components to retain based on Kaiser's rule.
 }
 \description{
-\code{hc_kaisers_rule()} determines the number of principal components to retain based on Kaiser's rule, which suggests keeping components with eigenvalues greater than 1. If the cumulative explained variance at this point is less than 80\%, it can optionally suggest an alternative number of components that achieves at least 80\% explained variance.
+\code{hc_kaisers_rule()} determines the number of principal components to retain
+based on Kaiser's rule, which suggests keeping components with eigenvalues
+greater than 1. If the cumulative explained variance at this point is less
+than 80\%, it can optionally suggest an alternative number of components that
+achieves at least 80\% explained variance.
 }
 \examples{
 # Determine number of components using Kaiser's rule

@@ -1,6 +1,6 @@
 Package: HPAclusteR
 Title: Gene Clustering and Functional Annotation Pipeline for Transcriptomics Data
-Version: 1.0.0
+Version: 1.1.0
 Authors@R: c(
     person("Konstantinos", "Antonopoulos", , "k.antono@outlook.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2781-3872")),
@@ -16,45 +16,42 @@ Description: Provides tools for gene clustering from transcriptomics data,
     objects.
 License: Apache License (>= 2)
 BugReports: https://github.com/buenoalvezm/HPAclusteR/issues
-Depends: 
-    R (>= 4.5.0)
+Depends:
+    R (>= 4.2.0)
 Imports:
-    clue,
-    dplyr,
-    factoextra,
-    ggplot2,
-    matrixStats,
-    pcaMethods,
-    R6,
-    reticulate,
-    rlang,
-    Seurat,
+    clue (>= 0.3.64),
+    dplyr (>= 1.1.0),
+    ggplot2 (>= 3.5.0),
+    ggrepel (>= 0.9.0),
+    grDevices,
+    igraph (>= 2.0.0),
+    Matrix (>= 1.5.0),
+    methods,
+    patchwork (>= 1.1.0),
+    R6 (>= 2.5.0),
+    rlang (>= 1.1.0),
     stats,
-    tibble,
-    tidyr
+    tibble (>= 3.2.0),
+    tidyr (>= 1.3.0),
+    utils,
+    uwot (>= 0.1.16)
 Suggests:
     clusterProfiler,
-    concaveman,
-    fpc,
-    GGally,
-    ggrepel,
     knitr,
-    MASS,
-    network,
     org.Hs.eg.db,
-    patchwork,
-    readr,
+    pcaMethods,
+    readr (>= 2.1.0),
     rmarkdown,
     rrvgo,
-    sna,
     testthat (>= 3.0.0),
-    treemapify
-VignetteBuilder: 
+    treemapify (>= 2.5.6),
+    withr
+VignetteBuilder:
     knitr
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyData: true
 LazyDataCompression: xz
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 URL: https://buenoalvezm.github.io/HPAclusteR/
+Config/roxygen2/version: 8.0.0

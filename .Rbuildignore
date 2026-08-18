@@ -8,3 +8,8 @@
 ^docs$
 ^pkgdown$
 ^databases$
+^Rplots\.pdf$
+^CRAN-SUBMISSION$
+^\.posit$
+^\.vscode$
+^\.Rhistory$

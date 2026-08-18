@@ -4,14 +4,14 @@
 \alias{format_annotation_database}
 \title{Format an annotation database (excluding GO)}
 \usage{
-format_annotation_database(raw_db, db_id, db_files, cluster_genes)
+format_annotation_database(raw_db, db_id, hpa, cluster_genes)
 }
 \arguments{
 \item{raw_db}{A tibble containing the raw database data.}
 
-\item{db_id}{The ID of the database to format (e.g., "secretome_location").}
+\item{db_id}{The ID of the database to format (e.g. \code{"secretome_location"}).}
 
-\item{db_files}{Named list mapping database IDs to file paths.}
+\item{hpa}{The loaded Human Protein Atlas table, or \code{NULL} when not needed.}
 
 \item{cluster_genes}{Character vector of Ensembl IDs to keep.}
 }

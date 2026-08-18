@@ -4,12 +4,17 @@
 \alias{get_annot_dbs}
 \title{Download annotation databases}
 \usage{
-get_annot_dbs(db_loc = "databases", hpa_version = 24)
+get_annot_dbs(db_loc = "databases", hpa_version = NULL, timeout = 1800)
 }
 \arguments{
-\item{db_loc}{Destination directory to save the downloaded databases (default: "databases").}
+\item{db_loc}{Destination directory to save the downloaded databases
+(default: \code{"databases"}).}
 
-\item{hpa_version}{Version of the Human Protein Atlas to download (default: 24).}
+\item{hpa_version}{Human Protein Atlas release to download. \code{NULL} (default)
+uses the current release; a number such as \code{24} pins an archived release.}
+
+\item{timeout}{Download timeout in seconds (default: 1800). These files are
+large, and R's 60 second default is not enough.}
 }
 \value{
 A named list mapping database IDs to file paths.

@@ -10,7 +10,7 @@ hc_annotate(
   universe = NULL,
   simplify_go = TRUE,
   db_loc = "databases",
-  hpa_version = 24,
+  hpa_version = NULL,
   verbose = TRUE
 )
 }
@@ -25,7 +25,8 @@ hc_annotate(
 
 \item{db_loc}{Directory to store annotation databases (default: "databases")}
 
-\item{hpa_version}{Version of the Human Protein Atlas to download (default: 24)}
+\item{hpa_version}{Human Protein Atlas release to download. \code{NULL} (default)
+uses the current release; a number such as \code{24} pins an archived release.}
 
 \item{verbose}{Logical, print progress messages (default: TRUE)}
 }
@@ -49,10 +50,11 @@ In case some of the databases did not download correctly, please rerun the funct
 If that does not help, please manually download the databases, place them in the specified db_loc directory and unzip the zipped files.
 Links:
 \itemize{
-\item Human Protein Atlas version 24: https://v\%d.proteinatlas.org/download/proteinatlas.tsv.zip
-\item Reactome: https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt
-\item Trrust: https://www.grnpedia.org/trrust/data/trrust_rawdata.human.tsv
-\item Panglao: https://panglaodb.se/markers/PanglaoDB_markers_27_Mar_2020.tsv.gz
+\item Human Protein Atlas (current release): \url{https://www.proteinatlas.org/download/proteinatlas.tsv.zip}
+\item Human Protein Atlas (archived release \code{n}): \verb{https://vn.proteinatlas.org/download/proteinatlas.tsv.zip}
+\item Reactome: \url{https://reactome.org/download/current/Ensembl2Reactome_All_Levels.txt}
+\item TRRUST: \url{https://www.grnpedia.org/trrust/data/trrust_rawdata.human.tsv}
+\item PanglaoDB: \url{https://panglaodb.se/markers/PanglaoDB_markers_27_Mar_2020.tsv.gz}
 }
 
 Or just run the annotation only using KEGG and GO by setting dbs = c("KEGG", "GO").
@@ -63,13 +65,18 @@ Set verbose = TRUE to monitor the progress.
 For the bubblemaps, the odds ratio is capped at 50 for better visualization. Also, only the top 150 terms (by mean odds ratio across clusters) are shown.
 }
 \examples{
+\dontshow{if (requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+\donttest{
 # Run clustering pipeline
 adata_res <- hc_pca(example_adata, components = 40)
 adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
-adata_res <- hc_cluster_consensus(adata_res, resolution = 7)
+adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
 
-# Run annotation pipeline
+# Enrichment against KEGG. This queries the KEGG web service, so it needs
+# network access and takes a while.
 enrichment_results <- hc_annotate(adata_res, dbs = "KEGG")
 head(enrichment_results$enrichment)
+}
+\dontshow{\}) # examplesIf}
 }

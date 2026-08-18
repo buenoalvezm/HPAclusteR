@@ -1,3 +1,25 @@
+#' An empty enrichment result with the standard columns
+#'
+#' Returned when no cluster yields a significant term, so that callers can bind
+#' and filter the result without special-casing it.
+#'
+#' @returns A zero-row tibble.
+#' @keywords internal
+#' @noRd
+empty_enrichment_result <- function() {
+  tibble::tibble(
+    `Cluster ID` = character(),
+    Database = character(),
+    `Term ID` = character(),
+    Term = character(),
+    GeneRatio = character(),
+    BgRatio = character(),
+    `P-value` = numeric(),
+    `Adjusted P-value` = numeric(),
+    `Gene IDs` = character()
+  )
+}
+
 #' Run enrichment analysis for all annotation databases
 #'
 #' @param annotation_terms Tibble from build_annotation_terms_tibble() (db_id, ensg_id, term, term_id)
@@ -64,16 +86,23 @@ run_database_enrichment <- function(
         }
         return(NULL)
       }
-      tibble::as_tibble(enr) |>
-        dplyr::mutate(
-          cluster = !!rlang::sym("clust"),
-          db_id = !!rlang::sym("db_id")
-        )
+      result <- tibble::as_tibble(enr)
+      result[["cluster"]] <- clust
+      result[["db_id"]] <- db_id
+      result
     })
     dplyr::bind_rows(cluster_res)
   })
 
-  enrich_res <- dplyr::bind_rows(res_list) |>
+  enrich_res <- dplyr::bind_rows(res_list)
+  if (nrow(enrich_res) == 0L) {
+    if (verbose) {
+      message("No significant enrichment found in any database.")
+    }
+    return(empty_enrichment_result())
+  }
+
+  enrich_res <- enrich_res |>
     dplyr::mutate(
       Database = dplyr::case_when(
         db_id == "specificity_tissue" ~ "Specificity classification Tissue",
@@ -117,6 +146,9 @@ map_entrez_to_ensembl <- function(
   df,
   geneid_col = "Gene IDs"
 ) {
+  if (nrow(df) == 0L) {
+    return(df)
+  }
   # Get all unique Entrez IDs
   all_entrez <- unique(unlist(strsplit(df[[geneid_col]], "/")))
   # Map Entrez to Ensembl
@@ -151,6 +183,10 @@ map_ensembl_to_symbol <- function(
   geneid_col = "Gene IDs",
   new_col = "Gene names"
 ) {
+  if (nrow(df) == 0L) {
+    df[[new_col]] <- character()
+    return(df)
+  }
   # Get all unique Ensembl IDs
   all_ensg <- unique(unlist(strsplit(df[[geneid_col]], "/")))
   # Map Ensembl to gene symbol
@@ -237,14 +273,21 @@ run_kegg_enrichment <- function(
       }
       return(NULL)
     }
-    tibble::as_tibble(enr) |>
-      dplyr::mutate(
-        cluster = clust,
-        db_id = "KEGG pathways"
-      )
+    result <- tibble::as_tibble(enr)
+    result[["cluster"]] <- clust
+    result[["db_id"]] <- "KEGG pathways"
+    result
   })
 
-  enrich_res <- dplyr::bind_rows(res_list) |>
+  enrich_res <- dplyr::bind_rows(res_list)
+  if (nrow(enrich_res) == 0L) {
+    if (verbose) {
+      message("No significant KEGG enrichment found in any cluster.")
+    }
+    return(empty_enrichment_result())
+  }
+
+  enrich_res <- enrich_res |>
     dplyr::select(
       `Cluster ID` = !!rlang::sym("cluster"),
       Database = !!rlang::sym("db_id"),
@@ -338,16 +381,23 @@ run_go_enrichment <- function(
         }
         return(NULL)
       }
-      tibble::as_tibble(enr) |>
-        dplyr::mutate(
-          cluster = clust,
-          db_id = paste0("GO analysis ", ont_full[[ont]])
-        )
+      result <- tibble::as_tibble(enr)
+      result[["cluster"]] <- clust
+      result[["db_id"]] <- paste0("GO analysis ", ont_full[[ont]])
+      result
     })
     dplyr::bind_rows(ont_res)
   })
 
-  enrich_res <- dplyr::bind_rows(res_list) |>
+  enrich_res <- dplyr::bind_rows(res_list)
+  if (nrow(enrich_res) == 0L) {
+    if (verbose) {
+      message("No significant GO enrichment found in any cluster.")
+    }
+    return(empty_enrichment_result())
+  }
+
+  enrich_res <- enrich_res |>
     dplyr::select(
       `Cluster ID` = !!rlang::sym("cluster"),
       Database = !!rlang::sym("db_id"),
