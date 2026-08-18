@@ -162,7 +162,7 @@ hc_cluster_hulls <-
     subclusters_classed <-
       subclusters |>
       dplyr::left_join(subclusters_classes, by = c("cluster", "sub_cluster"))
-
+    
     # Calculate plot density
     plot_density <-
       subclusters_classed |>
@@ -209,7 +209,7 @@ hc_cluster_hulls <-
       dplyr::top_n(1, !!rlang::sym("z")) |>
       dplyr::slice(1) |>
       dplyr::ungroup()
-
+    
     # Calculate size of landmass
     plot_density_landmass <-
       plot_density_filtered |>
@@ -289,7 +289,7 @@ hc_cluster_hulls <-
     # higher values --> less detailed
     # poly concavity: How convex polygons should be -
     # higher values --> less detailed
-
+    
     plot_data_hulls <-
       plot_density_mainland_filtered |>
       dplyr::group_by(

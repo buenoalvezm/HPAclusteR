@@ -121,8 +121,10 @@ find_consensus <- function(
     dplyr::filter(!!rlang::sym("size") < 5) |>
     dplyr::select(-!!rlang::sym("size")) |>
     dplyr::mutate(cluster = as.numeric(!!rlang::sym("cluster")))
-
-  if (dim(empty_clusters)[1] != 0) {
+  
+  if (nrow(empty_clusters) > 0) {
+    empty_cluster_ids <- unique(empty_clusters[["cluster"]])
+    
     to_rename <- lapply(seq_len(nrow(empty_clusters)), function(i) {
       current <- empty_clusters[i, ]
 
@@ -132,16 +134,16 @@ find_consensus <- function(
         dplyr::filter(!!rlang::sym("gene") == current[["gene"]]) |>
         dplyr::select(-dplyr::any_of(c("gene"))) |>
         tidyr::gather(!!rlang::sym("cluster"), !!rlang::sym("probability")) |>
-        dplyr::arrange(-!!rlang::sym("probability")) |>
+        dplyr::arrange(dplyr::desc(!!rlang::sym("probability")), !!rlang::sym("cluster")) |>
         dplyr::mutate(
           cluster = as.numeric(sub("V", "", !!rlang::sym("cluster")))
         ) |>
-        dplyr::filter(!!rlang::sym("cluster") != current[["cluster"]])
+        dplyr::filter(!(!!rlang::sym("cluster") %in% empty_cluster_ids))
 
       if (nrow(probabilities) > 0) {
         data.frame(
           gene = current[["gene"]],
-          new_cluster = probabilities[[1, 1]]
+          new_cluster = probabilities[[1, "cluster"]]
         )
       } else {
         data.frame(
@@ -151,7 +153,7 @@ find_consensus <- function(
       }
     }) |>
       dplyr::bind_rows()
-
+    
     final_clustering_corrected <-
       final_clustering |>
       dplyr::mutate(cluster = as.numeric(!!rlang::sym("cluster"))) |>
@@ -170,7 +172,7 @@ find_consensus <- function(
       dplyr::distinct() |>
       dplyr::arrange(!!rlang::sym("new_cluster")) |>
       tibble::rownames_to_column("renumbered_cluster")
-
+    
     final_clustering <-
       final_clustering_corrected |>
       dplyr::left_join(mapping_table, by = "new_cluster") |>
@@ -193,7 +195,7 @@ find_consensus <- function(
       dplyr::distinct() |>
       dplyr::arrange(as.numeric(!!rlang::sym("new_cluster"))) |>
       tibble::rownames_to_column("renumbered_cluster")
-
+    
     final_clustering <-
       final_clustering |>
       dplyr::mutate(cons_cluster = as.character(!!rlang::sym("cluster"))) |>
@@ -210,12 +212,10 @@ find_consensus <- function(
     cons_clustering$.Data[,] |>
     as.data.frame() |>
     tibble::as_tibble(rownames = "gene") |>
-    tidyr::gather(!!rlang::sym("cluster"), !!rlang::sym("membership"), -1) |>
-    dplyr::filter(!!rlang::sym("membership") > 0) |>
+    tidyr::gather(!!rlang::sym("cons_cluster"), !!rlang::sym("membership"), -1) |>
     dplyr::mutate(
-      cluster = as.character(gsub("V", "", !!rlang::sym("cluster")))
+      cons_cluster = as.character(gsub("V", "", !!rlang::sym("cons_cluster")))
     ) |>
-    dplyr::rename(cons_cluster = !!rlang::sym("cluster")) |>
     dplyr::left_join(
       mapping_table |>
         dplyr::mutate(
@@ -227,7 +227,18 @@ find_consensus <- function(
         ),
       by = "cons_cluster"
     ) |>
-    dplyr::filter(!is.na(!!rlang::sym("cluster")))
+    dplyr::filter(!is.na(!!rlang::sym("cluster"))) |>
+    dplyr::left_join(
+      final_clustering |> dplyr::select(
+        !!rlang::sym("gene"), 
+        hard_cluster = !!rlang::sym("cluster")
+      ),
+      by = "gene"
+    ) |>
+    dplyr::filter(
+      !!rlang::sym("membership") > 0 | (!!rlang::sym("cluster") == !!rlang::sym("hard_cluster"))
+    ) |>
+    dplyr::select(-dplyr::any_of(c("hard_cluster", "cons_cluster")))
 
   return(list(
     consensus_clustering = final_clustering,
