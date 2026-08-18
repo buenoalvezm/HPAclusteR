@@ -46,13 +46,31 @@ jobs:
 
       # pak resolves the Bioconductor-only Suggests (clusterProfiler,
       # org.Hs.eg.db, rrvgo, pcaMethods) on its own; no manual BiocManager
-      # bootstrap is needed. Every function that uses them guards on
-      # requireNamespace(), so a failure to install them degrades the vignette
-      # rather than the check.
+      # bootstrap is needed. Suggests are best effort: a package with no usable
+      # binary for the platform is skipped without failing this step, so
+      # everything that touches one guards on requireNamespace().
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
+
+      # Which optional packages actually resolved. Without this a run can go
+      # green while silently never exercising the annotation code, because the
+      # examples, tests and vignette all skip when these are missing.
+      - name: Report optional dependency availability
+        run: |
+          optional <- c("clusterProfiler", "org.Hs.eg.db", "rrvgo",
+                        "pcaMethods", "treemapify", "readr")
+          available <- vapply(optional, requireNamespace, logical(1), quietly = TRUE)
+          cat(sprintf("%-18s %s\n", names(available),
+                      ifelse(available, "available", "MISSING - dependent checks will skip")),
+              sep = "")
+          if (any(!available)) {
+            cat("\n::warning::Optional packages unavailable on this platform: ",
+                paste(names(available)[!available], collapse = ", "),
+                ". Enrichment examples, tests and vignette sections were skipped here.\n", sep = "")
+          }
+        shell: Rscript {0}
 
       - uses: r-lib/actions/check-r-package@v2
         with:

@@ -65,6 +65,7 @@ Set verbose = TRUE to monitor the progress.
 For the bubblemaps, the odds ratio is capped at 50 for better visualization. Also, only the top 150 terms (by mean odds ratio across clusters) are shown.
 }
 \examples{
+\dontshow{if (requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 \donttest{
 # Run clustering pipeline
 adata_res <- hc_pca(example_adata, components = 40)
@@ -77,4 +78,5 @@ adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
 enrichment_results <- hc_annotate(adata_res, dbs = "KEGG")
 head(enrichment_results$enrichment)
 }
+\dontshow{\}) # examplesIf}
 }

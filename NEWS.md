@@ -80,6 +80,19 @@ suite, and fixes the bugs that suite uncovered.
 * The vignette's annotation section is skipped rather than failing when the
   Bioconductor annotation stack is unavailable.
 
+* The `hc_annotate()` example is guarded with `@examplesIf` so it skips instead
+  of failing when `clusterProfiler` or `org.Hs.eg.db` are unavailable. Suggested
+  packages are best effort on continuous integration: a Bioconductor package
+  with no usable binary for the platform is skipped without failing the
+  dependency step, so the Windows job installed successfully and then errored in
+  `checking examples with --run-donttest`. Tests and the vignette already
+  guarded correctly; the example did not. `hc_annotate()` is the only help topic
+  whose example reaches an optional package.
+
+* `R-CMD-check` reports which optional packages actually resolved, and raises a
+  workflow warning when any are missing. Without it a run can go green while
+  silently never exercising the annotation code at all.
+
 ## Bug fixes
 
 * `hc_cluster_consensus()` can be run again on an object that already carries a

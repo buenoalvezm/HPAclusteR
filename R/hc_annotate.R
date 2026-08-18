@@ -38,7 +38,7 @@
 #'
 #' @export
 #'
-#' @examples
+#' @examplesIf requireNamespace("clusterProfiler", quietly = TRUE) && requireNamespace("org.Hs.eg.db", quietly = TRUE)
 #' \donttest{
 #' # Run clustering pipeline
 #' adata_res <- hc_pca(example_adata, components = 40)
