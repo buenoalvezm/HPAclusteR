@@ -64,12 +64,6 @@
 
 * Annotation data are loaded once and reused across annotation databases.
 
-## Annotation databases
-
-* Annotation downloads now allow up to 30 minutes for large files.
-
-* The annotation workflow handles unavailable optional Bioconductor packages without failing the package examples or vignette.
-
 | Step | Before | After |
 | --- | --- | --- |
 | `hc_pca()` | 1.40 s | 0.02 s |
@@ -77,6 +71,12 @@
 | `hc_umap()` | 6.19 s | 0.79 s |
 | `hc_cluster_hulls()` | 2.46 s | 0.74 s |
 | `hc_cluster_stability()` | 4.19 s | 0.60 s |
+
+## Annotation databases
+
+* Annotation downloads now allow up to 30 minutes for large files.
+
+* The annotation workflow handles unavailable optional Bioconductor packages without failing the package examples or vignette.
 
 # HPAclusteR 1.0.0
 
