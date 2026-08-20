@@ -40,50 +40,53 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="hpacluster-110">HPAclusteR 1.1.0<a class="anchor" aria-label="anchor" href="#hpacluster-110"></a></h2>
-<p>This release removes the Python and Seurat dependencies that made the package hard to install and broke continuous integration, adds the package’s first test suite, and fixes the bugs that suite uncovered.</p>
 <div class="section level3">
 <h3 id="breaking-changes-1-1-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-1-1-0"></a></h3>
-<ul><li><p><code><a href="../reference/hc_pca.html">hc_pca()</a></code> now stores a plain list in <code>uns$pca</code> with elements <code>scores</code>, <code>loadings</code>, <code>sdev</code>, <code>r2cum</code> and <code>method</code>, instead of a <code><a href="https://rdrr.io/pkg/pcaMethods/man/pcaRes.html" class="external-link">pcaMethods::pcaRes</a></code> S4 object. Code that reached into the old object needs updating: <code>pca@R2cum</code> becomes <code>pca$r2cum</code>, <code>pcaMethods::sDev(pca)</code> becomes <code>pca$sdev</code>, and <code>pca@scores</code> becomes <code>pca$scores</code>.</p></li>
-<li><p><code><a href="../reference/hc_snn.html">hc_snn()</a></code> no longer takes a <code>similarity</code> argument. It was passed to Seurat as an Annoy metric, but Annoy is only used when neighbours are searched in a coordinate space; on the precomputed-distance path this package uses, the argument never had any effect. The metric is the one chosen in <code><a href="../reference/hc_distance.html">hc_distance()</a></code>.</p></li>
-<li><p><code><a href="../reference/hc_auto_cluster.html">hc_auto_cluster()</a></code> replaces <code>snn_similarity</code> with <code>snn_prune</code>, which is forwarded to <code><a href="../reference/hc_snn.html">hc_snn()</a></code>.</p></li>
-<li>
-<p>UMAP embeddings are no longer numerically identical to those from earlier versions. The input, the algorithm and every parameter are unchanged: the embedding is still optimised from the same shared nearest neighbour graph, with the same <code>n_epochs</code>, <code>learning_rate</code>, <code>min_dist</code>, <code>spread</code>, <code>repulsion_strength</code>, <code>negative_sample_rate</code> and spectral initialisation, and <code>uwot</code> and <code>umap-learn</code> derive the same <code>a</code>/<code>b</code> curve parameters from <code>spread</code> and <code>min_dist</code> (agreeing to seven decimal places). The two implementations differ only in their random number generators and SGD internals.</p>
-<p>Measured on the bundled example data, embeddings from the two implementations agree with a Spearman correlation of 0.90 across all pairwise distances and a 25-nearest-neighbour overlap of 0.77 – which is within the 0.75-0.77 range that <code>uwot</code> produces against <em>itself</em> across different seeds. In other words, switching implementation moves the embedding no more than changing the seed does. Embeddings remain reproducible for a given <code>seed</code> within this version.</p>
-</li>
-<li><p>Community detection now uses <code>igraph</code> rather than Seurat’s bundled Louvain implementation. On the bundled example data the consensus clusterings from the two implementations agree with an adjusted Rand index of 0.96, but individual cluster labels and counts can shift slightly. If a resolution now falls outside the accepted range, adjust <code>resolution</code> or the new <code>min_k</code> and <code>max_k</code> arguments.</p></li>
+<ul><li><p><code><a href="../reference/hc_pca.html">hc_pca()</a></code> now stores PCA results as a list rather than a <code><a href="https://rdrr.io/pkg/pcaMethods/man/pcaRes.html" class="external-link">pcaMethods::pcaRes</a></code> object. Use <code>$scores</code>, <code>$loadings</code>, <code>$sdev</code>, <code>$r2cum</code>, and <code>$method</code> to access the results.</p></li>
+<li><p><code><a href="../reference/hc_snn.html">hc_snn()</a></code> no longer has a <code>similarity</code> argument. The distance metric is determined by <code><a href="../reference/hc_distance.html">hc_distance()</a></code>.</p></li>
+<li><p><code><a href="../reference/hc_auto_cluster.html">hc_auto_cluster()</a></code> now uses <code>snn_prune</code> instead of <code>snn_similarity</code>.</p></li>
+<li><p>UMAP embeddings may differ from previous versions due to the switch from <code>umap-learn</code> to <code>uwot</code>. Results remain reproducible for a given <code>seed</code>. The two implementations showed a Spearman correlation of 0.90 for pairwise distances and 0.77 overlap among 25-nearest neighbours, comparable to the variation between uwot runs with different seeds (~0.75).</p></li>
+<li><p>Community detection now uses <code>igraph</code>. Cluster labels and counts may differ slightly from previous versions. The resulting clusterings showed an Adjusted Rand Index (ARI) of 0.96 against the previous implementation on the bundled example data, although individual cluster labels and counts may differ slightly.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="installation-and-continuous-integration-1-1-0">Installation and continuous integration<a class="anchor" aria-label="anchor" href="#installation-and-continuous-integration-1-1-0"></a></h3>
-<ul><li><p><strong>Removed the Python dependency.</strong> <code><a href="../reference/hc_umap.html">hc_umap()</a></code> now uses <code><a href="https://jlmelville.github.io/uwot/reference/optimize_graph_layout.html" class="external-link">uwot::optimize_graph_layout()</a></code> instead of driving the Python <code>umap-learn</code> package through <code>reticulate</code> and <code>Seurat::RunUMAP()</code>. No Python interpreter, no <code>umap-learn</code>, and no pinned <code>numpy</code> version is required, and the workflow step that pinned <code>numpy</code> to 1.26.4 is gone.</p></li>
-<li><p><strong>Removed Seurat.</strong> <code><a href="../reference/hc_snn.html">hc_snn()</a></code> builds the shared nearest neighbour graph directly; the implementation reproduces <code>Seurat::FindNeighbors()</code> on a precomputed distance matrix exactly, and is verified against it. Clustering moved to <code>igraph</code>.</p></li>
-<li><p><strong>Removed the <code>concaveman</code> dependency</strong>, and with it the <code>V8</code> and <code>sf</code> packages and the GDAL, GEOS and PROJ system libraries they need. Cluster outlines now come from a native implementation of the same algorithm.</p></li>
-<li><p><strong><code>pcaMethods</code> moved from Imports to Suggests</strong>, so a default installation no longer pulls in Bioconductor. It is only needed for <code>hc_pca(na_action = "nipals")</code>.</p></li>
-<li><p><strong>Dropped <code>factoextra</code>, <code>matrixStats</code>, <code>MASS</code>, <code>fpc</code>, <code>GGally</code>, <code>network</code> and <code>sna</code></strong>, replaced by base R or existing dependencies. <code>ggrepel</code> and <code>patchwork</code> moved from Suggests to Imports, since exported functions need them; <code><a href="../reference/hc_classify.html">hc_classify()</a></code> and <code><a href="../reference/hc_cluster_compare.html">hc_cluster_compare()</a></code> now work on a fresh install.</p></li>
-<li><p>Minimum versions are declared for every dependency, and the minimum R version is now 4.2.0 rather than 4.5.0, which excluded most users unnecessarily.</p></li>
-<li><p><code>R-CMD-check</code> now runs on Windows in addition to macOS and Ubuntu, and covers R release, devel and oldrel. Both workflows can be triggered manually.</p></li>
-<li><p>The vignette’s annotation section is skipped rather than failing when the Bioconductor annotation stack is unavailable.</p></li>
-<li><p>The <code><a href="../reference/hc_annotate.html">hc_annotate()</a></code> example is guarded with <code>@examplesIf</code> so it skips instead of failing when <code>clusterProfiler</code> or <code>org.Hs.eg.db</code> are unavailable. Suggested packages are best effort on continuous integration: a Bioconductor package with no usable binary for the platform is skipped without failing the dependency step, so the Windows job installed successfully and then errored in <code>checking examples with --run-donttest</code>. Tests and the vignette already guarded correctly; the example did not. <code><a href="../reference/hc_annotate.html">hc_annotate()</a></code> is the only help topic whose example reaches an optional package.</p></li>
-<li><p><code>R-CMD-check</code> reports which optional packages actually resolved, and raises a workflow warning when any are missing. Without it a run can go green while silently never exercising the annotation code at all.</p></li>
+<h3 id="new-features-1-1-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-0"></a></h3>
+<ul><li><p><code><a href="../reference/hc_pca.html">hc_pca()</a></code> gains <code>na_action</code> for handling missing values. The default uses column-mean imputation; <code>"nipals"</code>, <code>"omit"</code>, and <code>"error"</code> are also available.</p></li>
+<li><p><code><a href="../reference/hc_cluster_consensus.html">hc_cluster_consensus()</a></code> gains <code>min_k</code> and <code>max_k</code> to control the accepted range of cluster numbers.</p></li>
+<li><p><code><a href="../reference/hc_umap.html">hc_umap()</a></code> exposes the <code>min_dist</code> and <code>spread</code> parameters.</p></li>
+<li><p><code><a href="../reference/hc_pca.html">hc_pca()</a></code>, <code><a href="../reference/hc_kaisers_rule.html">hc_kaisers_rule()</a></code>, and <code><a href="../reference/hc_auto_cluster.html">hc_auto_cluster()</a></code> gain a <code>verbose</code> argument.</p></li>
+<li><p><code>hpa_version</code> now defaults to <code>NULL</code>, using the current Human Protein Atlas release. A numeric version can still be used to select an archived release.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="dependencies-1-1-0">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies-1-1-0"></a></h3>
+<ul><li><p>Removed the Python, Seurat, <code>concaveman</code>, and associated system dependencies.</p></li>
+<li><p><code>pcaMethods</code> is now a suggested dependency and is only required for <code>hc_pca(na_action = "nipals")</code>.</p></li>
+<li><p>Removed several unused dependencies, including <code>factoextra</code>, <code>matrixStats</code>, <code>MASS</code>, <code>fpc</code>, <code>GGally</code>, <code>network</code>, and <code>sna</code>.</p></li>
+<li><p>Minimum R version is now 4.2.0.</p></li>
 </ul></div>
 <div class="section level3">
 <h3 id="bug-fixes-1-1-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-1-1-0"></a></h3>
-<ul><li><p><code><a href="../reference/hc_cluster_consensus.html">hc_cluster_consensus()</a></code> can be run again on an object that already carries a clustering. It previously failed with “Join columns in <code>x</code> must be present in the data”, because the new clustering collided with the existing <code>cluster</code> column. Stale <code>cluster</code> and <code>cluster_colors</code> columns are now replaced.</p></li>
-<li><p><code><a href="../reference/check_annotation_alignment.html">check_annotation_alignment()</a></code> returned <code>NULL</code> instead of <code>FALSE</code> when an object was misaligned, so <code>AnnDatR$validate()</code> failed with “argument is of length zero” rather than reporting the misalignment.</p></li>
-<li><p>TRRUST was read as if it had a header row. The file does not, so its first record was silently dropped and the column names were taken from whichever transcription factor sorted first. Reactome and TRRUST column names are now supplied explicitly.</p></li>
-<li><p><code><a href="../reference/hc_cluster_hulls.html">hc_cluster_hulls()</a></code> read gene identifiers from a hard-coded <code>ensembl_id</code> column, and now uses the object’s <code>obs_names_col</code>. <code><a href="../reference/hc_umap.html">hc_umap()</a></code> had the same problem when adding its coordinate columns.</p></li>
-<li><p><code><a href="../reference/hc_cluster_hulls.html">hc_cluster_hulls()</a></code> no longer emits degenerate one- and two-vertex polygons for very small landmasses, which could not be drawn.</p></li>
-<li><p><code><a href="../reference/hc_cluster_consensus.html">hc_cluster_consensus()</a></code> reads gene names from <code>obs</code> rather than through the <code>obs_names</code> active binding. R6 active bindings do not survive serialisation, so an object restored from disk could report stale names.</p></li>
-<li><p><code><a href="../reference/hc_umap.html">hc_umap()</a></code> no longer duplicates <code>UMAP1</code> and <code>UMAP2</code> columns when re-run on an object that already has them.</p></li>
-<li><p>Failed annotation database downloads are now reported with a warning naming the databases and URLs, instead of silently yielding a shorter database list.</p></li>
-<li><p>Several <code>dplyr</code> joins had no <code>by</code> argument, producing “Joining with …” messages and silently depending on incidental column names.</p></li>
-<li><p>Fixed the deprecated <code>size</code> argument of <code><a href="https://ggplot2.tidyverse.org/reference/element.html" class="external-link">element_line()</a></code> and a deprecated external-vector <code>tidyselect</code> usage.</p></li>
+<ul><li><p><code><a href="../reference/hc_cluster_consensus.html">hc_cluster_consensus()</a></code> can now be rerun on objects that already contain clustering results.</p></li>
+<li><p>Fixed annotation alignment validation returning <code>NULL</code> instead of <code>FALSE</code>.</p></li>
+<li><p>Fixed loss of the first TRRUST record when reading annotation data.</p></li>
+<li><p>Fixed use of hard-coded gene identifier columns in <code><a href="../reference/hc_cluster_hulls.html">hc_cluster_hulls()</a></code> and <code><a href="../reference/hc_umap.html">hc_umap()</a></code>.</p></li>
+<li><p>Fixed degenerate polygons produced by <code><a href="../reference/hc_cluster_hulls.html">hc_cluster_hulls()</a></code> for very small clusters.</p></li>
+<li><p>Fixed stale gene names after serialising and restoring objects.</p></li>
+<li><p>Fixed duplicated UMAP coordinates when rerunning <code><a href="../reference/hc_umap.html">hc_umap()</a></code>.</p></li>
+<li><p>Annotation database download failures now produce informative warnings.</p></li>
+<li><p>Fixed several joins that relied on implicit column matching.</p></li>
+<li><p>Fixed deprecated <code>ggplot2</code> and <code>tidyselect</code> usage.</p></li>
 </ul></div>
 <div class="section level3">
-<h3 id="missing-values-and-performance-1-1-0">Missing values and performance<a class="anchor" aria-label="anchor" href="#missing-values-and-performance-1-1-0"></a></h3>
-<ul><li><p><code><a href="../reference/hc_pca.html">hc_pca()</a></code> gained an <code>na_action</code> argument. Missing values previously made <code><a href="https://rdrr.io/pkg/pcaMethods/man/pca.html" class="external-link">pcaMethods::pca()</a></code> fall back to the iterative NIPALS algorithm without any indication, which is orders of magnitude slower than an SVD. <code><a href="../reference/hc_pca.html">hc_pca()</a></code> now reports how many values are missing and, by default, imputes them with their column mean so the fast path is taken. <code>na_action = "nipals"</code> reproduces the old behaviour exactly, <code>"omit"</code> drops affected genes, and <code>"error"</code> stops.</p></li>
-<li>
-<p>On the bundled example data, the pipeline is substantially faster:</p>
-<table class="table"><thead><tr><th>Step</th>
+<h3 id="performance-1-1-0">Performance<a class="anchor" aria-label="anchor" href="#performance-1-1-0"></a></h3>
+<ul><li><p>PCA, consensus clustering, UMAP, cluster hulls, and cluster stability are substantially faster.</p></li>
+<li><p>Consensus clustering now reuses the nearest-neighbour graph across runs.</p></li>
+<li><p>Annotation data are loaded once and reused across annotation databases.</p></li>
+</ul></div>
+<div class="section level3">
+<h3 id="annotation-databases-1-1-0">Annotation databases<a class="anchor" aria-label="anchor" href="#annotation-databases-1-1-0"></a></h3>
+<ul><li><p>Annotation downloads now allow up to 30 minutes for large files.</p></li>
+<li><p>The annotation workflow handles unavailable optional Bioconductor packages without failing the package examples or vignette.</p></li>
+</ul><table class="table"><thead><tr><th>Step</th>
 <th>Before</th>
 <th>After</th>
 </tr></thead><tbody><tr><td><code><a href="../reference/hc_pca.html">hc_pca()</a></code></td>
@@ -101,30 +104,7 @@
 </tr><tr><td><code><a href="../reference/hc_cluster_stability.html">hc_cluster_stability()</a></code></td>
 <td>4.19 s</td>
 <td>0.60 s</td>
-</tr></tbody></table></li>
-<li><p><code><a href="../reference/hc_cluster_consensus.html">hc_cluster_consensus()</a></code> builds the graph once and reuses it across seeds, rather than constructing a Seurat object for every one of the 100 runs.</p></li>
-<li><p><code><a href="../reference/hc_cluster_stability.html">hc_cluster_stability()</a></code> extracts the per-seed labels once instead of re-selecting and deframing the table inside each of the seed pairs.</p></li>
-<li><p><code><a href="../reference/hc_classify.html">hc_classify()</a></code> computes per-gene detection counts once instead of filtering the full long table once per gene, and preallocates its result vectors.</p></li>
-<li><p><code><a href="../reference/build_annotation_terms_tibble.html">build_annotation_terms_tibble()</a></code> reads <code>proteinatlas.tsv</code> once and shares it across formatters. Ten of the supported databases are derived from that one file, which was previously re-read for each of them.</p></li>
-<li><p><code><a href="../reference/get_density.html">get_density()</a></code> builds its long-form grid directly rather than reshaping and re-joining an n-by-n matrix.</p></li>
-</ul></div>
-<div class="section level3">
-<h3 id="annotation-databases-1-1-0">Annotation databases<a class="anchor" aria-label="anchor" href="#annotation-databases-1-1-0"></a></h3>
-<ul><li><p>All four source URLs were verified to resolve and serve the expected content.</p></li>
-<li><p><code>hpa_version</code> now defaults to <code>NULL</code>, meaning the current Human Protein Atlas release, rather than being pinned to version 24. Passing a number still selects an archived release host.</p></li>
-<li><p>Database downloads use a 30 minute timeout; R’s 60 second default was not enough for files of this size.</p></li>
-</ul></div>
-<div class="section level3">
-<h3 id="new-features-1-1-0">New features<a class="anchor" aria-label="anchor" href="#new-features-1-1-0"></a></h3>
-<ul><li><p><code><a href="../reference/hc_cluster_consensus.html">hc_cluster_consensus()</a></code> gained <code>min_k</code> and <code>max_k</code> arguments. The accepted range for the median number of communities was previously hard-coded to 30-110, and produced a misleading error message when a resolution fell outside it.</p></li>
-<li><p><code><a href="../reference/hc_pca.html">hc_pca()</a></code>, <code><a href="../reference/hc_kaisers_rule.html">hc_kaisers_rule()</a></code> and <code><a href="../reference/hc_auto_cluster.html">hc_auto_cluster()</a></code> gained a <code>verbose</code> argument, and progress reporting uses <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> rather than <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> so it can be suppressed.</p></li>
-<li><p><code><a href="../reference/hc_umap.html">hc_umap()</a></code> exposes <code>min_dist</code> and <code>spread</code>.</p></li>
-</ul></div>
-<div class="section level3">
-<h3 id="testing-1-1-0">Testing<a class="anchor" aria-label="anchor" href="#testing-1-1-0"></a></h3>
-<ul><li><p>Added the package’s first test suite: 401 expectations in 126 test blocks across 13 files, covering every exported function, the internal numerical and geometric helpers, the annotation database formatters, and end-to-end runs of the documented pipeline. The replacements for <code>pcaMethods</code>, <code>factoextra</code>, <code><a href="https://rdrr.io/pkg/MASS/man/kde2d.html" class="external-link">MASS::kde2d</a></code>, <code>fpc::dbscan</code> and <code>Seurat::FindNeighbors</code> were each validated against the original implementation before those dependencies were dropped: scaling, distances, the density grid, DBSCAN and the SNN graph all reproduce the originals exactly.</p></li>
-<li><p><code>R CMD check --as-cran</code> passes with no errors or warnings, and also passes with <code>_R_CHECK_DEPENDS_ONLY_=true</code>, which confirms the package works with only its declared dependencies installed.</p></li>
-</ul></div>
+</tr></tbody></table></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="hpacluster-100">HPAclusteR 1.0.0<a class="anchor" aria-label="anchor" href="#hpacluster-100"></a></h2>

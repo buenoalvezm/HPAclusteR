@@ -76,11 +76,11 @@ adata_res <- hc_distance(adata_res, components = 20)
 adata_res <- hc_snn(adata_res, neighbors = 15)
 #> Building SNN graph from the provided distance matrix.
 adata_res <- hc_umap(adata_res)
-#> 22:45:07 UMAP embedding parameters a = 0.9922 b = 1.112
-#> 22:45:07 Initializing from normalized Laplacian + noise (using RSpectra)
-#> 22:45:07 Commencing optimization for 500 epochs, with 49428 positive edges
-#> 22:45:07 Using rng type: pcg
-#> 22:45:09 Optimization finished
+#> 11:40:23 UMAP embedding parameters a = 0.9922 b = 1.112
+#> 11:40:23 Initializing from normalized Laplacian + noise (using RSpectra)
+#> 11:40:23 Commencing optimization for 500 epochs, with 49428 positive edges
+#> 11:40:23 Using rng type: pcg
+#> 11:40:24 Optimization finished
 head(adata_res$obsm$X_umap)
 #>                      UMAP_1     UMAP_2
 #> ENSG00000002745  0.79382229  0.9476842

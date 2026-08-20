@@ -84,11 +84,11 @@ adata_res <- hc_cluster_consensus(adata_res, resolution = 8, n_seeds = 20)
 #> Iteration: 6 *** value: 86.5719
 #> Minimum: 86.5719
 adata_res <- hc_umap(adata_res)
-#> 22:44:46 UMAP embedding parameters a = 0.9922 b = 1.112
-#> 22:44:47 Initializing from normalized Laplacian + noise (using RSpectra)
-#> 22:44:47 Commencing optimization for 500 epochs, with 49428 positive edges
-#> 22:44:47 Using rng type: pcg
-#> 22:44:49 Optimization finished
+#> 11:40:05 UMAP embedding parameters a = 0.9922 b = 1.112
+#> 11:40:05 Initializing from normalized Laplacian + noise (using RSpectra)
+#> 11:40:05 Commencing optimization for 500 epochs, with 49428 positive edges
+#> 11:40:05 Using rng type: pcg
+#> 11:40:07 Optimization finished
 adata_res <- hc_cluster_hulls(adata_res)
 head(adata_res$uns$UMAP_hulls$hulls)
 #> # A tibble: 6 × 7
