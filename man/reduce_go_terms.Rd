@@ -4,12 +4,16 @@
 \alias{reduce_go_terms}
 \title{Reduce GO terms}
 \usage{
-reduce_go_terms(go_enrichment, threshold = 0.7)
+reduce_go_terms(go_enrichment, threshold = 0.7, verbose = TRUE)
 }
 \arguments{
-\item{go_enrichment}{Data frame with GO enrichment results (must have Cluster ID, Term ID, Database, Adjusted P-value)}
+\item{go_enrichment}{Data frame with GO enrichment results (must have
+Cluster ID, Term ID, Database, Adjusted P-value)}
 
 \item{threshold}{Similarity threshold for reduction (default: 0.7)}
+
+\item{verbose}{Logical indicating whether to report groups that could not be
+reduced (default is TRUE).}
 }
 \value{
 List with two elements:

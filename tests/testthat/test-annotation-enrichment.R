@@ -189,3 +189,119 @@ test_that("map_ensembl_to_symbol adds a gene symbol column", {
   # TP53 and BAX are the corresponding symbols.
   expect_match(result[["Gene names"]], "TP53")
 })
+
+# --- reduce_go_terms: rrvgo drops terms it cannot resolve -------------------
+
+go_fixture <- function(term_ids, cluster = "1",
+                       database = "GO analysis Biological Process",
+                       adjusted_p = 1e-4) {
+  n <- length(term_ids)
+  tibble::tibble(
+    `Cluster ID` = rep(cluster, n),
+    Database = rep(database, n),
+    `Term ID` = term_ids,
+    Term = paste0("term", seq_len(n)),
+    GeneRatio = rep("5/50", n),
+    BgRatio = rep("50/1000", n),
+    `P-value` = rep(1e-5, n),
+    `Adjusted P-value` = rep(adjusted_p, n),
+    `Gene IDs` = rep("A/B", n)
+  )
+}
+
+test_that("reduce_go_terms survives when rrvgo resolves fewer than two terms", {
+  skip_if_not_installed("rrvgo")
+  skip_if_not_installed("org.Hs.eg.db")
+
+  # Regression: calculateSimMatrix() silently drops unresolvable GO ids and
+  # returns a bare numeric for a single survivor, so reduceSimMatrix() reached
+  # hclust() with one object and failed with
+  # "must have n >= 2 objects to cluster". Guarding on the number of *input*
+  # terms was not enough.
+  cases <- list(
+    "one of two resolves" = go_fixture(c("GO:0006915", "GO:9999999")),
+    "neither resolves" = go_fixture(c("GO:9999998", "GO:9999999")),
+    "ontology mismatch" = go_fixture(
+      c("GO:0006915", "GO:0007049"),
+      database = "GO analysis Cellular Component"
+    )
+  )
+
+  for (label in names(cases)) {
+    result <- expect_no_error(suppressMessages(reduce_go_terms(cases[[label]])))
+    expect_setequal(names(result), c("combined", "reducedTerms"))
+    expect_equal(nrow(result[["reducedTerms"]]), 0L, info = label)
+    # The enrichment itself must survive untouched.
+    expect_equal(nrow(result[["combined"]]), nrow(cases[[label]]), info = label)
+  }
+})
+
+test_that("reduce_go_terms returns a typed empty table when nothing reduces", {
+  skip_if_not_installed("rrvgo")
+  skip_if_not_installed("org.Hs.eg.db")
+
+  result <- suppressMessages(reduce_go_terms(go_fixture(c("GO:9999998", "GO:9999999"))))
+
+  expect_equal(
+    names(result[["reducedTerms"]]),
+    c("go", "parent", "parentTerm", "term", "score", "cluster", "ontology")
+  )
+  # Regression: an empty simplified table used to be all-logical, so binding it
+  # to the character columns of the enrichment failed.
+  expect_type(result[["combined"]][["Cluster ID"]], "character")
+  expect_no_error(plot_enrichment_treemap(result[["reducedTerms"]]))
+})
+
+test_that("reduce_go_terms reduces what it can and skips the rest", {
+  skip_if_not_installed("rrvgo")
+  skip_if_not_installed("org.Hs.eg.db")
+
+  mixed <- dplyr::bind_rows(
+    go_fixture(c("GO:0006915", "GO:0007049", "GO:0006355"), cluster = "1"),
+    go_fixture(c("GO:9999998", "GO:9999999"), cluster = "2")
+  )
+
+  result <- suppressMessages(reduce_go_terms(mixed))
+
+  expect_gt(nrow(result[["reducedTerms"]]), 0L)
+  expect_equal(unique(result[["reducedTerms"]][["cluster"]]), "1")
+  expect_gte(nrow(result[["combined"]]), nrow(mixed))
+  expect_false(anyNA(result[["reducedTerms"]][["ontology"]]))
+})
+
+test_that("reduce_go_terms reports the groups it skipped", {
+  skip_if_not_installed("rrvgo")
+  skip_if_not_installed("org.Hs.eg.db")
+
+  expect_message(
+    reduce_go_terms(go_fixture(c("GO:9999998", "GO:9999999"))),
+    "Skipped GO simplification"
+  )
+  expect_no_message(
+    reduce_go_terms(go_fixture(c("GO:9999998", "GO:9999999")), verbose = FALSE)
+  )
+})
+
+test_that("reduce_go_terms tolerates an adjusted p-value of zero", {
+  skip_if_not_installed("rrvgo")
+  skip_if_not_installed("org.Hs.eg.db")
+
+  # -log10(0) is infinite and would always win parent selection.
+  underflowed <- go_fixture(c("GO:0006915", "GO:0007049", "GO:0006355"))
+  underflowed[["Adjusted P-value"]][1] <- 0
+
+  result <- suppressMessages(reduce_go_terms(underflowed))
+  expect_gt(nrow(result[["reducedTerms"]]), 0L)
+  expect_true(all(is.finite(result[["reducedTerms"]][["score"]])))
+})
+
+test_that("reduce_go_terms names the columns it is missing", {
+  skip_if_not_installed("rrvgo")
+  skip_if_not_installed("org.Hs.eg.db")
+
+  # Regression: this used to be a bare stop() with no message at all.
+  expect_error(
+    reduce_go_terms(tibble::tibble(a = 1)),
+    "missing the required column"
+  )
+})

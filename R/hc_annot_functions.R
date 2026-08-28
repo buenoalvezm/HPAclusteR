@@ -416,8 +416,11 @@ run_go_enrichment <- function(
 
 #' Reduce GO terms
 #'
-#' @param go_enrichment Data frame with GO enrichment results (must have Cluster ID, Term ID, Database, Adjusted P-value)
+#' @param go_enrichment Data frame with GO enrichment results (must have
+#'   Cluster ID, Term ID, Database, Adjusted P-value)
 #' @param threshold Similarity threshold for reduction (default: 0.7)
+#' @param verbose Logical indicating whether to report groups that could not be
+#'   reduced (default is TRUE).
 #'
 #' @returns List with two elements:
 #' - combined: Data frame with original and simplified GO terms
@@ -426,18 +429,24 @@ run_go_enrichment <- function(
 #' @keywords internal
 reduce_go_terms <- function(
   go_enrichment,
-  threshold = 0.7
+  threshold = 0.7,
+  verbose = TRUE
 ) {
-  if (!requireNamespace("rrvgo", quietly = TRUE)) {
-    stop()
-  }
-  if (!requireNamespace("org.Hs.eg.db", quietly = TRUE)) {
-    stop()
-  }
+  check_installed("rrvgo", "to simplify GO terms", bioc = TRUE)
+  check_installed("org.Hs.eg.db", "to simplify GO terms", bioc = TRUE)
+
   required_cols <- c("Cluster ID", "Term ID", "Database", "Adjusted P-value")
-  if (!all(required_cols %in% colnames(go_enrichment))) {
-    stop()
+  missing_required <- setdiff(required_cols, colnames(go_enrichment))
+  if (length(missing_required) > 0L) {
+    stop(
+      sprintf(
+        "`go_enrichment` is missing the required column(s): %s.",
+        paste(missing_required, collapse = ", ")
+      ),
+      call. = FALSE
+    )
   }
+
   extract_ont <- function(db) {
     if (grepl("Biological Process", db, fixed = TRUE)) {
       return("BP")
@@ -455,9 +464,12 @@ reduce_go_terms <- function(
     extract_ont,
     character(1)
   )
+
   all_reduced <- list()
   all_simplified <- list()
+  skipped <- character()
   clusters <- unique(go_enrichment[["Cluster ID"]])
+
   for (cid in clusters) {
     for (ont in c("BP", "CC", "MF")) {
       df <- go_enrichment |>
@@ -468,48 +480,118 @@ reduce_go_terms <- function(
       if (nrow(df) < 2) {
         next
       }
-      suppressMessages(
-        simMatrix <- rrvgo::calculateSimMatrix(
+
+      sim_matrix <- suppressMessages(suppressWarnings(tryCatch(
+        rrvgo::calculateSimMatrix(
           df[["Term ID"]],
           orgdb = org.Hs.eg.db::org.Hs.eg.db,
           ont = ont,
           method = "Rel"
-        )
-      )
+        ),
+        error = function(e) NULL
+      )))
+
+      # calculateSimMatrix() silently drops terms it cannot resolve: obsolete
+      # GO identifiers, or ones absent from the installed GO.db. It returns a
+      # bare numeric when a single term survives and NA when none do, so the
+      # number of input terms says nothing about what came back. Anything
+      # smaller than 2x2 reaches hclust() with one object and fails with
+      # "must have n >= 2 objects to cluster".
+      if (!is.matrix(sim_matrix) || nrow(sim_matrix) < 2L) {
+        skipped <- c(skipped, sprintf("cluster %s (%s)", cid, ont))
+        next
+      }
+
       scores <- -log10(df[["Adjusted P-value"]])
       names(scores) <- df[["Term ID"]]
-      suppressMessages(
-        reducedTerms <- rrvgo::reduceSimMatrix(
-          simMatrix,
+      # An adjusted p-value that underflows to zero gives an infinite score,
+      # which would always win parent selection.
+      if (any(is.infinite(scores))) {
+        finite_scores <- scores[is.finite(scores)]
+        ceiling_score <- if (length(finite_scores) > 0L) max(finite_scores) else 0
+        scores[is.infinite(scores)] <- ceiling_score + 1
+      }
+
+      reduced_terms <- suppressMessages(suppressWarnings(tryCatch(
+        rrvgo::reduceSimMatrix(
+          sim_matrix,
           scores,
           threshold = threshold,
           orgdb = org.Hs.eg.db::org.Hs.eg.db
-        ) |>
-          tibble::as_tibble() |>
-          dplyr::mutate(cluster = cid, ontology = ont)
-      )
-      all_reduced[[length(all_reduced) + 1]] <- reducedTerms
-      parent_terms <- unique(reducedTerms$parent)
-      simplified <- df |>
+        ),
+        error = function(e) NULL
+      )))
+
+      if (is.null(reduced_terms) || nrow(reduced_terms) == 0L) {
+        skipped <- c(skipped, sprintf("cluster %s (%s)", cid, ont))
+        next
+      }
+
+      reduced_terms <- reduced_terms |>
+        tibble::as_tibble() |>
+        dplyr::mutate(cluster = cid, ontology = ont)
+
+      all_reduced[[length(all_reduced) + 1L]] <- reduced_terms
+
+      parent_terms <- unique(reduced_terms[["parent"]])
+      all_simplified[[length(all_simplified) + 1L]] <- df |>
         dplyr::filter(!!rlang::sym("Term ID") %in% parent_terms) |>
         dplyr::mutate(
           Database = paste0(!!rlang::sym("Database"), " (Simplified terms)")
         )
-      all_simplified[[length(all_simplified) + 1]] <- simplified
     }
   }
-  reducedTerms_all <- dplyr::bind_rows(all_reduced)
-  simplified_df <- dplyr::bind_rows(all_simplified)
-  missing_cols <- setdiff(names(go_enrichment), names(simplified_df))
-  for (col in missing_cols) {
-    simplified_df[[col]] <- NA
+
+  if (verbose && length(skipped) > 0L) {
+    message(sprintf(
+      paste0(
+        "Skipped GO simplification for %d group(s) where fewer than two terms ",
+        "resolved against the GO database: %s."
+      ),
+      length(skipped),
+      paste(skipped, collapse = ", ")
+    ))
   }
-  simplified_df <- simplified_df[, names(go_enrichment), drop = FALSE]
+
+  simplified_df <- dplyr::bind_rows(all_simplified)
+  if (nrow(simplified_df) == 0L) {
+    # bind_rows() of an empty list gives a tibble with no columns at all;
+    # padding it with untyped NA produces logical columns that cannot be
+    # combined with the character columns of `go_enrichment`. Take an empty
+    # slice of the input instead, which carries the right types.
+    simplified_df <- go_enrichment[0, , drop = FALSE]
+  } else {
+    missing_cols <- setdiff(names(go_enrichment), names(simplified_df))
+    for (col in missing_cols) {
+      # A typed NA, so the column type matches `go_enrichment`.
+      simplified_df[[col]] <- go_enrichment[[col]][NA_integer_]
+    }
+    simplified_df <- simplified_df[, names(go_enrichment), drop = FALSE]
+  }
   combined <- dplyr::bind_rows(go_enrichment, simplified_df)
+
+  if (length(all_reduced) == 0L) {
+    # Nothing could be reduced. Return the enrichment unchanged alongside an
+    # empty reduced-terms table, rather than failing in the join below.
+    return(list(
+      combined = combined,
+      reducedTerms = tibble::tibble(
+        go = character(),
+        parent = character(),
+        parentTerm = character(),
+        term = character(),
+        score = numeric(),
+        cluster = character(),
+        ontology = character()
+      )
+    ))
+  }
+
   ontology_lookup <- go_enrichment |>
     dplyr::select(dplyr::any_of(c("Term ID", "ontology"))) |>
     dplyr::distinct()
-  reducedTerms_all <- reducedTerms_all |>
+
+  reducedTerms_all <- dplyr::bind_rows(all_reduced) |>
     dplyr::left_join(ontology_lookup, by = c("go" = "Term ID")) |>
     dplyr::mutate(
       ontology = dplyr::coalesce(
@@ -518,6 +600,7 @@ reduce_go_terms <- function(
       )
     ) |>
     dplyr::select(-dplyr::any_of(c("ontology.x", "ontology.y")))
+
   list(
     combined = combined,
     reducedTerms = reducedTerms_all

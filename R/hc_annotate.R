@@ -139,9 +139,11 @@ hc_annotate <- function(
       if (verbose) {
         message("Start GO enrichment simplification...")
       }
-      res_go <- reduce_go_terms(go_enrichment)
+      res_go <- reduce_go_terms(go_enrichment, verbose = verbose)
       go_enrichment <- res_go[["combined"]]
-      treemaps <- plot_enrichment_treemap(res_go[["reducedTerms"]])
+      if (nrow(res_go[["reducedTerms"]]) > 0L) {
+        treemaps <- plot_enrichment_treemap(res_go[["reducedTerms"]])
+      }
       rm(res_go)
     }
     if (nrow(go_enrichment) > 0L) {
@@ -176,7 +178,7 @@ hc_annotate <- function(
 
   result <- list(enrichment = all_enrichment)
   if ("GO" %in% dbs && nrow(go_enrichment) > 0L) {
-    if (isTRUE(simplify_go)) {
+    if (isTRUE(simplify_go) && exists("treemaps", inherits = FALSE)) {
       result[["treemaps"]] <- treemaps
     }
     result[["bubblemap_go"]] <- bubblemap_go
