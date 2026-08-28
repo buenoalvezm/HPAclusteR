@@ -382,7 +382,7 @@ sessionInfo()
 #>  [67] gridGraphics_0.5-1      desc_1.4.3              polyclip_1.10-7        
 #>  [70] scatterpie_0.2.6        Biostrings_2.80.1       pillar_1.11.1          
 #>  [73] ggtree_4.2.0            stats4_4.6.1            clusterProfiler_4.20.0 
-#>  [76] ggfun_0.2.1             generics_0.1.4          S4Vectors_0.50.1       
+#>  [76] ggfun_0.2.1             generics_0.1.4          S4Vectors_0.50.2       
 #>  [79] ggplot2_4.0.3           scales_1.4.0            tidytree_0.4.8         
 #>  [82] glue_1.8.1              gdtools_0.5.1           lazyeval_0.2.3         
 #>  [85] tools_4.6.1             ggnewscale_0.5.2        RSpectra_0.16-2        
@@ -397,5 +397,5 @@ sessionInfo()
 #> [112] htmlwidgets_1.6.4       farver_2.1.2            memoise_2.0.1          
 #> [115] htmltools_0.5.9         pkgdown_2.2.1           lifecycle_1.0.5        
 #> [118] httr_1.4.8              GO.db_3.23.1            fontLiberation_0.1.0   
-#> [121] bit64_4.8.2             MASS_7.3-65
+#> [121] bit64_4.8.4             MASS_7.3-65
 ```

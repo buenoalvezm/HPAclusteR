@@ -74,6 +74,10 @@
 <li><p>Fixed duplicated UMAP coordinates when rerunning <code><a href="../reference/hc_umap.html">hc_umap()</a></code>.</p></li>
 <li><p>Annotation database download failures now produce informative warnings.</p></li>
 <li><p>Fixed several joins that relied on implicit column matching.</p></li>
+<li><p>Fixed <code>hc_annotate(dbs = "GO")</code> failing with “must have n &gt;= 2 objects to cluster”. <code>rrvgo</code> silently drops GO terms it cannot resolve, so a group could reach the reduction step with fewer than two usable terms. Such groups are now skipped with a message.</p></li>
+<li><p>Fixed GO simplification failing when no group could be reduced.</p></li>
+<li><p>Fixed infinite term scores arising from adjusted p-values that underflow to zero.</p></li>
+<li><p><code><a href="../reference/reduce_go_terms.html">reduce_go_terms()</a></code> now reports missing input columns and absent packages instead of failing with an empty message.</p></li>
 <li><p>Fixed deprecated <code>ggplot2</code> and <code>tidyselect</code> usage.</p></li>
 </ul></div>
 <div class="section level3">
@@ -81,11 +85,6 @@
 <ul><li><p>PCA, consensus clustering, UMAP, cluster hulls, and cluster stability are substantially faster.</p></li>
 <li><p>Consensus clustering now reuses the nearest-neighbour graph across runs.</p></li>
 <li><p>Annotation data are loaded once and reused across annotation databases.</p></li>
-</ul></div>
-<div class="section level3">
-<h3 id="annotation-databases-1-1-0">Annotation databases<a class="anchor" aria-label="anchor" href="#annotation-databases-1-1-0"></a></h3>
-<ul><li><p>Annotation downloads now allow up to 30 minutes for large files.</p></li>
-<li><p>The annotation workflow handles unavailable optional Bioconductor packages without failing the package examples or vignette.</p></li>
 </ul><table class="table"><thead><tr><th>Step</th>
 <th>Before</th>
 <th>After</th>
@@ -105,6 +104,11 @@
 <td>4.19 s</td>
 <td>0.60 s</td>
 </tr></tbody></table></div>
+<div class="section level3">
+<h3 id="annotation-databases-1-1-0">Annotation databases<a class="anchor" aria-label="anchor" href="#annotation-databases-1-1-0"></a></h3>
+<ul><li><p>Annotation downloads now allow up to 30 minutes for large files.</p></li>
+<li><p>The annotation workflow handles unavailable optional Bioconductor packages without failing the package examples or vignette.</p></li>
+</ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.0.0" id="hpacluster-100">HPAclusteR 1.0.0<a class="anchor" aria-label="anchor" href="#hpacluster-100"></a></h2>

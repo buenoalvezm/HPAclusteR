@@ -118,11 +118,11 @@ by earlier versions.</p>
 <span class="r-in"><span><span class="va">adata_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="hc_snn.html">hc_snn</a></span><span class="op">(</span><span class="va">adata_res</span>, neighbors <span class="op">=</span> <span class="fl">15</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Building SNN graph from the provided distance matrix.</span>
 <span class="r-in"><span><span class="va">adata_res</span> <span class="op">&lt;-</span> <span class="fu">hc_umap</span><span class="op">(</span><span class="va">adata_res</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 11:40:23 UMAP embedding parameters a = 0.9922 b = 1.112</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 11:40:23 Initializing from normalized Laplacian + noise (using RSpectra)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 11:40:23 Commencing optimization for 500 epochs, with 49428 positive edges</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 11:40:23 Using rng type: pcg</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 11:40:24 Optimization finished</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 22:15:33 UMAP embedding parameters a = 0.9922 b = 1.112</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 22:15:33 Initializing from normalized Laplacian + noise (using RSpectra)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 22:15:33 Commencing optimization for 500 epochs, with 49428 positive edges</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 22:15:33 Using rng type: pcg</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 22:15:35 Optimization finished</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">adata_res</span><span class="op">$</span><span class="va">obsm</span><span class="op">$</span><span class="va">X_umap</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                      UMAP_1     UMAP_2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ENSG00000002745  0.79382229  0.9476842</span>

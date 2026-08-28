@@ -45,7 +45,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">reduce_go_terms</span><span class="op">(</span><span class="va">go_enrichment</span>, threshold <span class="op">=</span> <span class="fl">0.7</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">reduce_go_terms</span><span class="op">(</span><span class="va">go_enrichment</span>, threshold <span class="op">=</span> <span class="fl">0.7</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -53,11 +53,17 @@
 
 
 <dl><dt id="arg-go-enrichment">go_enrichment<a class="anchor" aria-label="anchor" href="#arg-go-enrichment"></a></dt>
-<dd><p>Data frame with GO enrichment results (must have Cluster ID, Term ID, Database, Adjusted P-value)</p></dd>
+<dd><p>Data frame with GO enrichment results (must have
+Cluster ID, Term ID, Database, Adjusted P-value)</p></dd>
 
 
 <dt id="arg-threshold">threshold<a class="anchor" aria-label="anchor" href="#arg-threshold"></a></dt>
 <dd><p>Similarity threshold for reduction (default: 0.7)</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Logical indicating whether to report groups that could not be
+reduced (default is TRUE).</p></dd>
 
 </dl></div>
     <div class="section level2">

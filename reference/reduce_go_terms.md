@@ -5,7 +5,7 @@ Reduce GO terms
 ## Usage
 
 ``` r
-reduce_go_terms(go_enrichment, threshold = 0.7)
+reduce_go_terms(go_enrichment, threshold = 0.7, verbose = TRUE)
 ```
 
 ## Arguments
@@ -18,6 +18,11 @@ reduce_go_terms(go_enrichment, threshold = 0.7)
 - threshold:
 
   Similarity threshold for reduction (default: 0.7)
+
+- verbose:
+
+  Logical indicating whether to report groups that could not be reduced
+  (default is TRUE).
 
 ## Value
 
