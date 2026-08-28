@@ -54,6 +54,14 @@
 
 * Fixed several joins that relied on implicit column matching.
 
+* Fixed `hc_annotate(dbs = "GO")` failing with "must have n >= 2 objects to cluster". `rrvgo` silently drops GO terms it cannot resolve, so a group could reach the reduction step with fewer than two usable terms. Such groups are now skipped with a message.
+
+* Fixed GO simplification failing when no group could be reduced.
+
+* Fixed infinite term scores arising from adjusted p-values that underflow to zero.
+
+* `reduce_go_terms()` now reports missing input columns and absent packages instead of failing with an empty message.
+
 * Fixed deprecated `ggplot2` and `tidyselect` usage.
 
 ## Performance

@@ -13,3 +13,4 @@
 ^\.posit$
 ^\.vscode$
 ^\.Rhistory$
+^\.claude$
